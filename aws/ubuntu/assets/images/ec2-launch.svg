@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780">
+<rect width="1400" height="780" fill="#f4f6f8"/>
+<rect x="55" y="45" width="1290" height="690" rx="18" fill="#fff" stroke="#d8dee8" stroke-width="2"/>
+<rect x="55" y="45" width="1290" height="70" rx="18" fill="#23252E"/>
+<circle cx="90" cy="80" r="9" fill="#dc3545"/><circle cx="118" cy="80" r="9" fill="#ffc107"/><circle cx="146" cy="80" r="9" fill="#2f9e44"/>
+<text x="185" y="88" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#fff">AWS Console / Terminal</text>
+<text x="95" y="170" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#23252E">EC2 — Launch an instance</text>
+<rect x="95" y="205" width="1210" height="95" rx="12" fill="#eef5ff" stroke="#0d6efd" stroke-width="2"/>
+<text x="125" y="247" font-family="Arial,sans-serif" font-size="24" font-weight="700" fill="#0d6efd">Ubuntu Server 24.04 LTS</text>
+<text x="125" y="280" font-family="Arial,sans-serif" font-size="19" fill="#495057">Instance type: t3.micro</text>
+<rect x="95" y="335" width="1210" height="145" rx="12" fill="#f8fafc" stroke="#ced4da" stroke-width="2"/>
+<text x="125" y="380" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#23252E">Configuration / résultat</text>
+<text x="125" y="420" font-family="Arial,sans-serif" font-size="20" fill="#495057">Security Group: SSH 22 • HTTP 80</text>
+<rect x="95" y="515" width="1210" height="145" rx="12" fill="#e8f7ee" stroke="#2f9e44" stroke-width="2"/>
+<text x="125" y="560" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#2f9e44">✓ Validation</text>
+<text x="125" y="602" font-family="Arial,sans-serif" font-size="20" fill="#495057">Operation completed successfully</text>
+<text x="125" y="635" font-family="Arial,sans-serif" font-size="17" fill="#6c757d">Illustration pédagogique inspirée de l’interface et du style des captures du rapport.</text>
+</svg>
