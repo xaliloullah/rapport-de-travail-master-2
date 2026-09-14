@@ -2,37 +2,38 @@
 
 ## Statut
 
-Audit des références d'images présentes dans `index.html`.
+Audit des références d'images présentes dans `git-github/index.html`.
 
-### Problème identifié
+## Résultat
 
-Les captures du rapport sont bien présentes dans `git-github/assets/images/`, mais plusieurs références HTML utilisent `assets/images/...` depuis `git-github/index.html`.
+Aucune image réellement absente n'a été confirmée.
 
-Le chemin relatif correct vers ce dossier local est :
-
-```text
-assets/images/...        ❌ référence actuelle
-../assets/images/...     ⚠️ seulement si l'image est dans le dossier global
-./assets/images/...      ❌ ne correspond pas au dossier actuel
-```
-
-Pour les captures propres au rapport, le chemin attendu est :
+Les captures propres au rapport sont stockées dans :
 
 ```text
-git-github/assets/images/<fichier>
+git-github/assets/images/
 ```
 
-et donc depuis `git-github/index.html` :
+Depuis `git-github/index.html`, une référence telle que :
 
 ```html
-<img src="assets/images/<fichier>">
+<img src="assets/images/git.webp">
 ```
 
-Cette partie est donc à distinguer d'une image réellement absente : les fichiers locaux existent, mais certaines références ne pointent pas vers le bon emplacement selon l'organisation actuelle du dépôt.
+est correcte, car elle pointe vers `git-github/assets/images/git.webp`.
 
-## Images locales à contrôler
+Les images communes de la page de garde utilisent quant à elles :
 
-Les ressources suivantes existent dans `git-github/assets/images/` et doivent être comparées aux références du rapport :
+```html
+<img src="../assets/images/senegal-flag.png">
+<img src="../assets/images/udb.jpeg">
+```
+
+ce qui est également correct.
+
+## Images locales contrôlées
+
+Les ressources présentes dans `git-github/assets/images/` comprennent notamment :
 
 - `git.webp`
 - `github.png`
@@ -57,15 +58,8 @@ Les ressources suivantes existent dans `git-github/assets/images/` et doivent ê
 - `github-git.png`
 - `index-html.png`
 
-## Action recommandée
-
-1. Vérifier chaque `<img src="...">` de `index.html`.
-2. Conserver les images propres au rapport dans `git-github/assets/images/`.
-3. Utiliser les chemins relatifs correspondant réellement à l'emplacement du fichier HTML.
-4. Ne pas créer de doublons dans `assets/images/` global uniquement pour masquer un mauvais chemin.
-
 ## Conclusion
 
-**Images réellement absentes : non confirmées dans ce rapport.**
+**Images manquantes confirmées : aucune.**
 
-Le problème principal est une **incohérence de chemin**, à corriger lors de la passe de normalisation Git & GitHub.
+Aucune création d'image n'est donc nécessaire pour ce rapport dans le cadre de cet audit.
