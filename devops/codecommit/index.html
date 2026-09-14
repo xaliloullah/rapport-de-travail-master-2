@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,408 +7,225 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodeCommit</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
+        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodeCommit</h1>
         </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#create-repo">Création d'un dépôt CodeCommit</a></li>
-                <li><a href="#credential-helper">Configuration du credential helper</a></li>
-                <li><a href="#clone">Cloner le dépôt</a></li>
-                <li><a href="#push-pull">Push et Pull</a></li>
-                <li><a href="#branches">Gestion des branches</a></li>
-                <li><a href="#triggers">Triggers et notifications</a></li>
-                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
-
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>AWS CodeCommit est un service de contrôle de source entièrement géré qui héberge des dépôts Git privés. Il permet aux équipes de stocker facilement et en toute sécurité du code, des artefacts binaires et des métadonnées, et de collaborer sur le développement.</p>
-            <ul>
-                <li>Créer un dépôt CodeCommit depuis la console AWS.</li>
-                <li>Configurer l'authentification Git (credential helper).</li>
-                <li>Cloner, pousser (push) et tirer (pull) du code.</li>
-                <li>Gérer les branches et les fusions (merge).</li>
-                <li>Configurer des triggers pour automatiser les pipelines CI/CD.</li>
-            </ul>
-            <div class="explanation">
-                <strong>Pourquoi CodeCommit ?</strong> Contrairement à GitHub ou Bitbucket, CodeCommit s'intègre nativement avec les services AWS (IAM pour les permissions, CloudWatch pour les logs, SNS pour les notifications) et ne nécessite pas de gestion de serveur.
-            </div>
-        </section>
-
-        <!-- Création du dépôt -->
-        <section id="create-repo" class="page mb-4">
-            <h2>2. Création d'un dépôt CodeCommit</h2>
-
-            <h4>Étapes via la console :</h4>
-            <ol>
-                <li>Console AWS → Service <strong>CodeCommit</strong> → <strong>Create repository</strong>.</li>
-                <li><strong>Repository name :</strong> <code>mon-projet-dev</code>.</li>
-                <li><strong>Description (optionnel) :</strong> <code>Projet Master 2 — Application web</code>.</li>
-                <li>Cliquer sur <strong>Create</strong>.</li>
-            </ol>
-
-            <img class="img-default" src="assets/images/codecommit-create.png"
-                alt="Création d'un dépôt CodeCommit">
-
-            <h4>Via AWS CLI :</h4>
-            <div class="codeblock"><code>aws codecommit create-repository --repository-name mon-projet-dev --repository-description "Projet Master 2 — Application web" --region us-east-1</code></div>
-
-            <div class="codeblock"><code># Réponse JSON
-{
-    "repositoryMetadata": {
-        "repositoryName": "mon-projet-dev",
-        "repositoryId": "a1b2c3d4-5678-90ab-cdef-EXAMPLE11111",
-        "repositoryDescription": "Projet Master 2 — Application web",
-        "cloneUrlHttp": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev",
-        "cloneUrlSsh": "ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev",
-        "Arn": "arn:aws:codecommit:us-east-1:123456789012:mon-projet-dev"
-    }
-}</code></div>
-
-            <div class="explanation">
-                <strong>URL de clone :</strong> Deux URL sont disponibles : HTTPS (nécessite le credential helper) ou SSH (nécessite une clé SSH uploadée dans IAM). HTTPS est généralement plus simple à configurer.
-            </div>
-        </section>
-        <!-- Configuration du credential helper -->
-        <section id="credential-helper" class="page mb-4">
-            <h2>3. Configuration du credential helper</h2>
-            <p>Pour utiliser CodeCommit via HTTPS, vous devez configurer le credential helper Git qui utilisera les credentials AWS (IAM).</p>
-
-            <h4>Configuration globale :</h4>
-            <div class="codeblock"><code># Configurer le credential helper
-git config --global credential.helper '!aws codecommit credential-helper $@'
-git config --global credential.UseHttpPath true
-
-# Vérifier la configuration
-git config --global --get-regexp credential</code></div>
-
-            <h4>Utilisateurs IAM requis :</h4>
-            <ul>
-                <li>L'utilisateur IAM doit avoir la politique <code>AWSCodeCommitPowerUser</code> ou <code>AWSCodeCommitFullAccess</code>.</li>
-                <li>Les clés d'accès AWS doivent être configurées (<code>~/.aws/credentials</code> ou variables d'environnement).</li>
-            </ul>
-
-            <div class="codeblock"><code># Vérifier les credentials AWS
-aws sts get-caller-identity
-
-# Sortie attendue
-{
-    "UserId": "AIDAIOSFODNN7EXAMPLE",
-    "Account": "123456789012",
-    "Arn": "arn:aws:iam::123456789012:user/mon-utilisateur"
-}</code></div>
-
-            <div class="danger">
-                <strong>Sécurité :</strong> Ne jamais utiliser le compte root pour les opérations Git quotidiennes. Créez un utilisateur IAM dédié avec des permissions limitées.
-            </div>
-
-            <h4>Alternative : SSH (optionnel)</h4>
-            <div class="codeblock"><code># Générer une clé SSH
-ssh-keygen -t rsa -b 2048 -f ~/.ssh/codecommit_key
-
-# Uploader la clé publique dans IAM
-# IAM → Utilisateurs → Sécurité → Upload SSH public key</code></div>
-
-            <div class="note">
-                <strong>Note :</strong> Avec SSH, vous devrez configurer le fichier <code>~/.ssh/config</code> pour utiliser la bonne clé pour CodeCommit.
-            </div>
-        <!-- Cloner le dépôt -->
-        <section id="clone" class="page mb-4">
-            <h2>4. Cloner le dépôt</h2>
-
-            <div class="codeblock"><code># Cloner le dépôt
-git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev
-
-# Entrer dans le dossier
-cd mon-projet-dev</code></div>
-
-            <div class="codeblock"><code># Configurer l'utilisateur Git local
-git config user.name "Ibrahima Thiam"
-git config user.email "ibrahima.thiam@example.com"
-
-# Vérifier le dépôt distant
-git remote -v
-
-# Sortie attendue
-origin  https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev (fetch)
-origin  https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev (push)</code></div>
-
-            <img class="img-default" src="assets/images/codecommit-clone.png"
-                alt="Clonage du dépôt CodeCommit">
-
-            <div class="explanation">
-                <strong>Première connexion :</strong> Lors du premier clone, le credential helper demandera automatiquement d'utiliser les credentials AWS configurés. Aucun mot de passe supplémentaire n'est nécessaire.
-            </div>
-        </section>
-
-        <!-- Push et Pull -->
-        <section id="push-pull" class="page mb-4">
-            <h2>5. Push et Pull</h2>
-
-            <h4>Ajouter des fichiers et pousser :</h4>
-            <div class="codeblock"><code># Créer un fichier README
-echo "# Mon Projet Dev" > README.md
-
-# Ajouter au staging
-git add README.md
-
-# Commiter
-git commit -m "Ajout du fichier README"
-
-# Pousser vers origin
-git push origin main</code></div>
-
-            <h4>Tirer les modifications :</h4>
-            <div class="codeblock"><code># Récupérer et fusionner
-git pull origin main
-
-# Ou séparément
-git fetch origin
-git merge origin/main</code></div>
-
-            <div class="codeblock"><code># Vérifier le statut
-git status
-
-# Voir l'historique
-git log --oneline -5
-
-# Sortie attendu
-a1b2c3d Ajout du fichier README
-e4f5g6h Initial commit</code></div>
-
-            <div class="note">
-                <strong>Convention :</strong> Il est recommandé d'utiliser <code>main</code> comme branche par défaut (au lieu de <code>master</code>). Vous pouvez la renommer avec : <code>git branch -M main</code>.
-            </div>
-        </section>
-
-        <!-- Gestion des branches -->
-        <section id="branches" class="page mb-4">
-            <h2>6. Gestion des branches</h2>
-
-            <h4>Créer et basculer sur une branche :</h4>
-            <div class="codeblock"><code># Créer une branche feature
-git checkout -b feature/ajout-login
-
-# Ou avec Git 2.23+
-git switch -c feature/ajout-login</code></div>
-
-            <h4>Travailler sur la branche :</h4>
-            <div class="codeblock"><code># Faire des modifications
-echo "Code pour le login" > login.html
-git add login.html
-git commit -m "Ajout de la page de login"
-
-# Pousser la branche
-git push -u origin feature/ajout-login</code></div>
-
-            <h4>Fusionner (merge) :</h4>
-            <div class="codeblock"><code># Revenir sur main
-git checkout main
-
-# Fusionner la branche
-git merge feature/ajout-login
-
-# Supprimer la branche locale
-git branch -d feature/ajout-login
-
-# Supprimer la branche distante
-git push origin --delete feature/ajout-login</code></div>
-
-            <h4>Bonnes pratiques de branching :</h4>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Branche</th>
-                        <th>Usage</th>
-                        <th>Exemple</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>main</code></td>
-                        <td>Code production</td>
-                        <td>Code stable et testé</td>
-                    </tr>
-                    <tr>
-                        <td><code>develop</code></td>
-                        <td>Code en développement</td>
-                        <td>Intégration des features</td>
-                    </tr>
-                    <tr>
-                        <td><code>feature/*</code></td>
-                        <td>Nouvelle fonctionnalité</td>
-                        <td><code>feature/user-auth</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>hotfix/*</code></td>
-                        <td>Correction urgente</td>
-                        <td><code>hotfix/fix-login</code></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="explanation">
-                <strong>GitFlow :</strong> Ce modèle de branching (main, develop, feature, hotfix) est largement utilisé dans l'industrie pour organiser le travail d'équipe.
-            </div>
-        </section>
-
-        <!-- Triggers et notifications -->
-        <section id="triggers" class="page mb-4">
-            <h2>7. Triggers et notifications</h2>
-            <p>CodeCommit permet de déclencher des actions automatiques lors d'événements (push, création de branche, etc.).</p>
-
-            <h4>Créer un trigger (via la console) :</h4>
-            <ol>
-                <li>CodeCommit → Dépôt → <strong>Settings</strong> → <strong>Triggers</strong>.</li>
-                <li>Cliquer sur <strong>Create trigger</strong>.</li>
-                <li><strong>Trigger name :</strong> <code>build-on-push</code>.</li>
-                <li><strong>Events :</strong> <code>All repository events</code>.</li>
-                <li><strong>Service :</strong> <code>Amazon SNS</code> ou <code>AWS Lambda</code>.</li>
-                <li>Configurer le topic SNS ou la fonction Lambda cible.</li>
-            </ol>
-
-            <h4>Trigger vers CodePipeline :</h4>
-            <p>L'intégration la plus courante est de connecter CodeCommit à CodePipeline pour déclencher automatiquement le pipeline CI/CD à chaque push.</p>
-
-            <div class="codeblock"><code># Exemple : CodePipeline se déclenche automatiquement
-git add .
-git commit -m "Mise à jour de l'application"
-git push origin main
-# → CodePipeline détecte le changement et lance le build/déploiement</code></div>
-
-            <h4>Notifications SNS :</h4>
-            <div class="codeblock"><code># Créer un topic SNS
-aws sns create-topic --name codecommit-notifications
-
-# S'abonner par email
-aws sns subscribe --topic-arn arn:aws:sns:us-east-1:123456789012:codecommit-notifications --protocol email --notification-endpoint devops@example.com</code></div>
-
-            <div class="note">
-                <strong>Avantage :</strong> Avec les triggers, vous pouvez implémenter un workflow complet de CI/CD : chaque push déclenche automatiquement le build (CodeBuild) et le déploiement (CodeDeploy).
-            </div>
-        </section>
-
-        <!-- Bonnes pratiques -->
-        <section id="bonnes-pratiques" class="page mb-4">
-            <h2>8. Bonnes pratiques</h2>
-
-            <h4>Sécurité :</h4>
-            <ul>
-                <li>Utiliser IAM pour contrôler l'accès aux dépôts (pas de comptes partagés).</li>
-                <li>Appliquer le principe du moindre privilège : <code>AWSCodeCommitPowerUser</code> pour les développeurs, <code>AWSCodeCommitReadOnly</code> pour les reviewers.</li>
-                <li>Activer MFA pour les utilisateurs IAM.</li>
-                <li>Ne jamais commiter de secrets (mots de passe, clés API) dans le code.</li>
-            </ul>
-
-            <h4>Workflow Git :</h4>
-            <ul>
-                <li>Utiliser des branches de fonctionnalités (<code>feature/*</code>).</li>
-                <li>Faire des commits atomiques et descriptifs.</li>
-                <li>Utiliser des Pull Requests (via AWS CodeCommit ou console) pour la revue de code.</li>
-                <li>Supprimer les branches après fusion.</li>
-            </ul>
-
-            <h4>Intégration CI/CD :</h4>
-            <ul>
-                <li>Connecter CodeCommit à CodePipeline pour automatiser les déploiements.</li>
-                <li>Utiliser des triggers pour notifier l'équipe des changements.</li>
-                <li>Configurer des règles de protection de branche (pas de push direct sur main).</li>
-            </ul>
-
-            <div class="danger">
-                <strong>⚠️ Ne jamais faire :</strong>
-                <ul>
-                    <li>Pousser directement sur <code>main</code> sans revue.</li>
-                    <li>Commiter des fichiers sensibles (<code>.env</code>, <code>credentials</code>).</li>
-                    <li>Utiliser les clés root pour les opérations Git.</li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Checklist -->
-        <section id="checklist" class="page mb-4">
-            <h2>9. Checklist imprimable</h2>
-            <div class="alert alert-light border">
-                <h5>✅ Avant de valider ce sujet, vérifier :</h5>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc1">
-                    <label class="form-check-label" for="cc1">Un dépôt CodeCommit a été créé</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc2">
-                    <label class="form-check-label" for="cc2">Le credential helper est configuré</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc3">
-                    <label class="form-check-label" for="cc3">Le dépôt a été cloné avec succès</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc4">
-                    <label class="form-check-label" for="cc4">Des fichiers ont été ajoutés et push</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc5">
-                    <label class="form-check-label" for="cc5">Des branches ont été créées et fusionnées</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc6">
-                    <label class="form-check-label" for="cc6">Un trigger ou notification a été configuré</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cc7">
-                    <label class="form-check-label" for="cc7">Les permissions IAM sont correctement définies</label>
-                </div>
-            </div>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>10. Conclusion</h2>
-            <p>AWS CodeCommit offre une solution Git hébergée, sécurisée et intégrée à l'écosystème AWS. Points clés à retenir :</p>
-            <ul>
-                <li><strong>Intégration native :</strong> Fonctionne parfaitement avec IAM, CodeBuild, CodePipeline et CodeDeploy.</li>
-                <li><strong>Sécurité :</strong> Chiffrement au repos et en transit, permissions granulaires via IAM.</li>
-                <li><strong>Scalabilité :</strong> Pas de limite de taille de dépôt ou de nombre de branches.</li>
-                <li><strong>Automatisation :</strong> Triggers et notifications pour orchestrer vos pipelines CI/CD.</li>
-            </ul>
-            <p>Une fois CodeCommit maîtrisé, vous pouvez l'intégrer dans un pipeline CI/CD complet avec CodeBuild et CodePipeline pour automatiser le cycle de vie de vos applications.</p>
-        </section>
-
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
 
+<div class="container">
+<section class="page mb-4">
+    <h2>Sommaire</h2>
+    <ol>
+        <li><a href="#objectifs">Objectifs et contexte</a></li>
+        <li><a href="#prerequis">Prérequis</a></li>
+        <li><a href="#architecture">Concepts et architecture</a></li>
+        <li><a href="#installation">Installation et configuration</a></li>
+        <li><a href="#realisation">Réalisation pratique</a></li>
+        <li><a href="#commandes">Commandes et explications</a></li>
+        <li><a href="#tests">Vérifications et tests</a></li>
+        <li><a href="#depannage">Dépannage</a></li>
+        <li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+        <li><a href="#checklist">Checklist</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
+</section>
+
+<section id="objectifs" class="page mb-4">
+    <h2>1. Objectifs et contexte</h2>
+    <p>AWS CodeCommit est un service Git managé permettant d'héberger des dépôts privés dans AWS. Dans une démarche DevOps, il constitue la couche de gestion du code source et peut alimenter des chaînes CI/CD avec CodePipeline et CodeBuild.</p>
+    <ul>
+        <li>Créer et administrer un dépôt Git CodeCommit.</li>
+        <li>Configurer une authentification Git sécurisée.</li>
+        <li>Cloner, modifier, commiter et pousser du code.</li>
+        <li>Organiser le développement avec des branches.</li>
+        <li>Intégrer le dépôt à une chaîne CI/CD.</li>
+    </ul>
+    <div class="explanation"><strong>Point d'architecture :</strong> CodeCommit stocke le code ; IAM contrôle les autorisations ; CodePipeline orchestre les étapes ; CodeBuild compile et teste ; CodeDeploy peut assurer le déploiement.</div>
+</section>
+
+<section id="prerequis" class="page mb-4">
+    <h2>2. Prérequis</h2>
+    <ul>
+        <li>Un compte AWS et une région AWS choisie, par exemple <code>us-east-1</code>.</li>
+        <li>AWS CLI installée et authentifiée.</li>
+        <li>Git installé sur le poste de travail.</li>
+        <li>Un principal IAM disposant uniquement des permissions nécessaires.</li>
+        <li>Pour une chaîne CI/CD : CodePipeline, CodeBuild et éventuellement CodeDeploy.</li>
+    </ul>
+    <div class="codeblock"><code>aws --version
+git --version
+aws sts get-caller-identity</code></div>
+    <div class="note"><strong>Remarque :</strong> les commandes de ce rapport utilisent <code>us-east-1</code> comme exemple. Adapter la région à l'environnement réellement utilisé.</div>
+</section>
+
+<section id="architecture" class="page mb-4">
+    <h2>3. Concepts et architecture</h2>
+    <p>Le flux de travail repose sur Git et les services AWS :</p>
+    <ol>
+        <li>Le développeur travaille dans un dépôt local Git.</li>
+        <li><code>git push</code> envoie un commit vers CodeCommit.</li>
+        <li>CodePipeline détecte le changement via l'intégration événementielle.</li>
+        <li>CodeBuild récupère le code et exécute compilation et tests.</li>
+        <li>Les artefacts validés sont transmis à l'étape de déploiement.</li>
+    </ol>
+    <div class="codeblock"><code>Développeur → Git local → CodeCommit → CodePipeline → CodeBuild → Déploiement</code></div>
+    <div class="explanation"><strong>Déclenchement CI/CD :</strong> pour CodePipeline, l'approche moderne privilégie les événements Amazon EventBridge plutôt qu'un polling permanent. Si EventBridge est utilisé, le polling de la source doit être désactivé dans la configuration du pipeline.</div>
+</section>
+
+<section id="installation" class="page mb-4">
+    <h2>4. Installation et configuration</h2>
+    <h4>4.1 Vérifier l'identité AWS</h4>
+    <div class="codeblock"><code>aws sts get-caller-identity</code></div>
+    <h4>4.2 Configurer le credential helper HTTPS</h4>
+    <div class="codeblock"><code>git config --global credential.helper '!aws codecommit credential-helper $@'
+git config --global credential.UseHttpPath true
+git config --global --get-regexp credential</code></div>
+    <p>Le credential helper permet à Git d'obtenir les informations d'authentification à partir des credentials AWS disponibles dans l'environnement. Il évite d'inscrire un secret AWS directement dans l'URL du dépôt.</p>
+    <div class="danger"><strong>Attention :</strong> ne placez jamais une clé d'accès AWS, un secret ou un mot de passe dans le dépôt Git, un script versionné ou une URL de clone.</div>
+</section>
+
+<section id="realisation" class="page mb-4">
+    <h2>5. Réalisation pratique</h2>
+    <h4>5.1 Créer le dépôt</h4>
+    <div class="codeblock"><code>aws codecommit create-repository \
+  --repository-name mon-projet-dev \
+  --repository-description "Projet Master 2 - Application web" \
+  --region us-east-1</code></div>
+    <h4>5.2 Vérifier le dépôt</h4>
+    <div class="codeblock"><code>aws codecommit get-repository \
+  --repository-name mon-projet-dev \
+  --region us-east-1</code></div>
+    <h4>5.3 Cloner le dépôt</h4>
+    <div class="codeblock"><code>git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-projet-dev
+cd mon-projet-dev</code></div>
+    <img class="img-default" src="../../assets/images/codecommit-clone.png" alt="Clonage d'un dépôt CodeCommit">
+    <h4>5.4 Premier commit</h4>
+    <div class="codeblock"><code>echo "# Mon Projet Dev" &gt; README.md
+git add README.md
+git commit -m "Initialisation du projet"
+git branch -M main
+git push -u origin main</code></div>
+    <h4>5.5 Créer une branche fonctionnelle</h4>
+    <div class="codeblock"><code>git switch -c feature/ajout-login
+echo "Page de connexion" &gt; login.html
+git add login.html
+git commit -m "Ajout de la page de connexion"
+git push -u origin feature/ajout-login</code></div>
+</section>
+
+<section id="commandes" class="page mb-4">
+    <h2>6. Commandes et explications</h2>
+    <table class="table table-bordered table-sm">
+        <thead class="table-light"><tr><th>Commande</th><th>Rôle</th></tr></thead>
+        <tbody>
+            <tr><td><code>aws sts get-caller-identity</code></td><td>Identifie le principal AWS utilisé.</td></tr>
+            <tr><td><code>aws codecommit create-repository</code></td><td>Crée un dépôt.</td></tr>
+            <tr><td><code>aws codecommit get-repository</code></td><td>Retourne les métadonnées du dépôt.</td></tr>
+            <tr><td><code>git clone</code></td><td>Crée une copie locale du dépôt.</td></tr>
+            <tr><td><code>git status</code></td><td>Affiche l'état du répertoire de travail.</td></tr>
+            <tr><td><code>git add</code></td><td>Place les modifications dans l'index.</td></tr>
+            <tr><td><code>git commit</code></td><td>Crée un commit local.</td></tr>
+            <tr><td><code>git push</code></td><td>Publie les commits vers CodeCommit.</td></tr>
+            <tr><td><code>git pull</code></td><td>Récupère et intègre les changements distants.</td></tr>
+            <tr><td><code>git fetch</code></td><td>Récupère les références distantes sans fusion automatique.</td></tr>
+        </tbody>
+    </table>
+    <h4>Branches et fusion</h4>
+    <div class="codeblock"><code>git branch
+git switch main
+git merge feature/ajout-login
+git push origin main</code></div>
+    <div class="note"><strong>Organisation :</strong> une stratégie <code>feature/*</code> → revue/validation → <code>main</code> est préférable à des modifications directes non contrôlées sur la branche principale.</div>
+</section>
+
+<section id="tests" class="page mb-4">
+    <h2>7. Vérifications et tests</h2>
+    <h4>7.1 Vérifier le dépôt AWS</h4>
+    <div class="codeblock"><code>aws codecommit get-repository --repository-name mon-projet-dev --region us-east-1</code></div>
+    <h4>7.2 Vérifier le dépôt Git local</h4>
+    <div class="codeblock"><code>git remote -v
+git status
+git branch -a
+git log --oneline -5</code></div>
+    <h4>7.3 Tester le cycle push/pull</h4>
+    <div class="codeblock"><code>echo "Test CodeCommit" &gt; test.txt
+git add test.txt
+git commit -m "Test du dépôt distant"
+git push origin main
+git pull origin main</code></div>
+    <h4>7.4 Vérifier les branches distantes</h4>
+    <div class="codeblock"><code>git ls-remote --heads origin</code></div>
+    <div class="explanation"><strong>Critère de réussite :</strong> le commit doit être visible dans CodeCommit, la branche distante doit être accessible et aucun secret ne doit apparaître dans l'historique Git.</div>
+</section>
+
+<section id="depannage" class="page mb-4">
+    <h2>8. Dépannage</h2>
+    <table class="table table-bordered table-sm">
+        <thead class="table-light"><tr><th>Problème</th><th>Diagnostic / correction</th></tr></thead>
+        <tbody>
+            <tr><td>403 / accès refusé</td><td>Exécuter <code>aws sts get-caller-identity</code> puis vérifier les permissions IAM et la région.</td></tr>
+            <tr><td>Repository not found</td><td>Vérifier le nom du dépôt, la région et l'URL <code>origin</code>.</td></tr>
+            <tr><td>Credential helper invalide</td><td>Vérifier <code>git config --global --get-regexp credential</code> et la présence d'AWS CLI.</td></tr>
+            <tr><td>Push rejeté</td><td>Exécuter <code>git fetch</code>, examiner les divergences puis fusionner ou rebaser selon la politique de l'équipe.</td></tr>
+            <tr><td>Conflit Git</td><td>Résoudre les fichiers en conflit, exécuter <code>git add</code>, puis <code>git commit</code> et <code>git push</code>.</td></tr>
+            <tr><td>Pipeline non déclenché</td><td>Vérifier l'intégration CodeCommit/EventBridge/CodePipeline et éviter un polling simultané inutile.</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="securite" class="page mb-4">
+    <h2>9. Sécurité et bonnes pratiques</h2>
+    <ul>
+        <li>Ne pas utiliser le compte AWS root pour Git au quotidien.</li>
+        <li>Appliquer le principe du moindre privilège avec IAM.</li>
+        <li>Préférer des identités temporaires ou des rôles lorsque l'architecture le permet.</li>
+        <li>Ne jamais versionner de secrets, clés privées, mots de passe ou fichiers de credentials.</li>
+        <li>Protéger la branche principale par une procédure de revue et de validation.</li>
+        <li>Journaliser et surveiller les opérations AWS avec les services adaptés.</li>
+        <li>Utiliser HTTPS avec le credential helper ou SSH correctement configuré.</li>
+        <li>Pour CI/CD, utiliser des rôles IAM dédiés aux services plutôt que des clés statiques.</li>
+    </ul>
+    <div class="danger"><strong>Principe essentiel :</strong> les droits IAM doivent être limités au dépôt et aux actions réellement nécessaires. Éviter d'attribuer systématiquement des politiques administratives ou <code>FullAccess</code>.</div>
+</section>
+
+<section id="checklist" class="page mb-4">
+    <h2>10. Checklist</h2>
+    <ul class="list-unstyled">
+        <li>☐ AWS CLI installée et fonctionnelle</li>
+        <li>☐ <code>aws sts get-caller-identity</code> retourne une identité valide</li>
+        <li>☐ Dépôt CodeCommit créé dans la bonne région</li>
+        <li>☐ Credential helper Git configuré</li>
+        <li>☐ Dépôt cloné avec succès</li>
+        <li>☐ Commit et push vers <code>main</code> réalisés</li>
+        <li>☐ Branche fonctionnelle créée et poussée</li>
+        <li>☐ Cycle fetch/pull testé</li>
+        <li>☐ Permissions IAM limitées au besoin</li>
+        <li>☐ Aucun secret présent dans le dépôt</li>
+        <li>☐ Intégration CI/CD vérifiée si utilisée</li>
+    </ul>
+</section>
+
+<section id="conclusion" class="page mb-4">
+    <h2>11. Conclusion</h2>
+    <p>Cette étude pratique a permis de mettre en place AWS CodeCommit comme composant de gestion du code source dans une architecture DevOps. La configuration du credential helper, les opérations Git, la gestion des branches et les contrôles de sécurité constituent les bases nécessaires à une utilisation professionnelle.</p>
+    <p>Associé à CodePipeline, CodeBuild et CodeDeploy, CodeCommit peut s'intégrer dans une chaîne CI/CD automatisée. La qualité de cette architecture dépend toutefois de la maîtrise des permissions IAM, de la gestion des secrets et des mécanismes de déclenchement des pipelines.</p>
+</section>
+</div>
+</body>
 </html>
