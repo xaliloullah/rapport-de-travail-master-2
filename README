@@ -1,13 +1,48 @@
-- Git & GitHub
-- Docker
-- Kubernetes
-- AWS création de compte et Windows server
-- AWS Ubuntu
-- AWS Linux + WebServer
-- AWS IAM
-- AWS VPC
-- DevOps Jenkins (déploiement, installation tomcat +maven build)
-- DevOps AWS CodeBuild
-- DevOps AWS CodeDeploy
-- DevOps Pipeline AWS
-- DevOps CodeCommit
+# Rapports de travail — Master 2 Génie Logiciel
+
+Dépôt regroupant les travaux pratiques et rapports techniques réalisés en Master 2 Génie Logiciel.
+
+## Rapports
+
+### Gestion de versions
+- [Git & GitHub](./git-github/index.html)
+
+### Conteneurisation et orchestration
+- [Docker](./docker/index.html)
+- [Kubernetes](./kubernetes/index.html)
+
+### AWS / Cloud
+- [Création de compte AWS et Windows Server](./aws/windows/index.html)
+- [Ubuntu EC2 et AWS CLI](./aws/ubuntu/index.html)
+- [Linux Web Server](./aws/linux-webserver/index.html)
+- [AWS IAM](./aws/iam/index.html)
+- [AWS VPC](./aws/vpc/index.html)
+
+### DevOps
+- [Jenkins — Maven + Tomcat + CI/CD](./devops/jenkins/index.html)
+- [AWS CodeCommit](./devops/codecommit/index.html)
+- [AWS CodeBuild](./devops/codebuild/index.html)
+- [AWS CodeDeploy](./devops/codedeploy/index.html)
+- [AWS CodePipeline](./devops/pipeline/index.html)
+
+## Niveau de documentation
+
+Les rapports suivent progressivement une structure commune :
+
+1. Objectifs et contexte
+2. Prérequis
+3. Concepts et architecture
+4. Installation et configuration
+5. Réalisation pratique
+6. Commandes et explications
+7. Vérifications et tests
+8. Dépannage
+9. Sécurité et bonnes pratiques
+10. Checklist
+11. Conclusion
+
+Les captures d'écran sont conservées dans les dossiers `assets/images` associés à chaque rapport lorsque leur usage est pertinent.
+
+## Auteur
+
+Ibrahima Khalilou Thiam — Master 2 Génie Logiciel UDB — Matricule 003
