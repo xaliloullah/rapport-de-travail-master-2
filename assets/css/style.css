@@ -1,0 +1,97 @@
+body {
+    background: #f4f6f8;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.page {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+    min-height: 100vh;
+}
+
+header .meta {
+    color: var(--bs-secondary);
+}
+
+h1,
+h2,
+h3 {
+    color: #23252E;
+    font-weight: bolder;
+}
+
+h4 {
+    margin-top: 10px;
+}
+
+pre.codeblock {
+    background: #23252E;
+    color: #e6eef8;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+pre.codeblock code {
+    color: inherit;
+    white-space: pre;
+    display: block;
+}
+
+.explanation {
+    background: #f8fafc;
+    border-left: 4px solid #0d6efd;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+}
+
+.note {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+}
+
+.danger {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+}
+
+.img-default {
+    display: block;
+    margin: 1rem auto;
+    max-width: 90%;
+    border-radius: 8px;
+}
+
+nav.toc {
+    position: sticky;
+    top: 1rem;
+}
+
+.small-muted {
+    font-size: .9rem;
+    color: #6c757d;
+}
+
+.page,
+.explanation,
+.note,
+.danger,
+pre,
+code,
+ul,
+li,
+p,
+div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
