@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Présentation — Kubernetes</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        .page {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #23252E;
+            font-weight: bolder;
+        }
+
+        h4 {
+            margin-top: 10px;
+        }
+
+        pre.codeblock {
+            background: #23252E;
+            color: #e6eef8;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        pre.codeblock code {
+            color: inherit;
+            white-space: pre;
+            display: block;
+        }
+
+        .explanation {
+            background: #f8fafc;
+            border-left: 4px solid #0d6efd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .img-default {
+            display: block;
+            margin: 1rem auto;
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        .small-muted {
+            font-size: .9rem;
+            color: #6c757d;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header class="page text-center">
+        <h1 class="display-5 fw-bold text-dark">Présentation — Kubernetes</h1>
+        <p class="small-muted">Ibrahima Khalilou Thiam — Master 2 Génie Logiciel UDB — Année 2025</p>
+    </header>
+
+    <div class="page">
+        <!-- Sommaire -->
+        <section id="sommaire">
+            <h2>Sommaire</h2>
+            <ol>
+                <li><a href="#introduction">Introduction à Kubernetes</a></li>
+                <li><a href="#roles">Rôle et bénéfices</a></li>
+                <li><a href="#installation">Préparation et installation</a></li>
+                <li><a href="#worker">Ajout d’un nœud Worker</a></li>
+                <li><a href="#verification">Vérifications et dépannage</a></li>
+                <li><a href="#checklist">Checklist d’installation</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="#annexes">Annexes — Commandes utiles</a></li>
+            </ol>
+            <img class="img-default" src="assets/images/kubernetes.png" alt="">
+        </section>
+
+        <!-- 1. Introduction -->
+        <section id="introduction" class="mb-4">
+            <h2>1. Introduction à Kubernetes</h2>
+            <p>Kubernetes (ou K8s) est un orchestrateur open-source de conteneurs qui permet :</p>
+            <ul>
+                <li>Le déploiement automatisé d'applications conteneurisées</li>
+                <li>La mise à l’échelle horizontale ou verticale des services</li>
+                <li>L’auto-récupération en cas de panne</li>
+                <li>La gestion complète du cycle de vie des pods et services</li>
+            </ul>
+            <div class="explanation">
+                <strong>Explication :</strong> Kubernetes agit comme un chef d’orchestre : il prend vos conteneurs
+                isolés
+                (Docker ou containerd) et les organise dans un cluster distribué stable et résilient.
+            </div>
+        </section>
+
+        <!-- 2. Rôle et bénéfices -->
+        <section id="roles" class="mb-4">
+            <h2>2. Rôle et bénéfices</h2>
+            <ul>
+                <li><strong>Automatisation :</strong> Déploiement, mise à jour et rollback des applications sans
+                    interruption.</li>
+                <li><strong>Scalabilité :</strong> Ajouter ou retirer des nœuds automatiquement selon la charge.</li>
+                <li><strong>Haute disponibilité :</strong> Redémarrage automatique des pods défaillants.</li>
+                <li><strong>Portabilité :</strong> Déploiement sur cloud public, privé ou on-premise.</li>
+                <li><strong>Observabilité :</strong> Intégration d’outils de monitoring et de logging pour suivre l’état
+                    des pods.</li>
+            </ul>
+        </section>
+
+        <!-- 3. Préparation et installation -->
+        <section id="installation" class="mb-4">
+            <h2>3. Préparation et installation (Master & Worker)</h2>
+
+            <h4>3.1 Préparation du système</h4>
+            <pre class="codeblock"><code>sudo apt update && sudo apt upgrade -y
+sudo swapoff -a
+sudo modprobe overlay
+sudo modprobe br_netfilter
+sudo tee /etc/sysctl.d/k8s.conf &lt;&lt;EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+sudo sysctl --system</code></pre>
+            <img class="img-default" src="assets/images/prepare.png" alt="">
+            <img class="img-default" src="assets/images/config.png" alt="">
+            <div class="explanation">
+                <strong>Explications :</strong>
+                <ul>
+                    <li><code>sudo apt update && sudo apt upgrade -y</code> : Met à jour le système pour avoir les
+                        dernières versions de packages et de sécurité.</li>
+                    <li><code>sudo swapoff -a</code> : Désactive le swap, obligatoire pour Kubernetes pour éviter des
+                        comportements inattendus du kubelet.</li>
+                    <li><code>sudo modprobe overlay</code> et <code>br_netfilter</code> : Modules nécessaires pour le
+                        réseau et le stockage des conteneurs.</li>
+                    <li>Création du fichier <code>/etc/sysctl.d/k8s.conf</code> : Active le routage IPv4 et le filtrage
+                        pour Kubernetes.</li>
+                    <li><code>sudo sysctl --system</code> : Applique immédiatement la configuration du noyau.</li>
+                </ul>
+            </div>
+
+            <h4>3.2 Installation de containerd</h4>
+            <pre class="codeblock"><code>sudo apt install -y containerd
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+sudo systemctl restart containerd
+sudo systemctl enable containerd</code></pre>
+            <img class="img-default" src="assets/images/install.png" alt="">
+            <img class="img-default" src="assets/images/install-2.png" alt="">
+            <img class="img-default" src="assets/images/install-3.png" alt="">
+            <div class="explanation">
+                <ul>
+                    <li>Containerd est le runtime de conteneurs recommandé par Kubernetes.</li>
+                    <li>Le fichier <code>config.toml</code> est généré pour configurer containerd avec les valeurs par
+                        défaut.</li>
+                    <li>La ligne <code>SystemdCgroup = true</code> permet à Kubernetes de gérer correctement les cgroups
+                        via systemd.</li>
+                    <li>Redémarrer et activer containerd pour qu’il démarre automatiquement au boot.</li>
+                </ul>
+            </div>
+
+            <h4>3.3 Installation kubeadm, kubelet et kubectl</h4>
+            <pre class="codeblock"><code>sudo apt install -y apt-transport-https ca-certificates curl
+sudo curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k8s-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/k8s-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt update
+sudo apt install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl</code></pre>
+            <img class="img-default" src="assets/images/curl.png" alt="">
+            <img class="img-default" src="assets/images/curl-2.png" alt="">
+
+            <div class="explanation">
+                <ul>
+                    <li>Ajoute le dépôt officiel Kubernetes pour obtenir les dernières versions stables.</li>
+                    <li>Installe les trois outils essentiels :</li>
+                    <ul>
+                        <li><code>kubeadm</code> : Initialisation et gestion du cluster</li>
+                        <li><code>kubelet</code> : Agent qui tourne sur chaque nœud et exécute les pods</li>
+                        <li><code>kubectl</code> : CLI pour interagir avec le cluster</li>
+                    </ul>
+                    <li><code>apt-mark hold</code> : Empêche les mises à jour automatiques qui pourraient casser la
+                        compatibilité.</li>
+                </ul>
+            </div>
+            <img class="img-default" src="assets/images/kubelet kubeadm kubectl.png" alt="">
+            <h4>3.4 Initialisation du Master</h4>
+            <pre class="codeblock"><code>sudo kubeadm init --pod-network-cidr=10.244.0.0/16</code></pre>
+            <img class="img-default" src="assets/images/kubeadm.png" alt="">
+            <div class="explanation">
+                <ul>
+                    <li><code>kubeadm init</code> initialise le cluster Kubernetes sur le master.</li>
+                    <li><code>--pod-network-cidr</code> définit la plage IP pour le réseau des pods (exemple pour
+                        Flannel).</li>
+                    <li>À la fin, kubeadm fournit la commande <code>kubeadm join</code> pour ajouter les workers.</li>
+                </ul>
+            </div>
+
+            <h4>3.5 Installation du CNI (réseau inter-pods)</h4>
+            <pre
+                class="codeblock"><code>kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml</code></pre>
+            <div class="explanation">
+                <ul>
+                    <li>Le CNI (Container Network Interface) permet aux pods de communiquer entre eux.</li>
+                    <li>Flannel est l’un des plugins réseau populaires. D’autres options : Calico, Weave.</li>
+                    <li>Après l’installation, les pods comme <code>CoreDNS</code> deviennent opérationnels.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 4. Ajout d’un nœud Worker -->
+        <section id="worker" class="mb-4">
+            <h2>4. Joindre un nœud Worker</h2>
+
+            <h4>4.1 Pré-requis sur le Worker</h4>
+            <pre class="codeblock"><code>sudo apt update && sudo apt upgrade -y
+sudo swapoff -a
+sudo modprobe overlay
+sudo modprobe br_netfilter
+sudo sysctl --system
+sudo apt install -y containerd
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+sudo apt install -y kubeadm kubelet kubectl
+sudo apt-mark hold kubelet kubeadm kubectl</code></pre>
+            <img class="img-default" src="assets/images/update.png" alt="">
+            <img class="img-default" src="assets/images/python.png" alt="">
+            <div class="explanation">
+                <ul>
+                    <li>Préparer le worker exactement comme le master : packages, swap désactivé, modules, containerd et
+                        kubeadm.</li>
+                </ul>
+            </div>
+
+            <h4>4.2 Joindre le cluster</h4>
+            <pre
+                class="codeblock"><code>sudo kubeadm join <IP_MASTER>:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH></code></pre>
+            <div class="explanation">
+                <ul>
+                    <li>Cette commande est générée par <code>kubeadm init</code> sur le master.</li>
+                    <li>Elle permet au worker de s’enregistrer auprès du control plane.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 5. Vérifications et dépannage -->
+        <section id="verification" class="mb-4">
+            <h2>5. Vérifications et dépannage</h2>
+            <pre class="codeblock"><code># Vérifier l’état des nœuds
+kubectl get nodes
+
+# Logs kubelet sur un worker
+sudo journalctl -u kubelet -f</code></pre>
+            <div class="explanation">
+                <ul>
+                    <li>Si le worker apparaît en <code>NotReady</code>, vérifier :</li>
+                    <ul>
+                        <li>Swap désactivé</li>
+                        <li>Heure synchronisée</li>
+                        <li>CNI installé correctement</li>
+                        <li>Ports ouverts (6443, 10250, 2379-2380, NodePort)</li>
+                    </ul>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 6. Checklist -->
+        <section id="checklist" class="mb-4">
+            <h2>6. Checklist d’installation</h2>
+            <ul>
+                <li>Système à jour</li>
+                <li>Swap désactivé et /etc/fstab modifié</li>
+                <li>Modules overlay + br_netfilter chargés</li>
+                <li>sysctl appliqué</li>
+                <li>Containerd installé et configuré (SystemdCgroup=true)</li>
+                <li>Kubeadm, kubelet et kubectl installés et en hold</li>
+                <li>Master initialisé (kubeadm init)</li>
+                <li>CNI installé</li>
+                <li>Workers joints avec kubeadm join</li>
+                <li>Vérification des nœuds (kubectl get nodes)</li>
+                <li>Ports du firewall vérifiés</li>
+                <li>Time sync vérifié</li>
+            </ul>
+        </section>
+
+        <!-- 7. Conclusion -->
+        <section id="conclusion" class="mb-4">
+            <h2>7. Conclusion</h2>
+            <p>Kubernetes permet de gérer un cluster de conteneurs de manière automatisée, scalable et résiliente. Une
+                fois
+                installé correctement :</p>
+            <ul>
+                <li>Déploiement facile des applications</li>
+                <li>Gestion simplifiée des pods et services</li>
+                <li>Possibilité d’ajouter des nœuds pour scaler horizontalement</li>
+                <li>Résilience accrue en cas de panne</li>
+            </ul>
+            <p>Les prochaines étapes incluent :</p>
+            <ul>
+                <li>RBAC pour gérer les accès</li>
+                <li>Intégration de stockage persistant (NFS, Ceph, Longhorn)</li>
+                <li>Monitoring (Prometheus, Grafana)</li>
+                <li>Déploiement d’applications complexes via Helm</li>
+            </ul>
+        </section>
+
+        <!-- 8. Annexes -->
+        <section id="annexes" class="mb-4">
+            <h2>Annexes — Commandes utiles</h2>
+            <pre class="codeblock"><code># Lister les nœuds
+kubectl get nodes
+
+# Vérifier les pods
+kubectl get pods -A
+
+# Créer un token pour joindre un worker
+sudo kubeadm token create --print-join-command
+
+# Redémarrer kubelet
+sudo systemctl restart kubelet
+
+# Vérifier status kubelet
+sudo systemctl status kubelet</code></pre>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

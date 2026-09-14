@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport AWS VPC — Réseau privé virtuel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: #f4f6f8;
+            line-height: 1.6;
+        }
+
+        .page {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: bolder;
+            color: #23252E;
+        }
+
+        .codeblock {
+            background-color: #23252E;
+            color: #e6eef8;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            white-space: pre;
+            display: block;
+            color: inherit;
+        }
+
+        .explanation {
+            background: #f8fafc;
+            border-left: 4px solid #0d6efd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .img-default {
+            display: block;
+            margin: 1rem auto;
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        .small-muted {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .page,
+        .explanation,
+        .note,
+        .danger,
+        pre,
+        code,
+        ul,
+        li,
+        p,
+        div,
+        table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Page de garde -->
+        <header class="page text-center mb-4">
+            <h1>Rapport AWS VPC — Réseau privé virtuel</h1>
+            <p class="lead">Guide complet — Master 2 Génie Logiciel</p>
+            <p class="small-muted">Auteur : Ibrahima Khalilou Thiam | Année 2025</p>
+        </header>
+
+        <!-- Sommaire -->
+        <section class="page mb-4">
+            <h2>Sommaire</h2>
+            <ol>
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#concepts">Concepts clés VPC</a></li>
+                <li><a href="#creation-vpc">Création d'un VPC personnalisé</a></li>
+                <li><a href="#subnets">Sous-réseaux (Public &amp; Private)</a></li>
+                <li><a href="#igw">Internet Gateway</a></li>
+                <li><a href="#nat">NAT Gateway</a></li>
+                <li><a href="#route-tables">Route Tables</a></li>
+                <li><a href="#sg">Security Groups vs NACL</a></li>
+                <li><a href="#test-vpc">Test et validation</a></li>
+                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
+                <li><a href="#checklist">Checklist imprimable</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ol>
+        </section>
+
+        <!-- Objectif -->
+        <section id="objectif" class="page mb-4">
+            <h2>1. Objectif</h2>
+            <p>AWS VPC (Virtual Private Cloud) permet de lancer des ressources AWS dans un réseau virtuel
+                isolé du reste de l'infrastructure AWS. Ce guide vous apprendra à :</p>
+            <ul>
+                <li>Comprendre les concepts clés : VPC, sous-réseaux, route tables, IGW, NAT Gateway.</li>
+                <li>Créer un VPC personnalisé avec des sous-réseaux publics et privés.</li>
+                <li>Configurer la connectivité Internet pour les deux types de sous-réseaux.</li>
+                <li>Configurer des Security Groups et des Network ACLs pour la sécurité réseau.</li>
+            </ul>
+            <div class="explanation">
+                <strong>Pourquoi un VPC personnalisé ?</strong> Le VPC par défaut est pratique pour
+                commencer, mais un VPC personnalisé vous donne un contrôle total sur la topologie
+                réseau, la sécurité et la gestion des adresses IP.
+            </div>
+        </section>
+
+        <!-- Concepts clés -->
+        <section id="concepts" class="page mb-4">
+            <h2>2. Concepts clés VPC</h2>
+
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Élément</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>VPC</strong></td>
+                        <td>Réseau virtuel isolé dans le cloud AWS (plage d'IP CIDR).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sous-réseau (Subnet)</strong></td>
+                        <td>Plage d'IP CIDR dans le VPC. <em>Public</em> = accès Internet,
+                            <em>privé</em> = pas d'accès direct.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Internet Gateway (IGW)</strong></td>
+                        <td>Point d'accès vers Internet pour les sous-réseaux publics.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NAT Gateway</strong></td>
+                        <td>Permet aux ressources privées d'accéder à Internet (sortie seulement).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Route Table</strong></td>
+                        <td>Définit les règles de routage pour un ou plusieurs sous-réseaux.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Group</strong></td>
+                        <td>Pare-feu au niveau de l'instance (état des connexions).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Network ACL</strong></td>
+                        <td>Pare-feu au niveau du sous-réseau (stateless, plus restrictif).</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <img class="img-default" src="assets/images/vpc-diagram.png"
+                alt="Architecture typique d'un VPC avec subnets publics et privés">
+
+            <div class="note">
+                <strong>Topologie recommandée :</strong> Un VPC avec 2 sous-réseaux publics (pour les
+                serveurs web) et 2 sous-réseaux privés (pour les bases de données), derrière un NAT
+                Gateway pour l'accès Internet sortant.
+            </div>
+        </section>
+
+
+
+        <!-- Création du VPC -->
+        <section id="creation-vpc" class="page mb-4">
+            <h2>3. Création d'un VPC personnalisé</h2>
+            <p>Nous allons créer un VPC avec la plage d'adresses <code>10.0.0.0/16</code> :</p>
+
+            <h4>Étapes via la console :</h4>
+            <ol>
+                <li>Aller dans la console EC2 → VPC → Your VPCs.</li>
+                <li>Cliquer sur <strong>Create VPC</strong>.</li>
+                <li>Saisir :
+                    <ul>
+                        <li>Nom : <code>maire-vpc</code></li>
+                        <li>IPv4 CIDR : <code>10.0.0.0/16</code></li>
+                        <li>IPv6 CIDR : <code>/56</code></li>
+                    </ul>
+                </li>
+                <li>Cliquer sur <strong>Create</strong>.</li>
+            </ol>
+
+            <h4>Création via AWS CLI :</h4>
+            <div class="codeblock"><code># Créer un VPC
+aws ec2 create-vpc \
+    --cidr-block "10.0.0.0/16" \
+    --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=maire-vpc}]'
+
+# Récupérer l'ID du VPC créé
+aws ec2 describe-vpcs --filters "Name=tag:Name,Values=maire-vpc"</code></div>
+
+            <img class="img-default" src="assets/images/vpc-created.png" alt="VPC créé dans la console AWS">
+
+            <div class="explanation">
+                <strong>CIDR :</strong> <code>10.0.0.0/16</code> vous donne 65 534 adresses IP privées.
+                Adaptez la taille selon le nombre de ressources prévues.
+            </div>
+        </section>
+
+        <!-- Sous-réseaux -->
+        <section id="subnets" class="page mb-4">
+            <h2>4. Sous-réseaux (Public &amp; Private)</h2>
+            <p>Nous allons créer 4 sous-réseaux : 2 publics et 2 privés dans des AZ différentes.</p>
+
+            <div class="codeblock"><code># Sous-réseau public AZ1
+aws ec2 create-subnet \
+    --vpc-id vpc-xxxxxxxx \
+    --cidr-block "10.0.1.0/24" \
+    --availability-zone "us-east-1a" \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=public-subnet-1a}]'
+
+# Sous-réseau public AZ2
+aws ec2 create-subnet \
+    --vpc-id vpc-xxxxxxxx \
+    --cidr-block "10.0.2.0/24" \
+    --availability-zone "us-east-1b" \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=public-subnet-1b}]'
+
+# Sous-réseau privé AZ1
+aws ec2 create-subnet \
+    --vpc-id vpc-xxxxxxxx \
+    --cidr-block "10.0.3.0/24" \
+    --availability-zone "us-east-1a" \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=private-subnet-1a}]'
+
+# Sous-réseau privé AZ2
+aws ec2 create-subnet \
+    --vpc-id vpc-xxxxxxxx \
+    --cidr-block "10.0.4.0/24" \
+    --availability-zone "us-east-1b" \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=private-subnet-1b}]'</code></div>
+
+            <img class="img-default" src="assets/images/subnets-list.png"
+                alt="Liste des sous-réseaux du VPC">
+        </section>
+
+
+
+        <!-- Internet Gateway -->
+        <section id="igw" class="page mb-4">
+            <h2>5. Internet Gateway (IGW)</h2>
+            <p>L'Internet Gateway fournit un accès bidirectionnel vers Internet pour les sous-réseaux
+                publics.</p>
+
+            <div class="codeblock"><code># Créer une Internet Gateway
+aws ec2 create-internet-gateway \
+    --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=maire-igw}]'
+
+# Attacher l'IGW au VPC
+aws ec2 attach-internet-gateway \
+    --vpc-id vpc-xxxxxxxx \
+    --internet-gateway-id igw-xxxxxxxx</code></div>
+
+            <img class="img-default" src="assets/images/igw-attached.png"
+                alt="Internet Gateway attachée au VPC">
+        </section>
+
+        <!-- NAT Gateway -->
+        <section id="nat" class="page mb-4">
+            <h2>6. NAT Gateway</h2>
+            <p>Le NAT Gateway permet aux ressources dans les sous-réseaux privés d'accéder à Internet
+                (sortie uniquement), sans être directement accessibles depuis Internet.</p>
+
+            <h4>Étapes :</h4>
+            <ol>
+                <li>Allouer une <strong>Elastic IP</strong> pour le NAT Gateway.</li>
+                <li>Créer le NAT Gateway dans un sous-réseau public.</li>
+                <li>Mettre à jour la route table du sous-réseau privé pour router via le NAT.</li>
+            </ol>
+
+            <div class="codeblock"><code># Allouer une Elastic IP
+aws ec2 allocate-address --domain vpc
+
+# Créer le NAT Gateway (dans le sous-réseau public)
+aws ec2 create-nat-gateway \
+    --subnet-id subnet-xxxxxxxx \
+    --allocation-id eipalloc-xxxxxxxx \
+    --tag-specifications 'ResourceType=nat-gateway,Tags=[{Key=Name,Value=maire-natgw}]'</code></div>
+
+                        <div class="note">
+                <strong>Coût :</strong> Le NAT Gateway est facturé à l'heure près. Pour les
+                environnements de dev/test, pensez à le désactiver ou utiliser un NAT d'instance (plus
+                économique mais moins résilient).
+            </div>
+        </section>
+
+        <!-- Route Tables -->
+        <section id="route-tables" class="page mb-4">
+            <h2>7. Route Tables</h2>
+            <p>Les route tables définissent comment le trafic sort du sous-réseau. Chaque route table
+                peut être associée à un ou plusieurs sous-réseaux.</p>
+
+            <h4>Route table publique :</h4>
+            <div class="codeblock"><code># Créer une route table pour le VPC
+aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
+
+# Ajouter une route vers l'IGW (accès Internet)
+aws ec2 create-route \
+    --route-table-id rtb-xxxxxxxx \
+    --destination-cidr-block "0.0.0.0/0" \
+    --gateway-id igw-xxxxxxxx
+
+# Associer au sous-réseau public
+aws ec2 associate-route-table \
+    --route-table-id rtb-xxxxxxxx \
+    --subnet-id subnet-xxxxxxxx</code></div>
+
+            <h4>Route table privée :</h4>
+            <div class="codeblock"><code># Créer une route table pour le sous-réseau privé
+aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
+
+# Ajouter une route vers le NAT Gateway
+aws ec2 create-route \
+    --route-table-id rtb-xxxxxxxx \
+    --destination-cidr-block "0.0.0.0/0" \
+    --nat-gateway-id nat-xxxxxxxx
+
+# Associer au sous-réseau privé
+aws ec2 associate-route-table \
+    --route-table-id rtb-xxxxxxxx \
+    --subnet-id subnet-xxxxxxxx</code></div>
+            <img class="img-default" src="assets/images/route-tables.png"
+                alt="Configuration des route tables du VPC">
+
+                        <div class="explanation">
+                <strong>Route 0.0.0.0/0 :</strong> la destination <code>0.0.0.0/0</code> signifie
+                « toute adresse IP ». Pour les sous-réseaux publics, la route va vers l'IGW. Pour les
+                privés, elle va vers le NAT Gateway.
+            </div>
+        </section>
+
+        <!-- Security Groups vs NACL -->
+        <section id="sg" class="page mb-4">
+            <h2>8. Security Groups vs Network ACLs</h2>
+
+            <h4>Security Groups (pare-feu étatique)</h4>
+            <ul>
+                <li>Appliqués au niveau de l'<strong>instance</strong>.</li>
+                <li><strong>ÉtatFULL (stateful)</strong> : si vous autorisez une connexion sortante, la
+                    réponse entre automatiquement.</li>
+                <li>Autorise ou refuse des connexions par paquet.</li>
+                <li>Un SG par défaut refuse tout et autorise la sortie.</li>
+            </ul>
+
+            <h4>Network ACLs (pare-feu stateless)</h4>
+            <ul>
+                <li>Appliqués au niveau du <strong>sous-réseau</strong>.</li>
+                <li><strong>Stateless</strong> : une règle d'entrée n'autorise pas automatiquement la
+                    sortie correspondante.</li>
+                <li>Dispose de numéros de règle (1-32766) pour ordonner les évaluations.</li>
+                <li>Plus restrictif : bloque par défaut si aucune règle ne correspond.</li>
+            </ul>
+
+            <div class="codeblock"><code># Créer un Security Group pour le web
+aws ec2 create-security-group \
+    --group-name "web-sg" \
+    --description "Accès HTTP/HTTPS/SSH" \
+    --vpc-id vpc-xxxxxxxx
+
+# Autoriser HTTP
+aws ec2 authorize-security-group-ingress \
+    --group-name "web-sg" \
+    --protocol tcp \
+    --port 80 \
+    --cidr "0.0.0.0/0"
+
+# Autoriser SSH (depuis votre IP seulement)
+aws ec2 authorize-security-group-ingress \
+    --group-name "web-sg" \
+    --protocol tcp \
+    --port 22 \
+    --cidr "192.168.1.0/24"</code></div>
+
+                        <div class="danger">
+                <strong>Sécurité :</strong> N'ouvrons jamais le port 22 (SSH) à <code>0.0.0.0/0</code>.
+                Restreignez-le à votre IP fixe ou utilisez AWS Session Manager pour un accès sans clé.
+            </div>
+        </section>
+
+        <!-- Test -->
+        <section id="test-vpc" class="page mb-4">
+            <h2>9. Test et validation</h2>
+            <p>Lancez une instance EC2 dans le sous-réseau public et testez la connectivité :</p>
+
+            <div class="codeblock"><code># Lancer une instance dans le sous-réseau public
+aws ec2 run-instances \
+    --image-id ami-0c02fb0f4665ef278 \
+    --instance-type t2.micro \
+    --key-name mon-keypair \
+    --subnet-id subnet-xxxxxxxx \
+    --security-group-ids sg-xxxxxxxx \
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=test-web}]'
+
+# Vérifier la connectivité HTTP
+curl http://&lt;PUBLIC_IP&gt;</code></div>
+
+            <img class="img-default" src="assets/images/vpc-test.png"
+                alt="Test de connectivité VPC">
+
+            <h4>Validation :</h4>
+            <ul>
+                <li>L'instance dans le sous-réseau <strong>public</strong> peut accéder à Internet
+                    (via IGW).</li>
+                <li>L'instance dans le sous-réseau <strong>privé</strong> peut accéder à Internet
+                    (via NAT Gateway) mais <strong>pas</strong> depuis Internet.</li>
+                <li>Les Security Groups bloquent tout sauf HTTP/HTTPS/SSH.</li>
+            </ul>
+        </section>
+
+        <!-- Bonnes pratiques -->
+        <section id="bonnes-pratiques" class="page mb-4">
+            <h2>10. Bonnes pratiques</h2>
+            <ul>
+                <li><strong>VPC personnalisé :</strong> Créez toujours un VPC personnalisé au lieu du VPC
+                    par défaut.</li>
+                <li><strong>Séparation :</strong> Isoler les environnements (dev, test, prod) dans des VPC
+                    ou des VNet distincts.</li>
+                <li><strong>NAT sain :</strong> Placez le NAT Gateway dans un sous-réseau public avec une IP
+                    élastique pour une haute disponibilité.</li>
+                <li><strong>Sécurité en couches :</strong> Combinez Security Groups (allow list) et NACLs
+                    (deny list) pour une défense en profondeur.</li>
+                <li><strong>Flow Logs :</strong> Activez VPC Flow Logs pour auditor le trafic réseau.</li>
+                <li><strong>HA :</strong> Répartissez les sous-réseaux sur au moins 2 AZ pour la
+                    résilience.</li>
+            </ul>
+        </section>
+
+        <!-- Checklist -->
+        <section id="checklist" class="page mb-4">
+            <h2>11. Checklist imprimable</h2>
+            <ul>
+                <li>[ ] VPC créé avec CIDR approprié</li>
+                <li>[ ] 2 sous-réseaux publics dans des AZ différentes</li>
+                <li>[ ] 2 sous-réseaux privés dans des AZ différentes</li>
+                <li>[ ] Internet Gateway créée et attachée au VPC</li>
+                <li>[ ] NAT Gateway créé avec Elastic IP</li>
+                <li>[ ] Route table publique → IGW</li>
+                <li>[ ] Route table privée → NAT Gateway</li>
+                <li>[ ] Security Group configuré (SSH, HTTP, HTTPS)</li>
+                <li>[ ] VPC Flow Logs activé</li>
+            </ul>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion" class="page mb-4">
+            <h2>12. Conclusion</h2>
+            <p>Ce guide a présenté la création complète d'un VPC AWS avec une architecture trois-tiers
+                (sous-réseaux publics et privés), un Internet Gateway et un NAT Gateway. Cette topologie
+                offre :</p>
+            <ul>
+                <li>Un contrôle total sur la topologie réseau et les flux de trafic.</li>
+                <li>Une sécurité en couches (SG + NACL + Firewall d'instance).</li>
+                <li>Une haute disponibilité grâce à la redondance multi-AZ.</li>
+                <li>Une isolation entre le web (public) et les données (privé).</li>
+            </ul>
+            <h5>Ressources &amp; liens utiles</h5>
+            <ul class="small-muted">
+                <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/" target="_blank">Documentation officielle AWS VPC</a></li>
+                <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-security-groups.html" target="_blank">Sécurité VPC</a></li>
+                <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-flow-logs.html" target="_blank">VPC Flow Logs</a></li>
+            </ul>
+        </section>
+
+        <footer class="text-center small-muted mb-4">
+            <p>© 2025 — Rapport AWS VPC — Ibrahima Khalilou Thiam</p>
+        </footer>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+
+

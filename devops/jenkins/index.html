@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport DevOps — Jenkins et déploiement Tomcat + Maven</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: #f4f6f8;
+            line-height: 1.6;
+        }
+
+        .page {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: bolder;
+            color: #23252E;
+        }
+
+        .codeblock {
+            background-color: #23252E;
+            color: #e6eef8;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            white-space: pre;
+            display: block;
+            color: inherit;
+        }
+
+        .explanation {
+            background: #f8fafc;
+            border-left: 4px solid #0d6efd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .img-default {
+            display: block;
+            margin: 1rem auto;
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        .small-muted {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .page,
+        .explanation,
+        .note,
+        .danger,
+        pre,
+        code,
+        ul,
+        li,
+        p,
+        div,
+        table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Page de garde -->
+        <header class="page text-center mb-4">
+            <h1>Rapport DevOps — Jenkins et déploiement Tomcat + Maven</h1>
+            <p class="lead">Guide CI/CD — Master 2 Génie Logiciel</p>
+            <p class="small-muted">Auteur : Ibrahima Khalilou Thiam | Année 2025</p>
+        </header>
+
+        <!-- Sommaire -->
+        <section class="page mb-4">
+            <h2>Sommaire</h2>
+                        <ol>
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#install-jenkins">Installation de Jenkins</a></li>
+                <li><a href="#maven">Configuration de Maven</a></li>
+                <li><a href="#tomcat">Installation de Tomcat</a></li>
+                <li><a href="#job">Création d'un job Jenkins</a></li>
+                <li><a href="#pipeline">Pipeline CI/CD avec Jenkinsfile</a></li>
+                <li><a href="#deploy">Déploiement automatisé</a></li>
+                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
+                <li><a href="#checklist">Checklist imprimable</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ol>
+        </section>
+
+        <!-- Objectif -->
+        <section id="objectif" class="page mb-4">
+            <h2>1. Objectif</h2>
+            <p>Jenkins est un orchestrateur CI/CD open source permettant d'automatiser le processus de
+                build, test et déploiement. Ce guide montre comment :</p>
+            <ul>
+                <li>Installer Jenkins sur une machine Linux.</li>
+                <li>Configurer Maven comme outil de build.</li>
+                <li>Installer et configurer Apache Tomcat comme serveur d'applications.</li>
+                <li>Créer un pipeline CI/CD automatisé avec un <code>Jenkinsfile</code>.</li>
+                <li>Déployer automatiquement une application Java sur Tomcat.</li>
+            </ul>
+            <div class="explanation">
+                <strong>CI/CD :</strong> L'intégration continue (CI) compile et teste automatiquement à
+                chaque commit. Le déploiement continu (CD) déploie automatiquement sur le serveur de
+                staging ou production.
+            </div>
+        </section>
+
+        <!-- Installation Jenkins -->
+        <section id="install-jenkins" class="page mb-4">
+            <h2>2. Installation de Jenkins</h2>
+            <p>Nous installons Jenkins sur une instance Linux (Ubuntu/Debian) :</p>
+
+            <h4>Étape 1 — Installer Java (JDK 11+ requis) :</h4>
+            <div class="codeblock"><code>sudo apt update
+sudo apt install -y openjdk-11-jdk
+
+# Vérifier
+java -version</code></div>
+
+            <h4>Étape 2 — Ajouter le dépôt Jenkins :</h4>
+            <div class="codeblock"><code># Ajouter la clé du dépôt Jenkins
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring-alpha.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring-alpha.asc] \
+  http://pkg.jenkins.io/debian-alpha binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# Installer Jenkins
+sudo apt update
+sudo apt install -y jenkins</code></div>
+
+            <h4>Étape 3 — Démarrer Jenkins :</h4>
+            <div class="codeblock"><code>sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins</code></div>
+
+            <h4>Étape 4 — Récupérer le mot de passe initial :</h4>
+            <div class="codeblock"><code>sudo cat /var/lib/jenkins/secrets/initialAdminPassword</code></div>
+
+            <img class="img-default" src="assets/images/jenkins-dashboard.png"
+                alt="Interface Jenkins après installation">
+
+            <div class="note">
+                <strong>Port :</strong> Jenkins écoute par défaut sur le port <code>8080</code>.
+                Assurez-vous qu'il est autorisé dans le Security Group (ou firewalld).
+            </div>
+        </section>
+
+        <!-- Configuration Maven -->
+        <section id="maven" class="page mb-4">
+            <h2>3. Configuration de Maven</h2>
+            <p>Maven est l'outil de build Java le plus répandu. Jenkins peut l'utiliser de deux façons :
+            </p>
+
+            <h4>Méthode 1 — Via le plugin (recommandé) :</h4>
+            <ol>
+                <li>Jenkins → Manage Jenkins → Tools.</li>
+                <li>Cocher <strong>Install Maven automatiquement</strong>.</li>
+                <li>Saisir un nom (ex. <code>Maven 3.9.4</code>) et sélectionner la version.</li>
+            </ol>
+
+            <h4>Méthode 2 — Installation manuelle :</h4>
+            <div class="codeblock"><code># Télécharger Maven
+wget https://dlcdn.apache.org/maven/maven-3/3.9.4/binaries/apache-maven-3.9.4-bin.tar.gz
+
+# Extraire
+sudo tar -xzf apache-maven-3.9.4-bin.tar.gz -C /opt/
+
+# Configurer les variables d'environnement
+sudo tee /etc/profile.d/maven.sh << 'EOF'
+export MAVEN_HOME=/opt/apache-maven-3.9.4
+export PATH=$MAVEN_HOME/bin:$PATH
+EOF
+
+# Appliquer
+source /etc/profile.d/maven.sh
+mvn --version</code></div>
+
+            <div class="explanation">
+                <strong>buildspec Maven :</strong> Le fichier <code>pom.xml</code> est le
+                <em>fichier de configuration</em> de Maven. Il définit les dépendances, les plugins et
+                                les phases de build.
+            </div>
+        </section>
+
+        <!-- Installation Tomcat -->
+        <section id="tomcat" class="page mb-4">
+            <h2>4. Installation de Tomcat</h2>
+            <p>Apache Tomcat est un serveur d'applications Java (Servlet/JSP) sur lequel nous
+                déploierons notre application.</p>
+
+            <h4>Étape 1 — Télécharger et installer Tomcat :</h4>
+            <div class="codeblock"><code># Télécharger Tomcat
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.tar.gz
+
+# Extraire
+sudo tar -xzf apache-tomcat-9.0.80.tar.gz -C /opt/
+sudo mv /opt/apache-tomcat-9.0.80 /opt/tomcat
+
+# Configurer les variables d'environnement
+sudo tee /etc/profile.d/tomcat.sh << 'EOF'
+export CATALINA_HOME=/opt/tomcat
+export JAVA_OPTS="-Djava.awt.headless=true -Xmx512m"
+EOF
+source /etc/profile.d/tomcat.sh</code></div>
+
+            <h4>Étape 2 — Démarrer Tomcat :</h4>
+            <div class="codeblock"><code># Démarrer Tomcat
+/opt/tomcat/bin/startup.sh
+
+# Vérifier
+curl http://localhost:8080
+
+# Arrêter
+/opt/tomcat/bin/shutdown.sh</code></div>
+
+            <img class="img-default" src="assets/images/tomcat-dashboard.png"
+                alt="Interface d'administration Tomcat">
+
+            <div class="note">
+                <strong>Port :</strong> Tomcat utilise le port <code>8080</code> par défaut. Pour
+                changer, éditer <code>/opt/tomcat/conf/server.xml</code>.
+            </div>
+        </section>
+
+        <!-- Job Jenkins -->
+        <section id="job" class="page mb-4">
+            <h2>5. Création d'un job Jenkins (Freestyle)</h2>
+            <p>Nous allons créer un job Jenkins de type <em>Freestyle Project</em> pour compiler
+                et packager une application Maven :</p>
+
+            <h4>Étapes :</h4>
+            <ol>
+                <li>Accéder à Jenkins → <strong>Nouveau projet</strong> → <strong> projet Freestyle</strong>.</li>
+                <li>Nom : <code>build-webapp</code>.</li>
+                <li>Dans <strong>Source Code Management</strong>, sélectionner <strong>Git</strong> et
+                    saisir l'URL du dépôt.</li>
+                <li>Dans <strong>Build</strong>, ajouter une étape → <strong>Invoke top-level Maven
+                    targets</strong> :</li>
+            </ol>
+
+            <div class="codeblock"><code># Goals Maven pour le build
+clean package</code></div>
+
+            <h4>Étape de post-build :</h4>
+            <ol>
+                <li>Ajouter <strong>E Build Results</strong> → <strong>Publisher</strong>.</li>
+                <li>Ajouter <strong>Copier les artefacts</strong> sur le serveur de déploiement.</li>
+            </ol>
+
+                        <img class="img-default" src="assets/images/jenkins-job.png" alt="Configuration d'un job Jenkins">
+        </section>
+
+        <!-- Pipeline -->
+        <section id="pipeline" class="page mb-4">
+            <h2>6. Pipeline CI/CD avec Jenkinsfile</h2>
+            <p>Un Jenkinsfile est un script déclaratif qui définit le pipeline CI/CD sous forme de code
+                (Infrastructure as Code). Il est placé à la racine du dépôt Git.</p>
+
+            <h4>Jenkinsfile (Declarative Pipeline) :</h4>
+            <div class="codeblock"><code>pipeline {
+    agent any
+
+    tools {
+        maven 'Maven 3.9.4'
+        jdk 'Java 11'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/mon-orga/webapp.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'cp target/*.war /opt/tomcat/webapps/'
+            }
+        }
+    }
+}</code></div>
+
+            <img class="img-default" src="assets/images/jenkins-pipeline.png"
+                alt="Pipeline Jenkins exécuté">
+
+            <div class="explanation">
+                <strong>Stages :</strong> Le pipeline est divisé en étapes (Checkout → Build → Test →
+                Deploy). Chaque stage peut être surveillé individuellement dans l'interface Jenkins.
+            </div>
+        </section>
+
+        <!-- Déploiement automatisé -->
+        <section id="deploy" class="page mb-4">
+            <h2>7. Déploiement automatisé sur Tomcat</h2>
+            <p>Le déploiement automatisé copie l'artefact <code>.war</code> généré par Maven directement
+                dans le répertoire <code>webapps</code> de Tomcat.</p>
+
+            <div class="codeblock"><code># Pipeline — stade de déploiement
+stage('Deploy') {
+    steps {
+        sshagent(['tomcat-server-key']) {
+            sh 'scp target/myapp.war ec2-user@&lt;IP_TOMCAT&gt;:/opt/tomcat/webapps/'
+        }
+    }
+}
+
+# Redémarrer Tomcat pour prendre en compte le nouveau WAR
+ssh ec2-user@&lt;IP_TOMCAT&gt; '/opt/tomcat/bin/shutdown.sh && /opt/tomcat/bin/startup.sh'</code></div>
+
+            <h4>Via le Manager de Tomcat (alternatif) :</h4>
+            <div class="codeblock"><code># Utiliser le gestionnaire Tomcat
+# http://&lt;IP&gt;:8080/manager/text/deploy?path=/myapp
+
+curl -u admin:password \
+  --upload-file target/myapp.war \
+  "http://&lt;IP&gt;:8080/manager/text/deploy?path=/myapp&force=true"</code></div>
+
+            <div class="note">
+                <strong>Sécurité :</strong> Utilisez le plugin <strong>SSH Agent</strong> pour les
+                                connexions sécurisées. Ne stockez jamais les mots de passe en clair dans le Jenkinsfile.
+            </div>
+        </section>
+
+        <!-- Bonnes pratiques -->
+        <section id="bonnes-pratiques" class="page mb-4">
+            <h2>8. Bonnes pratiques Jenkins</h2>
+            <ul>
+                <li><strong>Security par défaut :</strong> Activez l'authentification et utilisez
+                    <strong>Role-Based Access Control</strong> (RBAC) pour limiter l'accès.</li>
+                <li><strong>Credentials sécurisés :</strong> Stockez les mots de passe et clés SSH dans
+                    <strong>Jenkins Credentials Store</strong>, jamais en clair dans les jobs.</li>
+                <li><strong>Pipeline en tant que code :</strong> Utilisez un <code>Jenkinsfile</code>
+                    versionné dans Git pour un pipeline reproductible et auditable.</li>
+                <li><strong>Tests automatisés :</strong> Intègrez les tests unitaires (<code>mvn test</code>)
+                    dans le pipeline avant le déploiement.</li>
+                <li><strong>Agents distants :</strong> Utilisez des agents (slaves) pour exécuter les builds
+                    en parallèle et isoler les environnements.</li>
+                <li><strong>Nettoyage des artefacts :</strong> Configurez la conservation des builds pour
+                    éviter de saturer le disque.</li>
+                <li><strong>Sécurité des plugins :</strong> Ne pas installer de plugins non officiels.
+                    Tenez Jenkins à jour.</li>
+            </ul>
+        </section>
+
+        <!-- Checklist -->
+        <section id="checklist" class="page mb-4">
+            <h2>9. Checklist imprimable</h2>
+            <ul>
+                <li>[ ] Java JDK 11+ installé</li>
+                <li>[ ] Jenkins installé et démarré</li>
+                <li>[ ] Mot de passe initial récupéré</li>
+                <li>[ ] Plugins essentiels installés (Git, Maven, SSH)</li>
+                <li>[ ] Maven configuré dans Jenkins (Global Tool)</li>
+                <li>[ ] Tomcat installé et accessible</li>
+                <li>[ ] Credentials SSH stockés dans Jenkins</li>
+                <li>[ ] Jenkinsfile créé et versionné</li>
+                <li>[ ] Pipeline testé (Build → Test → Deploy)</li>
+                <li>[ ] Authentification et RBAC activés</li>
+            </ul>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion" class="page mb-4">
+            <h2>10. Conclusion</h2>
+            <p>Ce guide a présenté la mise en place complète d'une chaîne CI/CD avec Jenkins :</p>
+            <ul>
+                <li>Installation de Jenkins et configuration de Maven comme outil de build.</li>
+                <li>Installation d'Apache Tomcat comme serveur d'applications Java.</li>
+                <li>Création de jobs Freestyle et pipeline déclaratif avec <code>Jenkinsfile</code>.</li>
+                <li>Déploiement automatisé d'une application Java ( WAR) sur Tomcat.</li>
+            </ul>
+            <h5>Ressources &amp; liens utiles</h5>
+            <ul class="small-muted">
+                <li><a href="https://www.jenkins.io/doc/" target="_blank">Documentation officielle Jenkins</a></li>
+                <li><a href="https://maven.apache.org/guides/" target="_blank">Documentation Maven</a></li>
+                <li><a href="https://tomcat.apache.org/tomcat-9.0-doc/index.html" target="_blank">Documentation Tomcat 9</a></li>
+                <li><a href="https://www.jenkins.io/doc/book/pipeline/" target="_blank">Pipeline Syntax Reference</a></li>
+            </ul>
+        </section>
+
+        <footer class="text-center small-muted mb-4">
+            <p>© 2025 — Rapport DevOps Jenkins — Ibrahima Khalilou Thiam</p>
+        </footer>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+
+

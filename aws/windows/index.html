@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport AWS EC2 Windows Server 2022</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: #f4f6f8;
+            line-height: 1.6;
+        }
+
+        .page {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: bolder;
+            color: #23252E;
+        }
+
+        .codeblock {
+            background-color: #23252E;
+            color: #e6eef8;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .explanation {
+            background: #f8fafc;
+            border-left: 4px solid #0d6efd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.75rem;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .img-default {
+            display: block;
+            margin: 1rem auto;
+            max-width: 90%;
+            border-radius: 8px;
+        }
+
+        .small-muted {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Page de garde -->
+        <header class="page text-center mb-4">
+            <h1>Rapport d'installation d'une instance Windows Server 2022 sur AWS EC2</h1>
+            <p class="lead">Guide étape par étape — Master 2 Génie Logiciel</p>
+            <p class="small-muted">Auteur : Ibrahima Khalilou Thiam | Année 2025</p>
+        </header>
+
+        <!-- Sommaire -->
+        <section class="page mb-4">
+            <h2>Sommaire</h2>
+            <ol>
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#compte-aws">Création d'un compte AWS (Free Tier)</a></li>
+                <li><a href="#ec2">Qu'est-ce qu'EC2 ?</a></li>
+                <li><a href="#creation-instance">Création d'une instance EC2 Windows Server 2022</a></li>
+                <li><a href="#connexion-rdp">Connexion RDP à l'instance Windows</a></li>
+                <li><a href="#securite">Vérifications, sécurité et bonnes pratiques</a></li>
+                <li><a href="#checklist">Checklist imprimable</a></li>
+                <li><a href="#annexes">Annexes : commandes AWS CLI et dépannage</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+            </ol>
+        </section>
+
+        <!-- Objectif -->
+        <section id="objectif" class="page mb-4">
+            <h2>1. Objectif</h2>
+            <p>Ce guide explique comment :</p>
+            <ul>
+                <li>Créer un compte AWS (offre Free Tier si disponible).</li>
+                <li>Comprendre le service EC2 et ses composants clés.</li>
+                <li>Déployer une instance Windows Server 2022 sur EC2 et s’y connecter via RDP.</li>
+                <li>Appliquer les bonnes pratiques de sécurité et de gestion.</li>
+            </ul>
+            <p>Les captures d’écran (1.png → 20.png) servent de support visuel pour chaque étape.</p>
+        </section>
+
+        <!-- Création compte AWS -->
+        <section id="compte-aws" class="page mb-4">
+            <h2>2. Création d'un compte AWS (Free Tier)</h2>
+            <ol>
+                <li>Aller sur la page d'accueil AWS.</li>
+                <li>Remplir les informations du compte : e-mail, mot de passe, nom du compte.</li>
+                <li>Vérification de l’identité via SMS ou appel téléphonique.</li>
+                <li>Choisir le plan de support : Basic (gratuit) pour débuter.</li>
+                <li>Saisir les informations de contact (nom, adresse, téléphone).</li>
+            </ol>
+            <div class="note">
+                <strong>Remarques importantes :</strong><br>
+                AWS exige une carte bancaire valide même pour le Free Tier. Activez l’authentification multifacteur
+                (MFA) pour plus de sécurité.
+            </div>
+        </section>
+
+        <!-- Qu'est-ce qu'EC2 -->
+        <section id="ec2" class="page mb-4">
+            <h2>3. Qu'est-ce qu'EC2 ?</h2>
+            <p>EC2 (Elastic Compute Cloud) est un service IaaS qui permet de créer des machines virtuelles dans le
+                cloud.</p>
+            <ul>
+                <li>Types d’instances : optimisées CPU, mémoire, stockage ou GPU.</li>
+                <li>AMIs : images préconfigurées Windows ou Linux.</li>
+                <li>Key Pair : clé publique/privée pour récupérer le mot de passe Windows ou SSH sur Linux.</li>
+                <li>Security Groups : filtres réseau pour sécuriser l’accès aux instances (ex. port RDP 3389).</li>
+            </ul>
+        </section>
+
+        <!-- Création instance -->
+        <section id="creation-instance" class="page mb-4">
+            <h2>4. Création d'une instance EC2 Windows Server 2022 — procédure détaillée</h2>
+
+            <h4>4.1 Accéder au service EC2</h4>
+            <p>Taper EC2 dans la barre de recherche AWS et accéder au service.</p>
+
+            <h4>4.2 Lancer la création de l'instance</h4>
+            <ol>
+                <li>Cliquer sur <strong>Launch Instance</strong>.</li>
+                <li>Choisir l’AMI Windows Server 2022.</li>
+                <li>Choisir le type d’instance (exemple : t2.micro pour Free Tier).</li>
+                <li>Configurer réseau, stockage EBS et tags (Name).</li>
+                <li>Créer ou sélectionner une Key Pair (.pem) et la conserver en lieu sûr.</li>
+                <li>Configurer le Security Group : autoriser RDP (3389) depuis votre IP.</li>
+                <li>Lancer l’instance.</li>
+                <li>Vérifier l’état initial dans la console.</li>
+            </ol>
+            <div class="explanation">
+                <strong>Astuce :</strong> Ne jamais autoriser RDP à 0.0.0.0/0 en production.
+            </div>
+        </section>
+
+        <!-- Connexion RDP -->
+        <section id="connexion-rdp" class="page mb-4">
+            <h2>5. Connexion RDP à l'instance Windows</h2>
+            <h4>5.1 Obtenir le mot de passe Administrateur</h4>
+            <p>Sélectionner l’instance → Connect → RDP → Get Windows Password et décrypter avec la clé .pem.</p>
+
+            <h4>5.2 Télécharger le fichier RDP</h4>
+            <p>Ouvrir le fichier .rdp et saisir le mot de passe Administrateur.</p>
+
+            <h4>5.3 Confirmation et bureau Windows</h4>
+            <p>Après authentification, vous accédez au bureau Windows Server 2022.</p>
+
+            <h4>5.4 Points d'attention</h4>
+            <ul>
+                <li>Vérifier Security Group, IP publique et NAT/Internet Gateway si la connexion échoue.</li>
+                <li>Assurez-vous d’avoir la bonne clé .pem et que l’instance est en état running.</li>
+            </ul>
+        </section>
+
+        <!-- Vérifications et bonnes pratiques -->
+        <section id="securite" class="page mb-4">
+            <h2>6. Vérifications, sécurité et bonnes pratiques</h2>
+            <ul>
+                <li>Activer MFA sur le compte racine.</li>
+                <li>Créer des comptes IAM avec droits minimaux pour usage quotidien.</li>
+                <li>Ne pas ouvrir RDP à tout le monde (0.0.0.0/0).</li>
+                <li>Mettre en place des alertes budgétaires pour éviter des frais inattendus.</li>
+                <li>Automatiser les sauvegardes via snapshots EBS.</li>
+            </ul>
+        </section>
+
+        <!-- Checklist -->
+        <section id="checklist" class="page mb-4">
+            <h2>7. Checklist imprimable</h2>
+            <ul>
+                <li>[ ] Compte AWS créé et vérifié</li>
+                <li>[ ] MFA activé</li>
+                <li>[ ] EC2 lancé avec Windows Server 2022</li>
+                <li>[ ] Security Group configuré</li>
+                <li>[ ] Key Pair téléchargée et sécurisée</li>
+                <li>[ ] Connexion RDP testée</li>
+                <li>[ ] Backups et snapshots configurés</li>
+            </ul>
+        </section>
+
+        <!-- Annexes -->
+        <section id="annexes" class="page mb-4">
+            <h2>8. Annexes : commandes AWS CLI et dépannage</h2>
+            <div class="codeblock"><code># Lister les instances EC2
+aws ec2 describe-instances
+
+# Vérifier le statut des instances
+aws ec2 describe-instance-status
+
+# Créer un snapshot EBS
+aws ec2 create-snapshot --volume-id vol-xxxxxxxx --description "Snapshot backup"</code></div>
+            <div class="note">Ces commandes peuvent être utilisées pour vérifier, sauvegarder ou dépanner votre
+                instance.</div>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion" class="page mb-4">
+            <h2>9. Conclusion</h2>
+            <p>Ce guide montre comment :</p>
+            <ul>
+                <li>Créer un compte AWS et sécuriser l’accès.</li>
+                <li>Déployer une instance Windows Server 2022 sur EC2.</li>
+                <li>Se connecter via RDP en toute sécurité.</li>
+                <li>Mettre en place des bonnes pratiques pour la sécurité et la gestion des coûts.</li>
+            </ul>
+            <p>En suivant ces étapes, vous disposez d’une base solide pour réaliser des environnements de test ou de
+                production sur le cloud AWS.</p>
+        </section>
+
+        <footer class="text-center small-muted mb-4">
+            <p>© 2025 — Rapport AWS EC2 — Ibrahima Khalilou Thiam</p>
+        </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

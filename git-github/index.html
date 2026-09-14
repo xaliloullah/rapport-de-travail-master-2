@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Présentation — Git & GitHub</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f4f6f8;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    .page {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+      min-height: 100vh;
+    }
+
+    header .meta {
+      color: var(--bs-secondary);
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #23252E;
+      font-weight: bolder;
+    }
+
+    h4 {
+      margin-top: 10px;
+    }
+
+    pre.codeblock {
+      background: #23252E;
+      color: #e6eef8;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    pre.codeblock code {
+      color: inherit;
+      white-space: pre;
+      display: block;
+    }
+
+    .explanation {
+      background: #f8fafc;
+      border-left: 4px solid #0d6efd;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .danger {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .img-default {
+      display: block;
+      margin: 1rem auto;
+      max-width: 90%;
+      border-radius: 8px;
+    }
+
+    nav.toc {
+      position: sticky;
+      top: 1rem;
+    }
+
+    .small-muted {
+      font-size: .9rem;
+      color: #6c757d;
+    }
+
+    .page,
+    .explanation,
+    .note,
+    .danger,
+    pre,
+    code,
+    ul,
+    li,
+    p,
+    div {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+  </style>
+
+</head>
+
+<body class="">
+  <header id="page-de-garde" class="page text-center">
+
+    <div class="mb-5">
+      <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+      <div class="mt-auto mb-5">
+        <img src="assets/images/senegal-flag.png" alt="" class="rounded shadow">
+      </div>
+      <p class="lead mt-3 text-uppercase">Ministère de l’Enseignement Supérieur et de la Recherche</p>
+      <p class="lead mt-2 text-uppercase">Direction Générale de l’Enseignement Supérieur</p>
+      <img src="assets/images/udb.jpeg" alt="" class="rounded">
+      <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+        <h1 class="display-5 fw-bold text-light">Présentation — Git & GitHub</h1>
+      </div>
+    </div>
+
+    <div class="mb-4 text-start ms-5">
+      <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+      <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+      <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+  </header>
+
+
+  <div class="row">
+    <!-- Sommaire (col gauche large) -->
+    <div class="col-lg-12">
+      <!-- Sommaire -->
+      <section id="sommaire" class="page mb-4">
+        <h2 class="mb-3">Sommaire</h2>
+        <ol>
+          <li class="mb-3 h5"><a href="#introduction">Introduction</a></li>
+          <li class="mb-3 h5"><a href="#git">Qu’est-ce que Git ?</a></li>
+          <li class="mb-3 h5"><a href="#github">Qu’est-ce que GitHub ?</a></li>
+          <li class="mb-3 h5"><a href="#roles">Rôle et avantages</a></li>
+          <li class="mb-3 h5"><a href="#installation">Installation de Git</a></li>
+          <li class="mb-3 h5"><a href="#commandes">Premiers pas avec Git (commandes de base)</a></li>
+          <li class="mb-3 h5"><a href="#projet">Mise en place d’un projet — Scénario complet</a></li>
+          <li class="mb-3 h5"><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
+          <li class="mb-3 h5"><a href="#workflow">Exemple de workflow collaboratif</a></li>
+          <li class="mb-3 h5"><a href="#conclusion">Conclusion</a></li>
+        </ol>
+      </section>
+
+      <!-- 1. Introduction -->
+      <section id="introduction" class="page mb-4">
+        <h2>1. Introduction</h2>
+        <p>Git (le système de contrôle de version) et GitHub (la plateforme d'hébergement et de
+          collaboration). L'objectif est d'amener le lecteur de zéro à un workflow collaboratif complet, en expliquant
+          chaque commande et chaque étape.</p>
+
+        <div class="explanation">
+          <strong>Pourquoi apprendre Git ?</strong>
+          <p>
+            Git permet de garder un historique fiable des modifications, d'expérimenter sans risquer de perdre le
+            travail (grâce aux branches), et de collaborer efficacement. GitHub facilite la revue de code, l'intégration
+            continue (CI), et le partage public/privé.
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. Git -->
+      <section id="git" class="page mb-4">
+        <h2>2. Qu’est-ce que Git ?</h2>
+
+        <p>Git est un <strong>système de contrôle de version distribué</strong>. Contrairement à certains systèmes
+          centralisés, chaque développeur possède une copie complète du dépôt (history + contenu) sur sa machine.</p>
+
+        <h3>Concepts clés</h3>
+        <ul>
+          <li><strong>Commit :</strong> photographie de l'état du projet à un instant T.</li>
+          <li><strong>Branch (branche) :</strong> ligne de développement isolée.</li>
+          <li><strong>Merge (fusion) :</strong> intégration d'une branche dans une autre.</li>
+          <li><strong>Remote (dépôt distant) :</strong> version en ligne du dépôt (ex. : GitHub).</li>
+        </ul>
+
+        <div class="explanation">
+          <strong>Le cycle de vie simplifié :</strong>
+          <p>Modifier des fichiers → <code>git add</code> pour indexer → <code>git commit</code> pour enregistrer →
+            <code>git push</code> pour envoyer au remote.
+          </p>
+        </div>
+
+        <img class="img-default" src="assets/images/git.webp" alt="Image Git concepts">
+      </section>
+
+      <!-- 3. GitHub -->
+      <section id="github" class="page mb-4">
+        <h2>3. Qu’est-ce que GitHub ?</h2>
+
+        <p>GitHub est une plateforme qui héberge des dépôts Git et y ajoute des fonctionnalités collaboratives : issues,
+          pull requests, actions CI, pages pour hébergement statique, etc.</p>
+
+        <h3>Fonctionnalités importantes</h3>
+        <ul>
+          <li><strong>Pull Requests :</strong> mécanisme de revue et de demande de fusion.</li>
+          <li><strong>Issues :</strong> suivi des tâches et bugs.</li>
+          <li><strong>Actions :</strong> workflows d'intégration/déploiement continus.</li>
+          <li><strong>Pages :</strong> hébergement de sites statiques (ex. : documentation).</li>
+        </ul>
+
+        <div class="explanation">
+          <strong>Différence pratique :</strong>
+          <p>Git s'exécute sur votre machine ; GitHub est un service web où vous publiez vos dépôts pour collaborer et
+            publier.</p>
+        </div>
+
+        <img class="img-default" src="assets/images/github.png" alt="Image GitHub">
+      </section>
+
+      <!-- 4. Rôle et avantages -->
+      <section id="roles" class="page mb-4">
+        <h2>4. Rôle et avantages de Git & GitHub</h2>
+
+        <h4>a) Collaboration</h4>
+        <p>Les branches et les pull requests permettent d'isoler le travail, de faire des revues et de discuter des
+          changements avant de fusionner.</p>
+
+        <h4>b) Sécurité et sauvegarde</h4>
+        <p>Chaque commit est identifié par un hash (SHA-1). Les données sont difficiles à corrompre sans être détectées.
+        </p>
+
+        <h4>c) Productivité</h4>
+        <p>Automatisation (CI/CD), intégrations IDE, outils de gestion de projet.</p>
+
+        <h4>d) Communauté</h4>
+        <p>Large écosystème de projets open-source, templates et intégrations.</p>
+
+        <img class="img-default" src="assets/images/git_v_github.png" alt="Image avantages">
+      </section>
+
+      <!-- 5. Installation multi-OS -->
+      <section id="installation" class="page mb-4">
+        <h2>5. Installation de Git (Windows, macOS, Linux)</h2>
+
+        <h4>Windows</h4>
+        <ul>
+          <li>Télécharger depuis <a href="https://git-scm.com" target="_blank">git-scm.com</a></li>
+          <li>Lancer l’installateur, choisir l’éditeur préféré (VS Code conseillé) et activer Git from CLI
+          </li>
+          <li>Vérifier : <code>git --version</code></li>
+        </ul>
+        <img class="img-default" src="assets/images/git-site.png" alt="Image avantages">
+
+        <h4>macOS</h4>
+        <p><strong>Option 1 : Homebrew</strong></p>
+        <pre class="codeblock"><code>/bin/bash -c 
+  "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  brew install git
+</code></pre>
+        <p><strong>Option 2 : Installateur officiel</strong> depuis git-scm.com.</p>
+
+        <h4>Linux</h4>
+        <p><strong>Ubuntu / Debian</strong></p>
+        <pre class="codeblock"><code>sudo apt update 
+sudo apt install git</code></pre>
+        <p><strong>Fedora / CentOS</strong></p>
+        <pre class="codeblock"><code>sudo dnf install git</code></pre>
+        <p><strong>Arch Linux / Manjaro</strong></p>
+        <pre class="codeblock"><code>sudo pacman -S git</code></pre>
+        <img class="img-default" src="assets/images/install git.png" alt="">
+        <p><strong>Vérifier : <code>git --version</code></strong></p>
+        <img class="img-default" src="assets/images/git version.png" alt="">
+
+        <div class="explanation">
+          <p>Peu importe l’OS, les commandes Git suivantes sont identiques. Seules diffèrent les étapes
+            d’installation.</p>
+        </div>
+        <img class="img-default" src="assets/images/wml.png" alt="Installation Git multi-OS">
+      </section>
+
+      <!-- 6. Commandes -->
+      <section id="commandes" class="page mb-4">
+        <h2>6. Premiers pas avec Git — commandes de base</h2>
+
+        <!-- Configuration initiale -->
+        <h4>6.1 Configuration initiale</h4>
+        <img class="img-default" src="assets/images/git config.png" alt="">
+        <pre class="codeblock"><code># Configurer votre nom (affiché dans les commits)
+git config --global user.name "Votre Nom"
+
+# Configurer votre e-mail (affiché dans les commits)
+git config --global user.email "vous@exemple.com"
+
+# Optionnel : afficher la configuration courante
+git config --list
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <p>Ces paramètres renseignent l'auteur des commits. L'option <code>--global</code> applique la configuration
+            pour tout l'utilisateur sur la machine. Sans ces paramètres, Git vous demandera de les définir avant de
+            committer.</p>
+        </div>
+
+        <div class="note">
+          <strong>Note :</strong> Pour un projet professionnel, on peut configurer des valeurs locales (sans
+          <code>--global</code>) dans le dépôt seulement : <code>git config user.email "autre@exemple.com"</code>.
+        </div>
+
+        <!-- Initialiser un dépôt -->
+        <h4>6.2 Créer un dépôt local</h4>
+        <img class="img-default" src="assets/images/git init.png" alt="">
+        <pre class="codeblock"><code># Créer un dossier et initialiser Git
+mkdir mon-projet
+cd mon-projet
+git init
+
+# Résultat : création d'un dossier .git qui contient l'historique local
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <p><code>git init</code> crée un dépôt Git dans le dossier courant. Cela n'envoie aucune donnée en ligne —
+            vous avez un dépôt local prêt à recevoir des commits.</p>
+        </div>
+
+        <!-- Ajouter & committer -->
+        <h4>6.3 Ajouter des fichiers et faire un commit</h4>
+        <img class="img-default" src="assets/images/git add.png" alt="">
+        <pre class="codeblock"><code># Ajouter des fichiers pour suivi (staging)
+git add index.html style.css
+
+# Enregistrer ces changements dans l'historique (commit)
+git commit -m "Initialisation du projet : ajout des fichiers index et style"
+
+# Vérifier l'état du dépôt
+git status
+
+# Voir l'historique des commits
+git log --oneline --graph --decorate
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <ul>
+            <li><code>git add</code> place des modifications dans l'index (staging area).</li>
+            <li><code>git commit</code> enregistre les modifications indexées dans l'historique local comme un commit.
+            </li>
+            <li><code>git status</code> montre les fichiers modifiés, indexés ou non.</li>
+            <li><code>git log</code> permet de consulter l'historique ; les options <code>--oneline</code> et
+              <code>--graph</code> rendent l'affichage plus lisible.
+            </li>
+          </ul>
+        </div>
+
+        <div class="danger">
+          <strong>Erreur courante :</strong> Faire <code>git commit</code> sans <code>git add</code> n'enregistrera pas
+          vos dernières modifications. Vérifiez toujours <code>git status</code>.
+        </div>
+
+        <!-- Branches -->
+        <h4>6.4 Branches — créer et basculer</h4>
+        <img class="img-default" src="assets/images/git branch.png" alt="">
+        <pre class="codeblock"><code># Lister les branches locales
+git branch
+
+# Créer une nouvelle branche
+git branch feature-accueil
+
+# Basculer sur la branche
+git checkout feature-accueil
+
+# Alternative (crée et bascule en un seul pas)
+git checkout -b feature-contact
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Pourquoi les branches ?</strong>
+          <p>Les branches permettent d'isoler une nouvelle fonctionnalité ou une correction de bug. La branche
+            <code>main</code> (ou <code>master</code>) reste stable pendant que vous travaillez sur une branche
+            secondaire.
+          </p>
+        </div>
+
+        <!-- Fusion -->
+        <h4>6.5 Fusionner une branche</h4>
+        <pre class="codeblock"><code># Se placer sur la branche de destination (ex: main)
+git checkout main
+
+# Fusionner la branche feature-accueil dans main
+git merge feature-accueil
+
+# Résoudre conflits si nécessaire
+# Après résolution : git add <fichier_modifié>
+# Puis : git commit (pour terminer la fusion si non automatique)
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Conflits :</strong>
+          <p>Si deux personnes ont modifié la même portion de fichier, Git signale un conflit. Il faut ouvrir le
+            fichier, choisir la version souhaitée, puis ajouter et committer la résolution.</p>
+        </div>
+
+        <!-- Remote -->
+        <h4>6.6 Lier un dépôt distant et pousser</h4>
+        <pre class="codeblock"><code># Ajouter un remote nommé 'origin' (ex. GitHub)
+git remote add origin https://github.com/utilisateur/mon-projet.git
+
+# Renommer la branche par défaut (optionnel)
+git branch -M main
+
+# Envoyer la branche 'main' vers origin
+git push -u origin main
+
+# Pour pousser une branche nommée feature-xyz
+git push origin feature-xyz
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <p><code>git remote add origin ...</code> lie le dépôt local à un dépôt distant.
+            <code>git push -u origin main</code> envoie la branche et définit l'upstream pour faciliter les futurs
+            pushes/pulls.
+          </p>
+        </div>
+      </section>
+
+      <!-- 7. Projet complet -->
+      <section id="projet" class="page mb-4">
+        <h2>7. Mise en place d’un projet Git & GitHub — scénario complet expliqué</h2>
+
+        <p>Ce scénario illustre toutes les étapes depuis la création locale jusqu'à la mise en ligne sur GitHub et la
+          création d'une fonctionnalité via branche + pull request.</p>
+
+        <h4>Étape 1 — Création locale</h4>
+        <pre class="codeblock"><code># Créer un répertoire de projet et initialiser
+mkdir projetGit
+cd projetGit
+git init
+
+# Créer un fichier simple
+echo "&lt;h1&gt;Mon premier projet Git&lt;/h1&gt;" &gt; index.html
+
+# Suivre et committer
+git add index.html
+git commit -m "Création du fichier index.html"
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <p>Ce commit initialise le projet. À partir de maintenant, toute modification de <code>index.html</code>
+            pourra être tracée dans l'historique.</p>
+        </div>
+
+        <h4>Étape 2 — Création du dépôt GitHub</h4>
+        <p>Sur <strong>github.com</strong> : cliquer sur <em>New Repository</em>, nommer le dépôt
+          <code>projetGit</code>, choisir public/privé, puis créer.
+        </p>
+        <img class="img-default" src="assets/images/git login.png" alt="">
+        <img class="img-default" src="assets/images/git new repo.png" alt="">
+        <img class="img-default" src="assets/images/git create repo.png" alt="">
+        <img class="img-default" src="assets/images/github info.png" alt="">
+        <h4>Étape 3 — Lier local → distant</h4>
+        <pre class="codeblock"><code># Ajouter le remote (url HTTPS)
+git remote add origin https://github.com/ton-username/projetGit.git
+
+# Renommer branche et pousser la première fois
+git branch -M main
+git push -u origin main
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Note :</strong>
+          <p>Tu peux également utiliser SSH (git@github.com:username/projetGit.git) si tu as configuré une clé SSH pour
+            GitHub.</p>
+        </div>
+
+        <h4>Étape 4 — Développer une nouvelle fonctionnalité</h4>
+        <pre class="codeblock"><code># Créer une branche de fonctionnalité
+git checkout -b feature-contact
+
+# Ajouter une nouvelle page
+echo "&lt;p&gt;Contactez-nous&lt;/p&gt;" &gt; contact.html
+
+# Ajouter et committer
+git add contact.html
+git commit -m "Ajout de la page contact"
+
+# Pousser la branche sur GitHub
+git push origin feature-contact
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Explication :</strong>
+          <p>La branche <code>feature-contact</code> est désormais en ligne et prête à être examinée via une Pull
+            Request sur GitHub.</p>
+        </div>
+
+        <h4>Étape 5 — Créer une Pull Request (PR)</h4>
+        <p>Sur l'interface GitHub : comparer la branche <code>feature-contact</code> avec <code>main</code>, ouvrir une
+          PR, ajouter une description, assigner des réviseurs et lancer la revue.</p>
+
+        <h4>Étape 6 — Fusionner la PR</h4>
+        <p>Après approbation, fusionner via l'interface (merge). Ensuite récupérer les changements localement :</p>
+        <pre class="codeblock"><code># Retourner sur main et récupérer les modifications depuis origin
+git checkout main
+git pull origin main
+        </code></pre>
+
+        <img class="img-default" src="assets/images/git remote.png" alt="Image scénario complet">
+        <img class="img-default" src="assets/images/git push.png" alt="Image scénario complet">
+      </section>
+
+      <!-- 8. Bonnes pratiques -->
+      <section id="bonnes-pratiques" class="page mb-4">
+        <h2>8. Bonnes pratiques de travail collaboratif</h2>
+
+        <h4>Branches et conventions</h4>
+        <p>Adoptez une convention claire : <code>feature/...</code>, <code>fix/...</code>, <code>hotfix/...</code>, etc.
+          Ex : <code>feature/ajout-accueil</code>.</p>
+
+        <h4>Messages de commit</h4>
+        <p>Rédigez des messages concis mais descriptifs : première ligne courte (<50 char), puis description détaillée
+            si nécessaire.</p>
+
+            <h4>Fichiers sensibles</h4>
+            <p>Utilisez <code>.gitignore</code> pour exclure les secrets, dossiers temporaires et dépendances
+              volumineuses.</p>
+
+            <pre class="codeblock"><code># Exemple .gitignore basique
+node_modules/
+.env
+.DS_Store
+*.log
+/build/
+dist/
+        </code></pre>
+
+            <div class="explanation">
+              <strong>Astuce sécurité :</strong> Si un secret est commit accidentellement, invalidez-le (par ex.
+              régénérer la clé) — ne comptez pas sur un "git rm" seul pour résoudre le problème.
+            </div>
+      </section>
+
+      <!-- 9. Workflow -->
+      <section id="workflow" class="page mb-4">
+        <h2>9. Exemple complet de workflow collaboratif (pas à pas)</h2>
+
+        <h4>Résumé du workflow</h4>
+        <ol>
+          <li>Cloner le dépôt : <code>git clone</code></li>
+          <li>Créer une branche locale : <code>git checkout -b</code></li>
+          <li>Faire des commits atomiques (un seul objectif par commit)</li>
+          <li>Pousser la branche : <code>git push origin ma-branche</code></li>
+          <li>Ouvrir une PR sur GitHub pour revue</li>
+          <li>Corriger les remarques, mettre à jour la PR</li>
+          <li>Fusionner et supprimer la branche distante</li>
+        </ol>
+
+        <pre class="codeblock"><code># Exemple concret
+git clone https://github.com/organisation/projet.git
+cd projet
+git checkout -b feature/amelioration-style
+# Travailler localement
+git add .
+git commit -m "feature: amélioration de la mise en page de la page d'accueil"
+git push origin feature/amelioration-style
+# Ouvrir PR -> Revue -> Merge
+        </code></pre>
+
+        <div class="explanation">
+          <strong>Pourquoi des commits atomiques ?</strong>
+          <p>Ils facilitent la revue, la compréhension de l'historique et la possibilité de revenir en arrière sur une
+            fonctionnalité précise.</p>
+        </div>
+      </section>
+
+      <!-- 10. Conclusion -->
+      <section id="conclusion" class="page mb-4">
+        <h2>10. Conclusion</h2>
+        <p>Git &amp; GitHub sont des outils fondamentaux pour tout développeur moderne. La maîtrise des commandes de
+          base, la compréhension des branches et la pratique d'un workflow collaboratif permettent de travailler
+          efficacement en équipe et de maintenir un historique fiable des projets.</p>
+
+        <div class="explanation mb-3">
+          <strong>Prochaines étapes conseillées :</strong>
+          <ul>
+            <li>Pratiquer en créant un dépôt personnel et en simulant PRs.</li>
+            <li>Apprendre les commandes avancées : <code>rebase</code>, <code>cherry-pick</code>, <code>bisect</code>.
+            </li>
+            <li>Découvrir GitHub Actions pour automatiser les tests et déploiements.</li>
+          </ul>
+          <nav class="toc">
+            <strong>Ressources & Liens utiles</strong>
+            <ul class="small-muted">
+              <li><a href="https://git-scm.com" target="_blank">Site officiel Git</a></li>
+              <li><a href="https://docs.github.com" target="_blank">Docs GitHub</a></li>
+              <li><a href="https://git-scm.com/book/fr/v2" target="_blank">Pro Git (livre, FR)</a></li>
+            </ul>
+
+            <strong class="mt-3">Récapitulatif commandes essentielles</strong>
+            <ul>
+              <li><code>git init</code> — initialiser</li>
+              <li><code>git clone</code> — cloner</li>
+              <li><code>git add</code> — indexer</li>
+              <li><code>git commit</code> — enregistrer</li>
+              <li><code>git push</code> / <code>git pull</code></li>
+              <li><code>git branch</code> / <code>git checkout</code></li>
+            </ul>
+          </nav>
+        </div>
+      </section>
+
+      <!-- Annexes : Résolution d'erreurs courantes -->
+      <section id="annexes" class="page mb-4">
+        <h2>Annexes — Erreurs courantes et résolution</h2>
+
+        <h4>Erreur : "fatal: refusing to merge unrelated histories"</h4>
+        <pre class="codeblock"><code># Solution (si vous savez ce que vous faites)
+git pull origin main --allow-unrelated-histories
+        </code></pre>
+        <div class="note">Cette erreur survient lorsque l'historique local et distant n'ont pas d'ancêtre commun (ex. :
+          dépôt distant initialisé avec README). Utiliser cette option avec prudence.</div>
+
+        <h4>Erreur : "permission denied (publickey)"</h4>
+        <pre class="codeblock"><code># Vérifier la clé SSH locale et l'ajouter à GitHub
+# Générer (si besoin)
+ssh-keygen -t ed25519 -C "votre_email@example.com"
+# Copier la clé publique et l'ajouter à GitHub (Settings > SSH and GPG keys)
+cat ~/.ssh/id_ed25519.pub
+        </code></pre>
+
+        <h4>Erreur : commit non voulu déjà poussé</h4>
+        <pre class="codeblock"><code># Revenir en arrière localement (si non poussé)
+git reset --soft HEAD~1
+
+# Si déjà poussé, utiliser revert plutôt que reset pour garder l'historique :
+git revert commit_hash
+        </code></pre>
+        <div class="explanation">
+          <strong>Important :</strong> éviter les re-écritures d'historique (<code>git push --force</code>) sur des
+          branches partagées sans coordination ; cela casse l'historique des autres contributeurs.
+        </div>
+        <div class="text-center mt-5 small-muted">
+          <p>© 2025 — Présentation Git &amp; GitHub — Ibrahima Khalilou Thiam</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

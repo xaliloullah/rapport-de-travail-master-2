@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport DevOps — AWS CodeDeploy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background-color: #f4f6f8; line-height: 1.6; }
+        .page { background-color: #fff; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06); }
+        h1, h2, h3, h4 { font-weight: bolder; color: #23252E; }
+        .codeblock { background-color: #23252E; color: #e6eef8; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; }
+        pre code { white-space: pre; display: block; color: inherit; }
+        .explanation { background: #f8fafc; border-left: 4px solid #0d6efd; padding: 1rem; border-radius: 6px; margin-top: 0.75rem; }
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; }
+        .danger { background: #f8d7da; border-left: 4px solid #dc3545; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; }
+        a { text-decoration: none; } a:hover { text-decoration: underline; }
+        .img-default { display: block; margin: 1rem auto; max-width: 90%; border-radius: 8px; }
+        .small-muted { font-size: 0.9rem; color: #6c757d; }
+        .page, .explanation, .note, .danger, pre, code, ul, li, p, div, table { page-break-inside: avoid !important; break-inside: avoid !important; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Page de garde -->
+        <header class="page text-center mb-4">
+            <h1>Rapport DevOps — AWS CodeDeploy</h1>
+            <p class="lead">Guide complet — Master 2 Génie Logiciel</p>
+            <p class="small-muted">Auteur : Ibrahima Khalilou Thiam | Année 2025</p>
+        </header>
+
+        <!-- Sommaire -->
+        <section class="page mb-4">
+            <h2>Sommaire</h2>
+            <ol>
+                <li><a href="#objectif">Objectif</a></li>
+                <li><a href="#appspec">Comprendre appspec.yml</a></li>
+                <li><a href="#install-agent">Installation de l'agent CodeDeploy</a></li>
+                <li><a href="#create-app">Création de l'application CodeDeploy</a></li>
+                <li><a href="#deployment">Création d'un déploiement</a></li>
+                <li><a href="#hooks">Lifecycle hooks et déploiement bleu/vert</a></li>
+                <li><a href="#rollback">Gestion du rollback</a></li>
+                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
+                <li><a href="#checklist">Checklist imprimable</a></li>
+                                <li><a href="#conclusion">Conclusion</a></li>
+            </ol>
+        </section>
+
+        <!-- Objectif -->
+        <section id="objectif" class="page mb-4">
+            <h2>1. Objectif</h2>
+            <p>AWS CodeDeploy est un service de déploiement automatisé qui déploie automatiquement le
+                code sur des instances EC2, des serveurs on-premises ou des fonctions Lambda. Il
+                gère les déploiements progressifs (blue/green, in-place) avec rollback automatique en
+                cas d'échec.</p>
+            <ul>
+                <li>Installer l'agent CodeDeploy sur une instance EC2.</li>
+                <li>Comprendre et écrire le fichier <code>appspec.yml</code>.</li>
+                <li>Créer une application et un groupe de déploiement.</li>
+                <li>Déployer une application avec rollback automatique.</li>
+            </ul>
+            <div class="explanation">
+                <strong>Déploiement :</strong> CodeDeploy prend le code source, l'empaquette en un
+                <em>revision</em> (fichier .zip ou .tgz), puis exécute les scripts définis dans
+                <code>appspec.yml</code> sur les instances cibles.
+            </div>
+        </section>
+
+        <!-- appspec.yml -->
+        <section id="appspec" class="page mb-4">
+            <h2>2. Comprendre appspec.yml</h2>
+            <p>Le fichier <code>appspec.yml</code> (pour les déploiements EC2/on-premises) définit la
+                structure du déploiement, les fichiers à copier et les scripts de lifecycle hooks.</p>
+
+            <h4>Format d'un appspec.yml pour EC2/On-Premises :</h4>
+            <div class="codeblock"><code>version: 0.0
+os: linux
+files:
+  - source: /target/myapp.jar
+    destination: /opt/myapp/
+  - source: /scripts/
+    destination: /opt/myapp/scripts/
+hooks:
+  BeforeInstall:
+    - location: scripts/before-install.sh
+      timeout: 300
+      run-as: root
+  ApplicationStop:
+    - location: scripts/stop-app.sh
+      timeout: 60
+      run-as: root
+  ApplicationStart:
+    - location: scripts/start-app.sh
+      timeout: 60
+      run-as: root
+  ValidateService:
+    - location: scripts/health-check.sh
+      timeout: 60
+      run-as: root</code></div>
+
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Hook</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>BeforeInstall</code></td>
+                        <td>Avant l'installation des fichiers (dépendances système, nettoyage).</td>
+                    </tr>
+                    <tr>
+                        <td><code>ApplicationStop</code></td>
+                        <td>Arrête l'ancienne version de l'application.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ApplicationStart</code></td>
+                        <td>Démarre la nouvelle version de l'application.</td>
+                    </tr>
+                    <tr>
+                        <td><code>ValidateService</code></td>
+                        <td>Vérifie que l'application répond correctement.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <strong>Timeout :</strong> Chaque hook a un délai d'expiration (timeout). Si le script
+                ne se termine pas dans ce délai, le déploiement est marqué comme échoué et un rollback
+                est déclenché.
+            </div>
+        </section>
+
+        <!-- Installation de l'agent CodeDeploy -->
+        <section id="install-agent" class="page mb-4">
+            <h2>3. Installation de l'agent CodeDeploy</h2>
+            <p>L'agent CodeDeploy doit être installé sur chaque instance EC2 qui recevra des
+                déploiements.</p>
+
+            <div class="codeblock"><code># Ubuntu / Debian
+sudo apt update
+sudo apt install -y ruby wget
+cd /home/ubuntu
+wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+sudo chmod +x ./install
+sudo ./install auto
+sudo systemctl start codedeploy-agent
+sudo systemctl enable codedeploy-agent
+
+# Amazon Linux 2
+sudo yum update -y
+sudo yum install -y ruby wget
+cd /home/ec2-user
+wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+sudo chmod +x ./install
+sudo ./install auto
+sudo systemctl start codedeploy-agent
+sudo systemctl enable codedeploy-agent</code></div>
+
+            <div class="codeblock"><code># Vérifier le statut de l'agent
+sudo systemctl status codedeploy-agent
+
+# Vérifier la version
+sudo /opt/codedeploy-agent/bin/CodedeployAgent.rb version</code></div>
+
+            <img class="img-default" src="assets/images/codedeploy-agent.png"
+                alt="Agent CodeDeploy installé et en cours d'exécution">
+
+            <div class="danger">
+                <strong>Important :</strong> L'agent CodeDeploy nécessite que l'instance ait le rôle IAM
+                <code>AWSCodeDeployRole</code> attaché. Sans cela, l'agent ne pourra pas récupérer les
+                révisions de déploiement.
+            </div>
+        </section>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

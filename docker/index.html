@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rapport de travail — Docker</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f4f6f8;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    .page {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 6px 24px rgba(15, 15, 15, 0.06);
+      min-height: 100vh;
+    }
+
+    header .meta {
+      color: var(--bs-secondary);
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #23252E;
+      font-weight: bolder;
+    }
+
+    h4 {
+      margin-top: 10px;
+    }
+
+    pre.codeblock {
+      background: #23252E;
+      color: #e6eef8;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    pre.codeblock code {
+      color: inherit;
+      white-space: pre;
+      display: block;
+    }
+
+    .explanation {
+      background: #f8fafc;
+      border-left: 4px solid #0d6efd;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .danger {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    .img-default {
+      display: block;
+      margin: 1rem auto;
+      max-width: 90%;
+      border-radius: 8px;
+    }
+
+    nav.toc {
+      position: sticky;
+      top: 1rem;
+    }
+
+    .small-muted {
+      font-size: .9rem;
+      color: #6c757d;
+    }
+
+    .page,
+    .explanation,
+    .note,
+    .danger,
+    pre,
+    code,
+    ul,
+    li,
+    p,
+    div {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+  </style>
+
+</head>
+
+<body class="">
+  <header id="page-de-garde" class="page text-center">
+
+    <div class="mb-5">
+      <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+      <div class="mt-auto mb-5">
+        <img src="assets/images/senegal-flag.png" alt="" class="rounded shadow">
+      </div>
+      <p class="lead mt-3 text-uppercase">Ministère de l’Enseignement Supérieur et de la Recherche</p>
+      <p class="lead mt-2 text-uppercase">Direction Générale de l’Enseignement Supérieur</p>
+      <img src="assets/images/udb.jpeg" alt="" class="rounded">
+      <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+        <h1 class="display-5 fw-bold text-light">Rapport de travail sur Docker</h1>
+      </div>
+    </div>
+
+    <div class="mb-4 text-start ms-5">
+      <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+      <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+      <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+  </header>
+
+
+  <div class="row">
+    <!-- Sommaire (col gauche large) -->
+    <div class="col-lg-12">
+      <!-- Sommaire -->
+      <section id="sommaire" class="page mb-4">
+        <h2 class="mb-3">Sommaire</h2>
+        <ol>
+          <li class="mb-3 h5"><a href="#preparation">Préparation & Installation de Docker</a></li>
+          <li class="mb-3 h5"><a href="#premiers-containers">1er conteneur : exécution, listing, inspect</a></li>
+          <li class="mb-3 h5"><a href="#nginx">Déployer Nginx (ports et mapping)</a></li>
+          <li class="mb-3 h5"><a href="#images">Images : pull, inspect, save/load, commit</a></li>
+          <li class="mb-3 h5"><a href="#dockerhub">Docker Hub : tag & push</a></li>
+          <li class="mb-3 h5"><a href="#reseaux">Réseaux : bridge, custom network, ping</a></li>
+          <li class="mb-3 h5"><a href="#volumes">Volumes & montages d'hôte</a></li>
+          <li class="mb-3 h5"><a href="#dockerfile">Dockerfile, build args et multi-stage</a></li>
+          <li class="mb-3 h5"><a href="#compose">Docker Compose : stack & hot-reload</a></li>
+          <li class="mb-3 h5"><a href="#daemon">Configuration daemon.json (DNS, logs, storage)</a></li>
+          <li class="mb-3 h5"><a href="#nettoyage">Nettoyage & bonnes pratiques</a></li>
+          <li class="mb-3 h5"><a href="#conclusion">Conclusion</a></li>
+        </ol>
+        <img class="img-default" src="assets/images/docker.png" alt="Docker">
+      </section>
+
+      <!-- 1. Preparation & Installation -->
+      <section id="preparation" class="page mb-4 ">
+        <h2 class="">Préparation & Installation de Docker (Ubuntu/Debian)</h2>
+
+        <p>Nous commençons par préparer l’environnement afin d’installer Docker Engine, containerd et le plugin
+          docker-compose. Les commandes suivantes s’appliquent à une distribution Debian/Ubuntu ; nous les
+          exécutons dans cet ordre pour garantir une installation propre et reproductible.</p>
+
+        <pre class="codeblock"><code># 1. Mise à jour et installation des paquets nécessaires
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# 2. Ajouter la clé GPG officielle Docker
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# 3. Ajouter le dépôt Docker pour Debian
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/debian \
+$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 4. Installer Docker Engine, CLI et Compose plugin
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# 5. Démarrer et activer le service Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo systemctl status docker --no-pager</code></pre>
+
+        <div class="explanation">
+          <strong>Ce que nous faisons et pourquoi :</strong>
+          <ul>
+            <li>Nous mettons à jour les paquets pour partir d’un système à jour et éviter des conflits.</li>
+            <li>Nous importons la clé GPG de Docker pour garantir l’intégrité des paquets téléchargés.</li>
+            <li>Nous ajoutons le dépôt officiel Docker pour obtenir une version stable et maintenue.</li>
+            <li>Nous installons Docker Engine et le plugin compose afin d’utiliser <code>docker</code> et
+              <code>docker compose</code> (nouvelle syntaxe recommandée).
+            </li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <strong>Remarque :</strong> Sur Windows ou macOS, nous utilisons Docker Desktop ; la logique de base
+          (images, conteneurs, volumes) reste identique dans le terminal.
+        </div>
+
+        <h5>Choix de l'utilisateur qui exécute les conteneurs</h5>
+        <p>Pour nos démonstrations en laboratoire nous choisissons souvent d’exécuter les conteneurs avec un
+          utilisateur non root, mais pour simplifier les étapes et éviter des soucis de permissions lors du TP,
+          nous identifions ici l'utilisateur qui exécutera les conteneurs. Dans cet exemple, nous l’ajoutons au
+          groupe <code>docker</code> (ceci évite d’utiliser <code>sudo</code> pour chaque commande).</p>
+
+        <pre class="codeblock"><code># Ajouter l'utilisateur courant au groupe docker
+sudo usermod -aG docker $USER
+
+# Pour appliquer la modification immédiatement sans déconnexion possible :
+newgrp docker || echo "Déconnecte-toi et reconnecte-toi pour finaliser l'ajout au groupe"</code></pre>
+
+        <div class="danger">
+          <strong>Attention :</strong> l'ajout d'un utilisateur au groupe <code>docker</code> lui confère des
+          capacités proches du root sur les ressources Docker — nous appliquons cette configuration uniquement
+          sur des environnements de test ou machines personnelles.
+        </div>
+
+        <img class="img-default" src="assets/images/prepare.png" alt="">
+        <img class="img-default" src="assets/images/install.png" alt="Installation Docker">
+        <img class="img-default" src="assets/images/start.png" alt="">
+        <img class="img-default" src="assets/images/group.png" alt="">
+      </section>
+
+      <!-- 2. Premier container -->
+      <section id="premiers-containers" class="page mb-4 ">
+        <h2 class="">Lancer notre premier conteneur, lister, inspecter, entrer</h2>
+
+        <p>Nous lançons un conteneur Debian interactif pour vérifier l’environnement d’exécution et nous
+          familiariser avec les commandes de base : démarrage, listing et inspection des métadonnées.</p>
+
+        <pre class="codeblock"><code># Lancer un conteneur debian en mode interactif (bash), puis sortir avec 'exit'
+docker run -it --name test-debian debian:latest bash
+
+# Lister les conteneurs en cours (running)
+docker ps
+
+# Lister tous les conteneurs (y compris stopped)
+docker ps -a
+
+# Inspecter un conteneur (métadonnées JSON)
+docker inspect test-debian
+
+# Exécuter une commande dans un conteneur déjà démarré (ex: ouvrir un shell)
+docker exec -it &lt;container_id_or_name&gt; bash
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Observations :</strong>
+          <ul>
+            <li>Avec <code>docker inspect</code> nous obtenons des informations précises (IP, volumes,
+              commandes d’entrée) utiles pour le diagnostic.</li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <strong>Astuce :</strong> Nous pouvons utiliser <code>--rm</code> pour que le conteneur soit automatiquement
+          supprimé après arrêt, ce qui évite l'accumulation de conteneurs tests.
+        </div>
+
+        <img class="img-default" src="assets/images/run.png" alt="">
+      </section>
+
+      <!-- 3. Nginx -->
+      <section id="nginx" class="page mb-4 ">
+        <h2 class="">Déployer Nginx — exposition de ports et accès depuis le navigateur</h2>
+
+        <p>Nous déployons un serveur Nginx dans un conteneur afin de comprendre le mapping de ports entre
+          l'hôte et le conteneur, puis nous accédons à la page par le navigateur pour valider le déploiement.</p>
+
+        <pre class="codeblock"><code># Déployer Nginx en détaché et exposer le port 80 du conteneur sur 8090 de l'hôte
+docker run -d --name web-nginx -p 8090:80 nginx:stable
+
+# Vérifier le conteneur
+docker ps
+
+# Accès depuis navigateur : http://&lt;IP_de_la_machine&gt;:8090
+# Si tu es en local (même machine), utilise : http://localhost:8090
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Explication pratique :</strong>
+          <p>Le paramètre <code>-p 8090:80</code> signifie que nous redirigeons le port 8090 de la machine
+            hôte vers le port 80 du conteneur. Sans option <code>-p</code>, le service reste isolé et n'est
+            pas accessible directement depuis l'extérieur.</p>
+        </div>
+
+        <h5>Exécution sans préciser l'hôte (port aléatoire)</h5>
+        <pre class="codeblock"><code># Exécuter sans -p (Docker alloue un port aléatoire côté hôte si demandé)
+docker run -d --name web3 -P nginx:stable
+
+# Voir le mapping
+docker port web3
+              </code></pre>
+
+        <img class="img-default" src="assets/images/web-nginx.png" alt="Nginx Docker">
+        <img class="img-default" src="assets/images/welcome-nginx.png" alt="">
+      </section>
+
+      <!-- 4. Images -->
+      <section id="images" class="page mb-4 ">
+        <h2 class="">Images : récupérer, inspecter, sauvegarder et recréer</h2>
+
+        <p>Nous manipulons des images Docker (pull, inspect, save/load) et démontrons comment transformer un
+          conteneur modifié en image pour réutilisation ou partage.</p>
+
+        <pre class="codeblock"><code># Pull d'une image Alpine
+docker pull alpine:latest
+
+# Lister les images (affichage standard)
+docker images
+
+# Lister images sans troncature d'ID
+docker images --no-trunc
+
+# Filtrer les images par nom
+docker images --filter=reference='alpine*'
+
+# Inspecter une image (métadonnées)
+docker image inspect alpine:latest
+
+# Faire un commit d'un conteneur en image (créer une image à partir d'un conteneur modifié)
+docker commit &lt;container_id_or_name&gt; monrepo/monimage:tag
+
+# Sauvegarder une image dans un tar
+docker save -o nginx-image.tar nginx:stable
+
+# Charger une image depuis un tar
+docker load -i nginx-image.tar
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Commentaires :</strong>
+          <ul>
+            <li>Nous utilisons <code>docker commit</code> pour capturer rapidement l’état d’un conteneur
+              lors d’un test, mais nous privilégions l’écriture d’un <code>Dockerfile</code> pour la
+              reproductibilité.</li>
+            <li><code>docker save/load</code> est pratique pour transporter des images entre environnements
+              isolés ou pour archivage.</li>
+          </ul>
+        </div>
+
+        <img class="img-default" src="assets/images/alpine.png" alt="">
+        <img class="img-default" src="assets/images/tar.png" alt="">
+      </section>
+
+      <!-- 5. Docker Hub -->
+      <section id="dockerhub" class="page mb-4 ">
+        <h2 class="">Docker Hub — afficher, tagger et pousser une image</h2>
+
+        <p>Nous publions une image sur Docker Hub pour la partager. Cette étape nécessite un compte et une
+          authentification préalables.</p>
+
+        <pre class="codeblock"><code># Se connecter au Docker Hub
+docker login
+
+# Tagger l'image locale avec le préfixe Docker Hub (username/image:tag)
+docker tag monrepo/monimage:tag tonuser/monimage:tag
+
+# Pousser
+docker push tonuser/monimage:tag
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Remarque :</strong> une fois poussée, nous vérifions la présence de l'image sur Docker Hub via
+          l'interface web pour s'assurer que le push s'est bien déroulé.
+        </div>
+
+        <img class="img-default" src="assets/images/login.png" alt="Docker Hub">
+        <img class="img-default" src="assets/images/login-success.png" alt="">
+      </section>
+
+      <!-- 6. Réseaux -->
+      <section id="reseaux" class="page mb-4 ">
+        <h2 class="">Réseaux Docker — bridge par défaut et réseau personnalisé</h2>
+
+        <p>Nous explorons le réseau bridge par défaut, créons un réseau pont personnalisé et testons la
+          communication entre conteneurs en utilisant le DNS interne fourni par Docker.</p>
+
+        <pre class="codeblock"><code># Lister les réseaux
+docker network ls
+
+# Inspecter le réseau bridge par défaut
+docker network inspect bridge
+
+# Créer un réseau bridge personnalisé
+docker network create --driver bridge mynet
+
+# Lancer deux conteneurs et les connecter au réseau personnalisé
+docker run -d --name cont1 --network mynet alpine sleep 3600
+docker run -d --name cont2 --network mynet alpine sleep 3600
+
+# Entrer dans cont1 et ping cont2 (installer iputils si nécessaire)
+docker exec -it cont1 sh
+# Dans le conteneur : apk add --no-cache iputils && ping -c 3 cont2
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Observations réseau :</strong>
+          <ul>
+            <li>Les conteneurs connectés au même réseau peuvent se joindre par nom grâce au DNS interne de
+              Docker.</li>
+            <li>Pour tester la connectivité, nous installons les utilitaires nécessaires (ex : ping).</li>
+          </ul>
+        </div>
+
+        <div class="note">
+          <strong>Test d'accès Internet :</strong> depuis un conteneur nous exécutons <code>apk update</code>
+          puis <code>ping -c 3 8.8.8.8</code> pour valider l'accès externe.
+        </div>
+
+        <img class="img-default" src="assets/images/reseau.png" alt="Réseaux Docker">
+      </section>
+
+      <!-- 7. Volumes -->
+      <section id="volumes" class="page mb-4 ">
+        <h2 class="">Volumes & montages d'hôte — persistance des données</h2>
+
+        <p>Nous démontrons deux approches pour la persistance : les bind mounts (montage d’un dossier hôte)
+          et les volumes Docker (gérés par Docker). Nous vérifions que les données persistent entre
+          conteneurs.</p>
+
+        <pre class="codeblock"><code># 1) Bind mount (dossier hôte monté dans le conteneur)
+mkdir -p /home/$USER/docker-shared
+docker run -d --name volsharing1 -v /home/$USER/docker-shared:/var/www/html -p 8081:80 nginx:stable
+
+# 2) Volume Docker (géré par Docker)
+docker volume create mydata
+docker run -d --name busybox-cont -v mydata:/data busybox sh -c "sleep 3600"
+
+# Dans le conteneur -> créer un fichier
+docker exec -it busybox-cont sh -c "echo 'hello from container' > /data/hello.txt"
+
+# Monter un autre conteneur sur le même volume et lire le fichier
+docker run --rm -it -v mydata:/data alpine cat /data/hello.txt
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Pourquoi choisir l’un ou l’autre :</strong>
+          <ul>
+            <li>Les bind mounts reflètent exactement un répertoire de l'hôte — pratique pour le développement
+              (live-edit, hot-reload).</li>
+            <li>Les volumes Docker sont isolés de l'hôte et plus portables, ce qui les rend recommandés en
+              environnement de production.</li>
+            <li>Nous utilisons ces exemples pour montrer la persistance et le partage de fichiers entre
+              conteneurs.</li>
+          </ul>
+        </div>
+
+        <img class="img-default" src="assets/images/hello.png" alt="Volumes Docker">
+      </section>
+
+      <!-- 8. Dockerfile -->
+      <section id="dockerfile" class="page mb-4 ">
+        <h2 class="">Dockerfile, ARG, ENV et multi-stage builds</h2>
+
+        <p>Nous écrivons des Dockerfiles reproductibles, expliquons la différence entre <code>ARG</code> et
+          <code>ENV</code>, et montrons un exemple multi-stage pour réduire la taille de l'image finale.
+        </p>
+
+        <h5>Exemple simple — Dockerfile (nginx personnalisé)</h5>
+        <pre class="codeblock"><code># Dockerfile
+FROM nginx:stable
+COPY index.nginx-debian.html /usr/share/nginx/html/index.nginx-debian.html
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+codeblock ["/usr/local/bin/start.sh"]
+              </code></pre>
+
+        <pre class="codeblock"><code># start.sh (script de démarrage)
+#!/bin/sh
+# script simple qui démarre nginx en foreground
+nginx -g 'daemon off;'
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Build & run :</strong>
+          <pre class="codeblock"><code>docker build -t mon-nginx:custom .
+      docker run -d --name mon-nginx -p 8082:80 mon-nginx:custom</code></pre>
+        </div>
+
+        <h5>ARG vs ENV — explication</h5>
+        <pre class="codeblock"><code># Exemple - Dockerfile snippet
+ARG USERNAME=some_user
+ENV RUN_USER=${USERNAME}
+# ARG est utilisé uniquement au build-time ; ENV est conservée dans l'image et disponible runtime
+              </code></pre>
+
+        <h5>Exemple multi-stage (Node app)</h5>
+        <pre class="codeblock"><code># Multi-stage Dockerfile (extrait)
+# Stage 1 : build
+FROM node:20 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production=false
+COPY . .
+RUN npm run build
+
+# Stage 2 : runtime léger
+FROM node:20-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+RUN npm install --production=true
+codeblock ["node", "dist/server.js"]
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Pourquoi le multi-stage :</strong>
+          <p>Nous séparons l'étape de compilation contenant tous les outils nécessaires du runtime qui doit
+            être minimal. Ainsi, l'image finale est plus légère et plus sécurisée.</p>
+        </div>
+      </section>
+
+      <!-- 9. Docker Compose -->
+      <section id="compose" class="page mb-4 ">
+        <h2 class="">Docker Compose — déployer une stack et activer le hot-reload</h2>
+
+        <p>Nous déployons une application multi-conteneurs avec Docker Compose et utilisons des volumes pour le
+          développement afin d'obtenir un rechargement à chaud des fichiers sources.</p>
+
+        <pre class="codeblock"><code># docker-compose.yml (exemple basique)
+      version: '3.8'
+      services:
+        web:
+          build: ./app
+          ports:
+            - "8083:80"
+          volumes:
+            - ./app:/usr/share/nginx/html:ro
+        redis:
+          image: redis:7
+      </code></pre>
+
+        <pre class="codeblock"><code># Lancer la stack
+      docker compose up -d --build
+      
+      # Vérifier les services
+      docker compose ps
+      
+      # Voir les logs
+      docker compose logs -f web
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Remarque :</strong>
+          <p>En montant le dossier source de l'hôte dans le conteneur
+            (<code>volumes: ./app:/usr/share/nginx/html</code>),
+            nos modifications sont prises en compte immédiatement sans rebuild — très utile en développement.</p>
+        </div>
+      </section>
+
+      <!-- 10. daemon.json -->
+      <section id="daemon" class="page mb-4 ">
+        <h2 class="">Configuration daemon.json — DNS, logger et storage driver</h2>
+
+        <p>Nous modifions la configuration du démon Docker via <code>/etc/docker/daemon.json</code> pour
+          personnaliser le comportement réseau, de logs et de stockage selon nos besoins.</p>
+
+        <pre class="codeblock"><code># Exemple /etc/docker/daemon.json
+      {
+        "dns": ["8.8.8.8", "1.1.1.1"],
+        "log-driver": "json-file",
+        "storage-driver": "overlay2"
+      }
+      # Après modification, redémarrer docker
+      sudo systemctl restart docker
+              </code></pre>
+
+        <div class="explanation">
+          <strong>Points importants :</strong>
+          <ul>
+            <li>Modifier <code>dns</code> est utile si nos conteneurs ne résolvent pas correctement des noms.</li>
+            <li>Le <code>log-driver</code> influe sur la gestion et la rotation des logs — à adapter selon la
+              taille de l’infra.</li>
+            <li>Le <code>storage-driver</code> recommandé pour la plupart des systèmes modernes est
+              <code>overlay2</code>.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 11. Nettoyage -->
+      <section id="nettoyage" class="page mb-4 ">
+        <h2 class="">Nettoyage & bonnes pratiques</h2>
+
+        <p>Pour garder un environnement propre, nous montrons les commandes utiles pour arrêter et supprimer
+          des conteneurs, images et volumes non utilisés. Nous rappelons toutefois la prudence en production.</p>
+
+        <pre class="codeblock"><code># Arrêter et supprimer tous les conteneurs (à utiliser avec prudence)
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+# Supprimer images non utilisées
+docker image prune -a
+
+# Supprimer volumes non utilisés
+docker volume prune
+
+# Nettoyage complet (dangereux : supprime tout ce qui n'est pas utilisé)
+docker system prune -a --volumes
+              </code></pre>
+
+
+        <div class="note">
+          <strong>Important :</strong> ces commandes suppriment des données — nous vérifions toujours l'impact
+          avant exécution, surtout sur des machines partagées ou en production.
+        </div>
+        <h4>version</h4>
+        <pre class="codeblock"><code># Vérifier docker
+docker --version
+sudo systemctl status docker
+
+# Stop / remove conteneurs
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+# Liste images (taille)
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"</code></pre>
+        <img class="img-default" src="assets/images/version.png" alt="">
+      </section>
+
+      <!-- 12. Conclusion -->
+      <section id="conclusion" class="page mb-4">
+        <h2>Conclusion</h2>
+        <p>
+          Ce travail pratique a permis d’acquérir une maîtrise progressive de Docker, depuis l’installation initiale
+          jusqu’au
+          déploiement de stacks multi-conteneurs. Nous avons pu :
+        </p>
+        <ul>
+          <li>Installer et configurer Docker sur Kali Linux, en vérifiant le bon fonctionnement des services et des
+            versions.
+          </li>
+          <li>Créer, exécuter et gérer des conteneurs pour différentes images (Debian, Nginx), tout en testant
+            l’exposition
+            des ports et la communication réseau.</li>
+          <li>Manipuler les images : pull, push vers Docker Hub, sauvegarde, chargement et gestion des tags.</li>
+          <li>Mettre en place des volumes pour la persistance des données et utiliser Docker Compose pour orchestrer
+            plusieurs
+            services.</li>
+          <li>Construire des images avec Dockerfile, comparer single-stage et multi-stage, et appliquer des
+            optimisations pour
+            réduire la taille des images.</li>
+          <li>Résoudre des problèmes pratiques rencontrés, tels que les conflits de ports, la configuration DNS dans les
+            conteneurs ou l’authentification Docker Hub.</li>
+        </ul>
+        <p>
+          Ces étapes ont permis de consolider les connaissances théoriques par la pratique et de comprendre les bonnes
+          pratiques à adopter : gestion des volumes, sécurité des secrets, configuration des logs, et utilisation d’une
+          CI
+          pour des builds reproductibles.
+        </p>
+        <p>
+          En résumé, ce TP illustre l’ensemble du cycle de vie d’un conteneur Docker, depuis la configuration de
+          l’environnement jusqu’au déploiement d’applications orchestrées, offrant une base solide pour des projets
+          futurs en
+          développement et en administration de systèmes conteneurisés.
+        </p>
+        <h5>Ressources & liens rapides</h5>
+        <ul class="small-muted">
+          <li><a href="https://docs.docker.com/">Docker Docs</a></li>
+          <li><a href="https://hub.docker.com/">Docker Hub</a></li>
+          <li><a href="https://docs.docker.com/engine/reference/commandline/cli/">Commande Docker
+              (référence)</a></li>
+        </ul>
+
+        <h6 class="mt-3">Récap commandes essentielles</h6>
+        <ul>
+          <li><code>docker run</code></li>
+          <li><code>docker ps</code>, <code>docker ps -a</code></li>
+          <li><code>docker images</code>, <code>docker pull</code></li>
+          <li><code>docker build</code>, <code>docker push</code></li>
+          <li><code>docker-compose up -d</code> / <code>docker compose</code></li>
+        </ul>
+        <div class="text-center mt-auto small-muted">
+          <p>© 2025 — Rapport de travail sur Docker — Ibrahima Khalilou Thiam</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
