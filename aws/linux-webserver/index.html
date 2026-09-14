@@ -1,317 +1,287 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport d'installation d'un Web Server sur AWS Linux</title>
+    <title>Rapport de déploiement d'un serveur Web Linux sur AWS EC2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport d'installation d'un Web Server sur AWS (Linux)</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
+        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université UDB" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Déploiement d'un serveur Web Linux sur AWS EC2</h1>
         </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#ec2-linux">Création d'une instance EC2 Amazon Linux 2</a></li>
-                <li><a href="#connexion">Connexion à l'instance</a></li>
-                <li><a href="#apache">Installation du serveur Apache (httpd)</a></li>
-                <li><a href="#nginx">Alternative : Installation de Nginx</a></li>
-                <li><a href="#firewall">Configuration du Security Group et des ports</a></li>
-                <li><a href="#test">Test du site web dans le navigateur</a></li>
-                <li><a href="#bonnes-pratiques">Bonnes pratiques et sécurité</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
-
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>Ce guide détaille le déploiement d'un serveur web complet sur AWS EC2 en utilisant une
-                distribution
-                Linux (Amazon Linux 2). À la fin de ce document, vous disposerez :</p>
-            <ul>
-                <li>D'une instance EC2 fonctionnelle sous Amazon Linux 2.</li>
-                <li>Du serveur web Apache (ou Nginx) installé et configuré.</li>
-                <li>D'une page web accessible publiquement via l'IP publique de l'instance.</li>
-                <li>D'un Security Group correctement configuré (HTTP 80, HTTPS 443).</li>
-            </ul>
-            <div class="explanation">
-                <strong>Pourquoi Amazon Linux 2 ?</strong> Amazon Linux 2 est une distribution Linux
-                maintenue par AWS, optimisée pour les instances EC2. Elle est gratuite, légère et inclut
-                directement les outils de gestion (AWS Systems Manager, CloudWatch, etc.).
-            </div>
-        </section>
-
-        <!-- Creation de l'instance EC2 Linux -->
-        <section id="ec2-linux" class="page mb-4">
-            <h2>2. Création d'une instance EC2 Amazon Linux 2</h2>
-            <p>Nous allons lancer une instance EC2 en suivant ces étapes :</p>
-            <ol>
-                <li>Accéder à la console AWS → Service <strong>EC2</strong>.</li>
-                <li>Cliquer sur <strong>Lancer une instance</strong>.</li>
-                <li>Nom de l'instance : <code>webserver-linux</code>.</li>
-                <li>AMI : choisir <strong>Amazon Linux 2</strong> (ou Amazon Linux 2023).</li>
-                <li>Type d'instance : <code>t2.micro</code> (gratuit dans le Free Tier).</li>
-                <li>Clé de paire : créer ou sélectionner un fichier <code>.pem</code> existant.</li>
-                <li>Configurer le Security Group :</li>
-            </ol>
-            <img class="img-default" src="assets/images/ec2-launch.png" alt="Écran de lancement d'instance EC2">
-
-            <h4>Configuration du Security Group</h4>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Type</th>
-                        <th>Protocole</th>
-                        <th>Source</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>SSH</td>
-                        <td>TCP 22</td>
-                        <td>Mon IP</td>
-                        <td>Accès administrateur</td>
-                    </tr>
-                    <tr>
-                        <td>HTTP</td>
-                        <td>TCP 80</td>
-                        <td>Toute adresse IP (0.0.0.0/0)</td>
-                        <td>Accès web</td>
-                    </tr>
-                    <tr>
-                        <td>HTTPS</td>
-                        <td>TCP 443</td>
-                        <td>Toute adresse IP (0.0.0.0/0)</td>
-                        <td>Accès web sécurisé</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <p>Cliquer sur <strong>Lancer l'instance</strong>. L'instance démarre en quelques minutes :</p>
-            <img class="img-default" src="assets/images/ec2-running.png" alt="Instance EC2 en cours d'exécution">
-
-            <div class="note">
-                <strong>Security Group :</strong> Le SG agit comme un pare-feu virtuel au niveau de
-                l'instance. Seuls les ports nécessaires (SSH, HTTP, HTTPS) doivent être ouverts. Jamais
-                de port administratif (ex. 3306, 5432) à 0.0.0.0/0 sans justification.
-            </div>
-        </section>
-
-        <!-- Connexion -->
-        <section id="connexion" class="page mb-4">
-            <h2>3. Connexion à l'instance</h2>
-            <p>Une fois l'instance en état <code class="text-success">running</code>, récupérer l'IP
-                publique depuis le tableau des instances :</p>
-
-            <h4>SSH depuis Linux / Mac :</h4>
-            <div class="codeblock"><code>chmod 400 mon-keypair.pem
-ssh -i "mon-keypair.pem" ec2-user@&lt;PUBLIC_IP&gt;</code></div>
-
-            <h4>SSH depuis Windows (PowerShell) :</h4>
-            <div class="codeblock"><code>ssh -i "C:\chemin\mon-keypair.pem" ec2-user@&lt;PUBLIC_IP&gt;</code></div>
-
-            <img class="img-default" src="assets/images/ssh-connect.png" alt="Connexion SSH à l'instance EC2">
-
-            <div class="explanation">
-                <strong>Utilisateur :</strong> Sur Amazon Linux 2, l'utilisateur par défaut est
-                <code>ec2-user</code>. Ne pas utiliser <code>root</code> directement pour des raisons
-                de sécurité.
-            </div>
-        </section>
-
-
-        <!-- Installation Apache -->
-        <section id="apache" class="page mb-4">
-            <h2>4. Installation du serveur Apache (httpd)</h2>
-            <p>Nous allons installer Apache, le configurer pour démarrer au lancement et déployer une
-                page web.</p>
-
-            <h4>Étape 1 — Mettre à jour le système :</h4>
-            <div class="codeblock"><code>sudo yum update -y</code></div>
-
-            <h4>Étape 2 — Installer Apache :</h4>
-            <div class="codeblock"><code>sudo yum install -y httpd</code></div>
-            <div class="note">
-                <strong>Amazon Linux 2 :</strong> utilise <code>yum</code> (basé sur RPM). Sur
-                Ubuntu/Debian, on utiliserait <code>apt</code> au lieu de <code>yum</code>.
-            </div>
-
-            <h4>Étape 3 — Démarrer le service et l'activer au boot :</h4>
-            <div class="codeblock"><code>sudo systemctl start httpd
-sudo systemctl enable httpd</code></div>
-
-            <h4>Étape 4 — Créer une page d'accueil :</h4>
-            <div class="codeblock"><code>sudo echo "&lt;h1&gt;Bienvenue sur mon serveur AWS !&lt;/h1&gt;
-&lt;p&gt;Serveur Apache installé sur Amazon Linux 2&lt;/p&gt;" | sudo tee /var/www/html/index.html</code></div>
-
-            <img class="img-default" src="assets/images/apache-installed.png" alt="Page web Apache sur EC2">
-
-            <h4>Vérification :</h4>
-            <div class="codeblock"><code>systemctl status httpd
-curl http://localhost</code></div>
-        </section>
-
-        <!-- Alternative Nginx -->
-        <section id="nginx" class="page mb-4">
-            <h2>5. Alternative : Installation de Nginx</h2>
-            <p>Nginx (prononcé "engine-x") est une alternative performante à Apache, souvent utilisée
-                comme reverse proxy ou serveur statique.</p>
-
-            <div class="codeblock"><code>sudo yum install -y nginx
-sudo systemctl start nginx
-sudo systemctl enable nginx
-
-# Page d'accueil
-sudo echo "&lt;h1&gt;Nginx sur AWS&lt;/h1&gt;" | sudo tee /usr/share/nginx/html/index.html</code></div>
-
-            <div class="note">
-                <strong>Nginx vs Apache :</strong> Nginx est plus léger et mieux performante pour le
-                streaming et les fichiers statiques. Apache est plus flexible pour les modules
-                (mod_rewrite, .htaccess). Choisissez selon vos besoins.
-            </div>
-        </section>
-
-        <!-- Firewall / Security Group -->
-        <section id="firewall" class="page mb-4">
-            <h2>6. Configuration du firewall et des ports</h2>
-            <p>Le Security Group est déjà configuré (section 2). Nous pouvons aussi sécuriser l'instance
-                avec <code>firewalld</code> :</p>
-
-            <div class="codeblock"><code># Vérifier firewalld
-sudo systemctl status firewalld
-
-# Autoriser HTTP et HTTPS
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-
-# Recharger la configuration
-sudo firewall-cmd --reload
-
-# Vérifier les règles
-sudo firewall-cmd --list-all</code></div>
-
-            <img class="img-default" src="assets/images/security-group.png"
-                alt="Configuration Security Group AWS">
-
-            <div class="danger">
-                <strong>Attention :</strong> Si vous activez un firewall supplémentaire (firewalld ou
-                iptables), assurez-vous que les règles AWS Security Group et le firewall local sont
-                cohérentes. Une règle bloquante dans l'un et non l'autre empêche la connexion.
-            </div>
-        </section>
-
-
-        <!-- Test -->
-        <section id="test" class="page mb-4">
-            <h2>7. Test du site web dans le navigateur</h2>
-            <p>Depuis votre machine locale, saisissez l'IP publique de l'instance dans votre navigateur
-                :</p>
-            <div class="codeblock"><code>http://&lt;PUBLIC_IP&gt;</code></div>
-            <img class="img-default" src="assets/images/browser-test.png" alt="Page web affichée dans le navigateur">
-
-            <div class="explanation">
-                <strong>Astuce :</strong> Vous pouvez associer un nom de domaine à votre instance via
-                une <strong>Elastic IP</strong> et un enregistrement DNS (Route 53 ou autre registrar)
-                pour un accès plus professionnel.
-            </div>
-        </section>
-
-        <!-- Bonnes pratiques -->
-        <section id="bonnes-pratiques" class="page mb-4">
-            <h2>8. Bonnes pratiques et sécurité</h2>
-            <ul>
-                <li><strong>MFA :</strong> Activez l'authentification multi-facteurs sur le compte racine.
-                </li>
-                <li><strong>IAM :</strong> Utilisez un compte IAM avec le minimum nécessaire au lieu du
-                    compte racine.</li>
-                <li><strong>Clé SSH :</strong> Protégez votre fichier <code>.pem</code> (chmod 400) et ne
-                    le partagez jamais.</li>
-                <li><strong>Mises à jour :</strong> Maintenez le système à jour régulièrement
-                    (<code>sudo yum update</code>).</li>
-                <li><strong>Sauvegarde :</strong> Créez des snapshots EBS réguliers de l'instance.</li>
-                <li><strong>Monitoring :</strong> Activez CloudWatch pour surveiller l'utilisation CPU et
-                    les logs Apache via <code>/var/log/httpd/</code>.</li>
-                <li><strong>SSL/TLS :</strong> Installez un certificat (Let's Encrypt) pour passer en
-                    HTTPS.</li>
-            </ul>
-        </section>
-
-        <!-- Checklist -->
-        <section id="checklist" class="page mb-4">
-            <h2>9. Checklist imprimable</h2>
-            <ul>
-                <li>[ ] Instance EC2 Amazon Linux 2 lancée</li>
-                <li>[ ] Key Pair téléchargée et sécurisée</li>
-                <li>[ ] Security Group configuré (SSH, HTTP, HTTPS)</li>
-                <li>[ ] Connexion SSH testée</li>
-                <li>[ ] Apache (ou Nginx) installé</li>
-                <li>[ ] Service activé au démarrage</li>
-                <li>[ ] Page web déployée et accessible</li>
-                <li>[ ] Firewall configuré</li>
-                <li>[ ] MFA activé sur le compte AWS</li>
-            </ul>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>10. Conclusion</h2>
-            <p>Ce guide a présenté le déploiement complet d'un serveur web Apache (ou Nginx) sur une
-                instance EC2
-                sous Amazon Linux 2. Nous avons :</p>
-            <ul>
-                <li>Lancé une instance EC2 avec l'AMI appropriée.</li>
-                <li>Nous connecté en SSH et installé Apache.</li>
-                <li>Déployé une page web accessible publiquement.</li>
-                <li>Configuré un pare-feu et présenté les bonnes pratiques de sécurité.</li>
-            </ul>
-            <h5>Ressources & liens utiles</h5>
-            <ul class="small-muted">
-                <li><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html" target="_blank">Documentation officielle AWS EC2</a></li>
-                <li><a href="https://httpd.apache.org/docs/" target="_blank">Documentation Apache HTTP Server</a></li>
-                <li><a href="https://nginx.org/en/docs/" target="_blank">Documentation Nginx</a></li>
-            </ul>
-        </section>
-
-        <footer class="text-center small-muted mb-4">
-            <p>© 2025 — Rapport AWS Linux Web Server — Ibrahima Khalilou Thiam</p>
-        </footer>
-
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
+
+<div class="container">
+<section class="page mb-4">
+<h2>Sommaire</h2>
+<ol>
+<li><a href="#objectifs">Objectifs et contexte</a></li>
+<li><a href="#prerequis">Prérequis</a></li>
+<li><a href="#architecture">Concepts et architecture</a></li>
+<li><a href="#installation">Installation et configuration</a></li>
+<li><a href="#realisation">Réalisation pratique</a></li>
+<li><a href="#commandes">Commandes et explications</a></li>
+<li><a href="#tests">Vérifications et tests</a></li>
+<li><a href="#depannage">Dépannage</a></li>
+<li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+<li><a href="#checklist">Checklist</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ol>
+</section>
+
+<section id="objectifs" class="page mb-4">
+<h2>1. Objectifs et contexte</h2>
+<p>Ce travail pratique a pour objectif de mettre en œuvre un serveur Web Linux dans le cloud AWS à l'aide du service Amazon EC2. L'environnement retenu est <strong>Amazon Linux 2023</strong>, distribution d'AWS adaptée aux instances EC2.</p>
+<p>À l'issue de la réalisation, l'étudiant doit être capable de :</p>
+<ul>
+<li>lancer et administrer une instance EC2 Linux ;</li>
+<li>configurer un Security Group pour SSH, HTTP et éventuellement HTTPS ;</li>
+<li>installer et gérer Apache (<code>httpd</code>) ;</li>
+<li>déployer une page Web statique ;</li>
+<li>vérifier le service avec <code>systemctl</code>, <code>curl</code> et un navigateur ;</li>
+<li>diagnostiquer les principales causes d'une indisponibilité Web ;</li>
+<li>appliquer le principe du moindre privilège et réduire la surface d'exposition.</li>
+</ul>
+<div class="explanation"><strong>Résultat attendu :</strong> une instance EC2 Linux accessible en SSH depuis une adresse autorisée et un serveur HTTP accessible sur le port 80.</div>
+</section>
+
+<section id="prerequis" class="page mb-4">
+<h2>2. Prérequis</h2>
+<ul>
+<li>Compte AWS actif et région sélectionnée.</li>
+<li>Paire de clés EC2 pour l'administration SSH.</li>
+<li>Ordinateur disposant d'un client SSH et d'un navigateur Web.</li>
+<li>Possibilité de créer une instance avec une AMI Amazon Linux 2023.</li>
+<li>Adresse IP publique ou DNS public si l'accès Web direct est requis.</li>
+</ul>
+<h4>Protection de la clé privée</h4>
+<div class="codeblock"><code>chmod 400 mon-keypair.pem
+ssh -V</code></div>
+<div class="note"><strong>Important :</strong> la clé privée <code>.pem</code> ne doit jamais être commitée dans Git ni transmise à un tiers.</div>
+</section>
+
+<section id="architecture" class="page mb-4">
+<h2>3. Concepts et architecture</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Composant</th><th>Rôle</th></tr></thead>
+<tbody>
+<tr><td>EC2</td><td>Machine virtuelle exécutant Linux et le serveur Web.</td></tr>
+<tr><td>AMI</td><td>Image utilisée pour initialiser le système.</td></tr>
+<tr><td>VPC / Subnet</td><td>Infrastructure réseau de l'instance.</td></tr>
+<tr><td>Internet Gateway</td><td>Connectivité Internet d'un subnet public correctement routé.</td></tr>
+<tr><td>Security Group</td><td>Pare-feu réseau virtuel associé à l'instance.</td></tr>
+<tr><td>EBS</td><td>Stockage persistant.</td></tr>
+<tr><td>httpd</td><td>Serveur HTTP Apache.</td></tr>
+</tbody>
+</table>
+<h4>Architecture logique</h4>
+<div class="codeblock"><code>Utilisateur / Navigateur
+        |
+        | HTTP : TCP/80
+        v
+Internet Gateway
+        |
+        v
+VPC → Subnet public → Security Group
+                         |
+                         v
+                 EC2 Amazon Linux 2023
+                         |
+                         v
+                    Apache (httpd)
+                         |
+                         v
+                 /var/www/html/index.html</code></div>
+<p>En production, on privilégiera généralement HTTPS, un Application Load Balancer, des subnets privés pour les serveurs applicatifs et des mécanismes de supervision et d'automatisation.</p>
+</section>
+
+<section id="installation" class="page mb-4">
+<h2>4. Installation et configuration</h2>
+<h4>4.1 Création de l'instance EC2</h4>
+<ol>
+<li>Ouvrir <strong>EC2</strong> dans la console AWS.</li>
+<li>Choisir <strong>Launch instance</strong>.</li>
+<li>Nom : <code>webserver-linux</code>.</li>
+<li>AMI : <strong>Amazon Linux 2023</strong>.</li>
+<li>Choisir une taille adaptée au TP selon les conditions tarifaires du compte et de la région.</li>
+<li>Sélectionner une paire de clés.</li>
+<li>Choisir un subnet public et une route vers une Internet Gateway si l'accès Internet direct est nécessaire.</li>
+<li>Associer un Security Group avec SSH limité à l'IP d'administration et HTTP pour le site public.</li>
+<li>Lancer l'instance.</li>
+</ol>
+<img class="img-default" src="../../assets/images/ec2-launch.png" alt="Écran de lancement d'une instance EC2">
+<h4>4.2 Règles Security Group</h4>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Protocole</th><th>Port</th><th>Source</th><th>Usage</th></tr></thead>
+<tbody>
+<tr><td>TCP</td><td>22</td><td>Mon IP / CIDR d'administration</td><td>SSH</td></tr>
+<tr><td>TCP</td><td>80</td><td>0.0.0.0/0</td><td>HTTP public</td></tr>
+<tr><td>TCP</td><td>443</td><td>0.0.0.0/0</td><td>HTTPS si TLS est configuré</td></tr>
+</tbody>
+</table>
+<div class="danger"><strong>Règle de sécurité :</strong> éviter d'ouvrir le port 22 à <code>0.0.0.0/0</code>.</div>
+</section>
+
+<section id="realisation" class="page mb-4">
+<h2>5. Réalisation pratique</h2>
+<h4>5.1 Connexion SSH</h4>
+<div class="codeblock"><code>ssh -i "mon-keypair.pem" ec2-user@&lt;PUBLIC_IP&gt;</code></div>
+<p>Identifier le système :</p>
+<div class="codeblock"><code>cat /etc/os-release
+uname -a
+hostnamectl</code></div>
+<h4>5.2 Mise à jour</h4>
+<div class="codeblock"><code>sudo dnf update -y</code></div>
+<p>Amazon Linux 2023 utilise <code>dnf</code> pour la gestion des paquets.</p>
+<h4>5.3 Installation d'Apache</h4>
+<div class="codeblock"><code>sudo dnf install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo systemctl status httpd --no-pager</code></div>
+<h4>5.4 Déploiement de la page Web</h4>
+<div class="codeblock"><code>sudo tee /var/www/html/index.html &gt; /dev/null &lt;&lt;'EOF'
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fr"&gt;
+&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;title&gt;Serveur AWS&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Bienvenue sur mon serveur Web AWS&lt;/h1&gt;
+&lt;p&gt;Apache fonctionne sur Amazon Linux 2023.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF</code></div>
+<img class="img-default" src="../../assets/images/apache-installed.png" alt="Serveur Apache installé">
+<h4>5.5 Test local</h4>
+<div class="codeblock"><code>curl -I http://localhost
+curl http://localhost</code></div>
+<h4>5.6 Test externe</h4>
+<div class="codeblock"><code>http://&lt;PUBLIC_IP&gt;</code></div>
+<img class="img-default" src="../../assets/images/browser-test.png" alt="Page Web affichée dans le navigateur">
+</section>
+
+<section id="commandes" class="page mb-4">
+<h2>6. Commandes et explications</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Commande</th><th>Fonction</th></tr></thead>
+<tbody>
+<tr><td><code>sudo dnf update -y</code></td><td>Met à jour les paquets.</td></tr>
+<tr><td><code>sudo dnf install -y httpd</code></td><td>Installe Apache.</td></tr>
+<tr><td><code>systemctl status httpd</code></td><td>Affiche l'état du service.</td></tr>
+<tr><td><code>systemctl enable httpd</code></td><td>Active le démarrage automatique.</td></tr>
+<tr><td><code>ss -lntp</code></td><td>Affiche les ports TCP en écoute.</td></tr>
+<tr><td><code>curl -I http://localhost</code></td><td>Teste la réponse HTTP locale.</td></tr>
+<tr><td><code>journalctl -u httpd</code></td><td>Consulte les journaux systemd d'Apache.</td></tr>
+<tr><td><code>tail -f /var/log/httpd/access_log</code></td><td>Suit les requêtes HTTP.</td></tr>
+<tr><td><code>tail -f /var/log/httpd/error_log</code></td><td>Suit les erreurs Apache.</td></tr>
+</tbody>
+</table>
+<h4>Vérification avec AWS CLI</h4>
+<div class="codeblock"><code>aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=webserver-linux" \
+  --query 'Reservations[].Instances[].[InstanceId,State.Name,PublicIpAddress]' \
+  --output table</code></div>
+<p><code>--filters</code> limite la recherche, <code>--query</code> sélectionne les champs utiles et <code>--output table</code> améliore la lisibilité.</p>
+</section>
+
+<section id="tests" class="page mb-4">
+<h2>7. Vérifications et tests</h2>
+<h4>7.1 Service</h4>
+<div class="codeblock"><code>systemctl is-active httpd
+systemctl is-enabled httpd</code></div>
+<p>Les résultats attendus sont respectivement <code>active</code> et <code>enabled</code>.</p>
+<h4>7.2 Port 80</h4>
+<div class="codeblock"><code>sudo ss -lntp | grep ':80'</code></div>
+<h4>7.3 Code HTTP</h4>
+<div class="codeblock"><code>curl -s -o /dev/null -w '%{http_code}\n' http://localhost</code></div>
+<p>Le résultat attendu est <code>200</code>.</p>
+<h4>7.4 Test externe</h4>
+<div class="codeblock"><code>curl -I http://&lt;PUBLIC_IP&gt;</code></div>
+<h4>7.5 Journaux</h4>
+<div class="codeblock"><code>sudo tail -n 50 /var/log/httpd/access_log
+sudo tail -n 50 /var/log/httpd/error_log</code></div>
+</section>
+
+<section id="depannage" class="page mb-4">
+<h2>8. Dépannage</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Symptôme</th><th>Vérifications</th><th>Correction possible</th></tr></thead>
+<tbody>
+<tr><td>SSH impossible</td><td>État EC2, IP, port 22, Security Group, clé.</td><td>Corriger le SG et vérifier la clé/utilisateur.</td></tr>
+<tr><td>HTTP timeout</td><td>Port 80, route, Internet Gateway, Security Group.</td><td>Corriger réseau/SG puis tester Apache.</td></tr>
+<tr><td>Connexion refusée</td><td><code>ss -lntp</code>, état Apache, journaux.</td><td>Démarrer Apache ou corriger sa configuration.</td></tr>
+<tr><td>403 Forbidden</td><td>Permissions, contenu et journaux Apache.</td><td>Corriger permissions/configuration.</td></tr>
+<tr><td>500 Internal Server Error</td><td><code>error_log</code> et configuration.</td><td>Identifier puis corriger la directive ou l'application fautive.</td></tr>
+<tr><td>Mauvaise page</td><td>Fichier index et répertoire document root.</td><td>Vérifier <code>/var/www/html/index.html</code>.</td></tr>
+</tbody>
+</table>
+<h4>Valider la configuration Apache</h4>
+<div class="codeblock"><code>sudo apachectl configtest</code></div>
+<p>Le résultat attendu est <code>Syntax OK</code>.</p>
+</section>
+
+<section id="securite" class="page mb-4">
+<h2>9. Sécurité et bonnes pratiques</h2>
+<ul>
+<li><strong>SSH :</strong> limiter TCP/22 aux réseaux d'administration connus.</li>
+<li><strong>IAM :</strong> utiliser le moindre privilège et des rôles IAM lorsque cela est possible.</li>
+<li><strong>Secrets :</strong> ne jamais stocker clé privée, mot de passe ou secret dans Git.</li>
+<li><strong>Mises à jour :</strong> appliquer régulièrement les correctifs de sécurité.</li>
+<li><strong>HTTPS :</strong> utiliser TLS en production.</li>
+<li><strong>Logs :</strong> surveiller les journaux Apache et envisager CloudWatch.</li>
+<li><strong>Sauvegardes :</strong> mettre en place une stratégie adaptée aux données.</li>
+<li><strong>Exposition :</strong> ne pas exposer directement les bases de données à Internet.</li>
+<li><strong>Production :</strong> préférer une architecture hautement disponible avec Load Balancer et instances privées lorsque le besoin le justifie.</li>
+</ul>
+<div class="danger"><strong>Attention :</strong> le Security Group ne remplace pas le durcissement du système, la gestion IAM, le chiffrement et la supervision.</div>
+</section>
+
+<section id="checklist" class="page mb-4">
+<h2>10. Checklist</h2>
+<ul>
+<li>[ ] AMI Amazon Linux 2023 sélectionnée</li>
+<li>[ ] Paire de clés créée et protégée</li>
+<li>[ ] Instance EC2 à l'état <code>running</code></li>
+<li>[ ] Subnet public et routage Internet configurés si nécessaire</li>
+<li>[ ] SSH 22 limité à l'administration</li>
+<li>[ ] HTTP 80 autorisé pour le site</li>
+<li>[ ] Connexion SSH réussie</li>
+<li>[ ] Système mis à jour avec <code>dnf</code></li>
+<li>[ ] Apache installé</li>
+<li>[ ] <code>httpd</code> actif et activé au démarrage</li>
+<li>[ ] Page <code>/var/www/html/index.html</code> déployée</li>
+<li>[ ] Test <code>curl localhost</code> réussi</li>
+<li>[ ] Test HTTP externe réussi</li>
+<li>[ ] Journaux vérifiés</li>
+<li>[ ] Sécurité et coûts contrôlés</li>
+<li>[ ] Ressources inutilisées arrêtées ou supprimées après le TP</li>
+</ul>
+</section>
+
+<section id="conclusion" class="page mb-4">
+<h2>11. Conclusion</h2>
+<p>Ce travail pratique a permis de mettre en œuvre un serveur Web Linux sur AWS EC2 à partir d'Amazon Linux 2023. La démarche a couvert la création de l'instance, la configuration réseau, l'administration SSH, l'installation d'Apache, le déploiement d'une page Web et la validation du service.</p>
+<p>Les tests locaux et externes permettent de distinguer les problèmes applicatifs des problèmes réseau. Les Security Groups, systemd, les journaux Apache et les outils réseau constituent une base efficace de diagnostic.</p>
+<p>Pour une mise en production, l'architecture devra être renforcée par HTTPS/TLS, une gestion IAM rigoureuse, une supervision centralisée, des sauvegardes, une stratégie de haute disponibilité et, selon les besoins, un Application Load Balancer et des instances privées.</p>
+</section>
+
+<footer class="text-center small-muted mb-4"><p>© 2025 — Rapport AWS Linux Web Server — Ibrahima Khalilou Thiam</p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
-
-
