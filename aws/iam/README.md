@@ -2,39 +2,23 @@
 
 ## Statut
 
-Audit des références d'images de `aws/iam/index.html`.
+Audit synchronisé avec `aws/iam/index.html`.
 
-## Images manquantes
+## Images intégrées
 
-Les deux références suivantes sont utilisées dans le rapport mais ne sont pas présentes dans `assets/images/` global :
+Les deux illustrations précédemment manquantes ont été générées en SVG et intégrées au rapport :
 
-| Référence HTML | État | Emplacement attendu |
-|---|---|---|
-| `../../assets/images/mfa-root.png` | ❌ Absente | `assets/images/mfa-root.png` |
-| `../../assets/images/iam-users.png` | ❌ Absente | `assets/images/iam-users.png` |
+| Référence HTML | État |
+|---|---|
+| `../../assets/images/mfa-root.svg` | ✅ Présente et référencée |
+| `../../assets/images/iam-users.svg` | ✅ Présente et référencée |
 
-### 1. `mfa-root.png`
-
-**Utilisation :** illustration de la configuration MFA du compte racine AWS.
-
-**À créer :** capture d'écran montrant l'étape pertinente de configuration/activation de la MFA du compte racine, sans exposer de données sensibles.
-
-### 2. `iam-users.png`
-
-**Utilisation :** illustration de la liste des utilisateurs IAM dans la console AWS.
-
-**À créer :** capture d'écran de la page IAM Users, avec les éventuels noms, comptes ou identifiants sensibles masqués si nécessaire.
+Les schémas sont volontairement génériques et ne contiennent aucune donnée AWS réelle, aucun secret et aucun identifiant sensible.
 
 ## Consigne de sécurité
 
-Ne pas capturer dans les images :
-
-- Access Keys ou Secret Access Keys ;
-- mots de passe ;
-- QR codes MFA ;
-- tokens temporaires ;
-- informations personnelles inutiles.
+Ne jamais intégrer dans une capture ou une illustration : Access Keys, Secret Access Keys, mots de passe, QR codes MFA, tokens temporaires ou données personnelles inutiles.
 
 ## Conclusion
 
-**Images manquantes confirmées : 2.**
+**Images manquantes : 0.**
