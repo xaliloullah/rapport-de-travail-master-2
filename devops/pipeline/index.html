@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,562 +7,288 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodePipeline</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
+        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodePipeline</h1>
         </div>
+    </div>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
 
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
+<div class="container">
+    <section class="page mb-4">
+        <h2>Sommaire</h2>
+        <ol>
+            <li><a href="#objectifs">Objectifs et contexte</a></li>
+            <li><a href="#prerequis">Prérequis</a></li>
+            <li><a href="#architecture">Concepts et architecture</a></li>
+            <li><a href="#installation">Installation et configuration</a></li>
+            <li><a href="#realisation">Réalisation pratique</a></li>
+            <li><a href="#commandes">Commandes et explications</a></li>
+            <li><a href="#tests">Vérifications et tests</a></li>
+            <li><a href="#depannage">Dépannage</a></li>
+            <li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+            <li><a href="#checklist">Checklist</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ol>
+    </section>
 
-    <div class="container">
+    <section id="objectifs" class="page mb-4">
+        <h2>1. Objectifs et contexte</h2>
+        <p>AWS CodePipeline est un service d'orchestration CI/CD permettant d'enchaîner des actions de récupération du code, de compilation, de test, d'approbation et de déploiement. L'objectif de ce travail est de construire un flux reproductible allant du dépôt source jusqu'à l'environnement cible.</p>
+        <ul>
+            <li>Comprendre la structure <strong>pipeline → stages → actions → artefacts</strong>.</li>
+            <li>Connecter CodeCommit, CodeBuild et CodeDeploy.</li>
+            <li>Automatiser le déclenchement à partir d'un changement du dépôt.</li>
+            <li>Ajouter une approbation manuelle avant la production.</li>
+            <li>Contrôler les exécutions, les artefacts et les erreurs.</li>
+        </ul>
+        <div class="explanation"><strong>Principe :</strong> CodePipeline orchestre les services ; il ne remplace pas CodeBuild pour compiler ni CodeDeploy pour déployer.</div>
+    </section>
 
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#architecture">Architecture du pipeline CI/CD</a></li>
-                <li><a href="#prerequisites">Prérequis</a></li>
-                <li><a href="#create-pipeline">Création du pipeline</a></li>
-                <li><a href="#stages">Configuration des stages</a></li>
-                <li><a href="#artifacts">Gestion des artefacts</a></li>
-                <li><a href="#approbation">Approbation manuelle</a></li>
-                <li><a href="#monitoring">Monitoring et notifications</a></li>
-                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
+    <section id="prerequis" class="page mb-4">
+        <h2>2. Prérequis</h2>
+        <ul>
+            <li>Un compte AWS et une région de travail, par exemple <code>us-east-1</code>.</li>
+            <li>AWS CLI configurée et autorisée à interroger les services nécessaires.</li>
+            <li>Un dépôt CodeCommit contenant l'application et, si nécessaire, <code>buildspec.yml</code> et <code>appspec.yml</code>.</li>
+            <li>Un projet CodeBuild fonctionnel produisant un artefact de sortie.</li>
+            <li>Une application et un groupe de déploiement CodeDeploy opérationnels.</li>
+            <li>Un bucket S3 destiné au stockage des artefacts du pipeline.</li>
+            <li>Des rôles IAM séparés et dimensionnés selon le principe du moindre privilège.</li>
+        </ul>
+        <div class="codeblock"><code># Vérifier l'identité AWS utilisée par la CLI
+aws sts get-caller-identity
 
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>AWS CodePipeline est un service de livraison continue entièrement géré qui automatise les pipelines de mise à jour. Il permet de modéliser, visualiser et automatiser les étapes nécessaires à la livraison de logiciels.</p>
-            <ul>
-                <li>Comprendre l'architecture d'un pipeline CI/CD avec les services AWS.</li>
-                <li>Créer un pipeline connectant CodeCommit, CodeBuild et CodeDeploy.</li>
-                <li>Configurer des stages (Source, Build, Deploy) avec approbation manuelle.</li>
-                <li>Monitorer les exécutions et configurer des notifications.</li>
-            </ul>
-            <div class="explanation">
-                <strong>Pourquoi CodePipeline ?</strong> CodePipeline orchestre l'ensemble du workflow CI/CD en connectant les services AWS entre eux. Chaque push sur CodeCommit déclenche automatiquement le pipeline : build → test → déploiement.
-            </div>
-        </section>
+# Vérifier la région par défaut
+aws configure get region
 
-        <!-- Architecture -->
-        <section id="architecture" class="page mb-4">
-            <h2>2. Architecture du pipeline CI/CD</h2>
+# Vérifier les ressources préparées
+aws codecommit get-repository --repository-name mon-app
+aws codebuild batch-get-projects --names mon-app-build
+aws deploy get-application --application-name mon-app</code></div>
+        <div class="note"><strong>Attention :</strong> les noms <code>mon-app</code>, <code>mon-app-build</code> et les ARN utilisés dans ce rapport sont des exemples à adapter à votre compte.</div>
+    </section>
 
-            <h4>Flux de travail typique :</h4>
-            <div class="codeblock"><code>┌─────────────────────────────────────────────────────────────────────────────┐
-│                         PIPELINE CI/CD AWS                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐              │
-│  │  SOURCE  │───▶│  BUILD   │───▶│ APPROVAL │───▶│  DEPLOY  │              │
-│  │          │    │          │    │          │    │          │              │
-│  │CodeCommit│    │CodeBuild │    │  Manual  │    │CodeDeploy│              │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘              │
-│       │               │                                │                    │
-│       ▼               ▼                                ▼                    │
-│   Git Push      Build Artifacts                EC2 / Lambda                 │
-│   Trigger       (JAR/WAR/Docker)               Deployment                   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘</code></div>
+    <section id="architecture" class="page mb-4">
+        <h2>3. Concepts et architecture</h2>
+        <div class="codeblock"><code>Développeur
+    │ git push
+    ▼
+CodeCommit ──EventBridge──▶ CodePipeline
+                              │
+                              ├── Source ──▶ artefact source
+                              │
+                              ├── Build ──▶ CodeBuild ──▶ artefact applicatif
+                              │
+                              ├── Approval (optionnel)
+                              │
+                              └── Deploy ──▶ CodeDeploy ──▶ EC2 / autre cible
 
-            <h4>Rôles de chaque service :</h4>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Service</th>
-                        <th>Rôle</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>CodeCommit</strong></td>
-                        <td>Source</td>
-                        <td>Dépôt Git hébergé, déclenche le pipeline à chaque push.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>CodeBuild</strong></td>
-                        <td>Build</td>
-                        <td>Compile le code, exécute les tests, produit les artefacts.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>CodeDeploy</strong></td>
-                        <td>Deploy</td>
-                        <td>Déploie les artefacts sur EC2, Lambda ou ECS.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>S3</strong></td>
-                        <td>Storage</td>
-                        <td>Stocke les artefacts entre les stages.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>CloudWatch</strong></td>
-                        <td>Monitoring</td>
-                        <td>Logs et métriques d'exécution du pipeline.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>SNS</strong></td>
-                        <td>Notification</td>
-                        <td>Alertes par email/SMS en cas de succès ou échec.</td>
-                    </tr>
-                </tbody>
-            </table>
+                         Artefacts : S3 + chiffrement KMS</code></div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light"><tr><th>Élément</th><th>Responsabilité</th><th>Exemple</th></tr></thead>
+            <tbody>
+                <tr><td>Pipeline</td><td>Orchestration globale</td><td><code>mon-app-pipeline</code></td></tr>
+                <tr><td>Stage</td><td>Regroupe des actions d'une phase</td><td>Source, Build, Deploy</td></tr>
+                <tr><td>Action</td><td>Travail exécuté dans un stage</td><td>CodeBuild, CodeDeploy, Manual</td></tr>
+                <tr><td>Artefact</td><td>Données transmises entre actions</td><td>source.zip, application.zip</td></tr>
+                <tr><td>EventBridge</td><td>Détection événementielle des changements CodeCommit</td><td>Push sur <code>main</code></td></tr>
+                <tr><td>IAM</td><td>Autorisation des services</td><td>Service role CodePipeline</td></tr>
+            </tbody>
+        </table>
+        <div class="explanation"><strong>Modèle d'action :</strong> AWS documente six catégories principales : Source, Build, Test, Deploy, Approval et Invoke. Les actions peuvent être séquentielles ou parallèles selon la configuration du stage. citeturn0search3</div>
+    </section>
 
-            <div class="note">
-                <strong>Intégration native :</strong> Tous ces services AWS communiquent entre eux via IAM et des rôles de service, sans configuration réseau complexe.
-            </div>
-        </section>
+    <section id="installation" class="page mb-4">
+        <h2>4. Installation et configuration</h2>
+        <h4>4.1 Bucket S3 d'artefacts</h4>
+        <div class="codeblock"><code>export AWS_REGION=us-east-1
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+export ARTIFACT_BUCKET=mon-app-codepipeline-artifacts-$ACCOUNT_ID
 
-        <!-- Prérequis -->
-        <section id="prerequisites" class="page mb-4">
-            <h2>3. Prérequis</h2>
-            <p>Avant de créer le pipeline, assurez-vous d'avoir configuré les éléments suivants :</p>
+aws s3api create-bucket --bucket "$ARTIFACT_BUCKET" --region "$AWS_REGION"
 
-            <h4>1. Dépôt CodeCommit :</h4>
-            <div class="codeblock"><code># Créer le dépôt
-aws codecommit create-repository --repository-name mon-app
+# Pour une région différente de us-east-1, préciser LocationConstraint.
+# Exemple : --create-bucket-configuration LocationConstraint=eu-west-3</code></div>
+        <h4>4.2 Rôle de service CodePipeline</h4>
+        <p>Le rôle de service est assumé par CodePipeline et doit autoriser uniquement les opérations nécessaires sur S3, CodeCommit, CodeBuild, CodeDeploy et, si activé, SNS/KMS. En pratique, la console peut créer le rôle ; en CLI, le rôle et sa policy doivent être préparés explicitement.</p>
+        <h4>4.3 Détection des changements</h4>
+        <p>Pour une source CodeCommit, la méthode recommandée est événementielle avec <strong>Amazon EventBridge</strong>. Lorsqu'un pipeline est créé ou modifié depuis la console avec CodeCommit, la règle EventBridge est créée automatiquement. Avec la CLI, les ressources de détection doivent être configurées séparément. citeturn0search5turn0search10</p>
+        <img class="img-default" src="../../assets/images/pipeline-create.png" alt="Création du pipeline CodePipeline">
+    </section>
 
-# Cloner et ajouter du code
-git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mon-app
-cd mon-app
-echo "# Mon Application" > README.md
-git add .
-git commit -m "Initial commit"
-git push origin main</code></div>
-
-            <h4>2. Projet CodeBuild :</h4>
-            <ul>
-                <li>Projet CodeBuild existant avec un fichier <code>buildspec.yml</code> valide.</li>
-                <li>Le projet doit pouvoir produire des artefacts (fichiers de sortie).</li>
-            </ul>
-
-            <h4>3. Application CodeDeploy :</h4>
-            <ul>
-                <li>Application CodeDeploy créée.</li>
-                <li>Groupe de déploiement configuré (instances EC2 taguées).</li>
-                <li>Fichier <code>appspec.yml</code> dans le dépôt.</li>
-            </ul>
-
-            <h4>4. Bucket S3 pour les artefacts :</h4>
-            <div class="codeblock"><code># Créer un bucket pour les artefacts du pipeline
-aws s3 mb s3://mon-pipeline-artifacts-bucket --region us-east-1</code></div>
-
-            <h4>5. Rôles IAM :</h4>
-            <div class="codeblock"><code># Le pipeline a besoin d'un rôle de service avec les permissions :
-# - CodeCommit (lecture)
-# - CodeBuild (démarrer build)
-# - CodeDeploy (créer déploiement)
-# - S3 (lecture/écriture artefacts)
-
-aws iam create-role --role-name CodePipelineServiceRole --assume-role-policy-document file://trust-policy.json</code></div>
-
-            <div class="explanation">
-                <strong>Trust policy :</strong> Le rôle de service doit autoriser <code>codepipeline.amazonaws.com</code> à assumer le rôle.
-            </div>
-        </section>
-
-        <!-- Création du pipeline -->
-        <section id="create-pipeline" class="page mb-4">
-            <h2>4. Création du pipeline</h2>
-
-            <h4>Via la console AWS :</h4>
-            <ol>
-                <li>Console AWS → Service <strong>CodePipeline</strong> → <strong>Create pipeline</strong>.</li>
-                <li><strong>Pipeline name :</strong> <code>mon-app-pipeline</code>.</li>
-                <li><strong>Service role :</strong> choisir <strong>New service role</strong> ou un rôle existant.</li>
-                <li><strong>Advanced settings :</strong>
-                    <ul>
-                        <li><strong>Artifact store :</strong> choisir un bucket S3 existant ou en créer un.</li>
-                        <li><strong>Encryption :</strong> AWS KMS (par défaut).</li>
-                    </ul>
-                </li>
-                <li>Cliquer sur <strong>Next</strong>.</li>
-            </ol>
-
-            <img class="img-default" src="assets/images/pipeline-create.png"
-                alt="Création du pipeline CodePipeline">
-
-            <h4>Ajout du stage Source :</h4>
-            <ol>
-                <li><strong>Source provider :</strong> <code>AWS CodeCommit</code>.</li>
-                <li><strong>Repository name :</strong> <code>mon-app</code>.</li>
-                <li><strong>Branch name :</strong> <code>main</code>.</li>
-                <li><strong>Change detection :</strong> <code>AWS CodePipeline</code> (déclenchement automatique).</li>
-                <li>Cliquer sur <strong>Next</strong>.</li>
-            </ol>
-
-            <h4>Ajout du stage Build :</h4>
-            <ol>
-                <li><strong>Build provider :</strong> <code>AWS CodeBuild</code>.</li>
-                <li>Sélectionner le projet CodeBuild existant ou en créer un nouveau.</li>
-                <li>Cliquer sur <strong>Next</strong>.</li>
-            </ol>
-
-            <h4>Ajout du stage Deploy :</h4>
-            <ol>
-                <li><strong>Deploy provider :</strong> <code>AWS CodeDeploy</code>.</li>
-                <li><strong>Application name :</strong> sélectionner l'application CodeDeploy.</li>
-                <li><strong>Deployment group :</strong> sélectionner le groupe de déploiement.</li>
-                <li>Cliquer sur <strong>Next</strong>.</li>
-            </ol>
-
-            <h4>Vérification et création :</h4>
-            <ol>
-                <li>Vérifier la configuration (Source → Build → Deploy).</li>
-                <li>Cliquer sur <strong>Create pipeline</strong>.</li>
-                <li>Le pipeline se déclenche automatiquement après création.</li>
-            </ol>
-
-            <div class="codeblock"><code># Via AWS CLI
+    <section id="realisation" class="page mb-4">
+        <h2>5. Réalisation pratique</h2>
+        <h4>5.1 Création du pipeline</h4>
+        <div class="codeblock"><code># Décrire le pipeline à partir d'un fichier JSON
 aws codepipeline create-pipeline --cli-input-json file://pipeline-config.json
 
-# Vérifier le statut
-aws codepipeline get-pipeline-state --name mon-app-pipeline
-
-# Déclencher manuellement
-aws codepipeline start-pipeline-execution --name mon-app-pipeline</code></div>
-
-            <div class="note">
-                <strong>Déclenchement automatique :</strong> Une fois créé, le pipeline surveille le dépôt CodeCommit et se lance automatiquement à chaque push sur la branche configurée.
-            </div>
-        </section>
-
-        <!-- Configuration des stages -->
-        <section id="stages" class="page mb-4">
-            <h2>5. Configuration des stages</h2>
-            <p>Chaque stage représente une phase du pipeline. Voici les stages courants :</p>
-
-            <h4>Stage 1 — Source :</h4>
-            <ul>
-                <li>Récupère le code depuis CodeCommit (ou GitHub, S3).</li>
-                <li>Produit un artefact : le code source compressé.</li>
-                <li>Se déclenche automatiquement à chaque push.</li>
-            </ul>
-
-            <h4>Stage 2 — Build :</h4>
-            <ul>
-                <li>Utilise CodeBuild pour compiler et tester.</li>
-                <li>Produit un artefact : le livrable (JAR, WAR, image Docker).</li>
-                <li>Peut inclure des tests unitaires et d'intégration.</li>
-            </ul>
-
-            <h4>Stage 3 — Staging (optionnel) :</h4>
-            <ul>
-                <li>Déploie sur un environnement de pré-production.</li>
-                <li>Permet de valider le fonctionnement avant la production.</li>
-            </ul>
-
-            <h4>Stage 4 — Approval (optionnel) :</h4>
-            <ul>
-                <li>Attend une validation manuelle avant de continuer.</li>
-                <li>Envoi une notification SNS à l'approbateur.</li>
-            </ul>
-
-            <h4>Stage 5 — Deploy :</h4>
-            <ul>
-                <li>Déploie sur l'environnement de production via CodeDeploy.</li>
-                <li>Peut être en mode In-Place ou Blue/Green.</li>
-            </ul>
-
-            <div class="codeblock"><code># Exemple de configuration pipeline (JSON)
+# Exemple minimal de structure (à compléter avec les configurations réelles)
 {
   "pipeline": {
     "name": "mon-app-pipeline",
-    "stages": [
-      {
-        "name": "Source",
-        "actions": [{
-          "name": "Source",
-          "actionTypeId": {
-            "category": "Source",
-            "owner": "AWS",
-            "provider": "CodeCommit"
-          }
-        }]
-      },
-      {
-        "name": "Build",
-        "actions": [{
-          "name": "Build",
-          "actionTypeId": {
-            "category": "Build",
-            "owner": "AWS",
-            "provider": "CodeBuild"
-          }
-        }]
-      },
-      {
-        "name": "Deploy",
-        "actions": [{
-          "name": "Deploy",
-          "actionTypeId": {
-            "category": "Deploy",
-            "owner": "AWS",
-            "provider": "CodeDeploy"
-          }
-        }]
-      }
-    ]
+    "roleArn": "arn:aws:iam::123456789012:role/CodePipelineServiceRole",
+    "artifactStore": {
+      "type": "S3",
+      "location": "mon-app-codepipeline-artifacts-123456789012"
+    },
+    "stages": []
   }
 }</code></div>
-        </section>
+        <h4>5.2 Stage Source</h4>
+        <p>Le stage Source récupère une révision du dépôt et produit un artefact de sortie. Avec CodeCommit, l'action utilise le dépôt et la branche configurés.</p>
+        <h4>5.3 Stage Build</h4>
+        <p>CodeBuild reçoit l'artefact source en entrée, exécute le <code>buildspec.yml</code>, les tests et la génération du livrable, puis produit l'artefact de sortie.</p>
+        <h4>5.4 Approbation</h4>
+        <p>Une action d'approbation peut arrêter le pipeline avant la production. Elle doit être placée après les contrôles nécessaires et avant le déploiement critique. Une absence de décision pendant sept jours entraîne l'échec de l'action. citeturn0search0</p>
+        <h4>5.5 Stage Deploy</h4>
+        <p>CodeDeploy consomme l'artefact et réalise le déploiement selon la stratégie configurée. Pour CodeDeploy, l'action de déploiement attend un artefact d'entrée. citeturn0search4</p>
+        <div class="codeblock"><code># Lancer manuellement une exécution
+aws codepipeline start-pipeline-execution --name mon-app-pipeline
 
-        <!-- Gestion des artefacts -->
-        <section id="artifacts" class="page mb-4">
-            <h2>6. Gestion des artefacts</h2>
-            <p>Les artefacts sont les fichiers produits par un stage et consommés par le suivant. Ils sont stockés dans un bucket S3.</p>
+# Voir l'état des stages/actions
+aws codepipeline get-pipeline-state --name mon-app-pipeline</code></div>
+    </section>
 
-            <h4>Flux d'artefacts :</h4>
-            <div class="codeblock"><code>┌─────────────────────────────────────────────────────────────────┐
-│                     FLUX D'ARTEFACTS                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Source Artifacts ──▶ Build Artifacts ──▶ Deploy Artifacts      │
-│  (Code source)        (JAR/WAR/Docker)     (Application live)   │
-│                                                                 │
-│       │                   │                      │              │
-│       ▼                   ▼                      ▼              │
-│   S3 Bucket           S3 Bucket             EC2 / Lambda        │
-│   (input.zip)         (output.zip)          (running app)       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘</code></div>
+    <section id="commandes" class="page mb-4">
+        <h2>6. Commandes et explications</h2>
+        <div class="codeblock"><code># Lire la définition complète du pipeline
+aws codepipeline get-pipeline --name mon-app-pipeline
 
-            <h4>Configuration dans CodePipeline :</h4>
-            <ul>
-                <li><strong>Input artifact :</strong> artefact reçu du stage précédent.</li>
-                <li><strong>Output artifact :</strong> artefact produit par le stage.</li>
-                <li>Chaque stage peut avoir un ou plusieurs artefacts.</li>
-            </ul>
+# Lister les pipelines
+aws codepipeline list-pipelines
 
-            <h4>Exemple avec buildspec.yml :</h4>
-            <div class="codeblock"><code># buildspec.yml — Définit les artefacts de sortie
-version: 0.2
+# Consulter les exécutions
+aws codepipeline list-pipeline-executions --pipeline-name mon-app-pipeline
 
-phases:
-  build:
-    commands:
-      - mvn package
+# Consulter les détails d'une exécution
+aws codepipeline get-pipeline-execution \
+  --pipeline-name mon-app-pipeline \
+  --pipeline-execution-id EXECUTION_ID
 
-artifacts:
-  files:
-    - target/*.jar
-    - appspec.yml
-    - scripts/**
-  discard-paths: no</code></div>
+# Arrêter une exécution en cours
+aws codepipeline stop-pipeline-execution \
+  --pipeline-name mon-app-pipeline \
+  --pipeline-execution-id EXECUTION_ID \
+  --abandon</code></div>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light"><tr><th>Commande</th><th>Utilité</th></tr></thead>
+            <tbody>
+                <tr><td><code>get-pipeline</code></td><td>Inspecter la définition et les stages.</td></tr>
+                <tr><td><code>get-pipeline-state</code></td><td>Identifier le stage/action actuellement en erreur.</td></tr>
+                <tr><td><code>list-pipeline-executions</code></td><td>Analyser l'historique des exécutions.</td></tr>
+                <tr><td><code>start-pipeline-execution</code></td><td>Déclencher un test manuel.</td></tr>
+                <tr><td><code>stop-pipeline-execution</code></td><td>Arrêter une exécution problématique.</td></tr>
+            </tbody>
+        </table>
+        <div class="note"><strong>Point important :</strong> une définition CLI CodeCommit ne suffit pas à elle seule pour obtenir un déclenchement événementiel ; avec la CLI, la règle EventBridge et ses autorisations doivent aussi être configurées. citeturn0search5</div>
+    </section>
 
-            <div class="explanation">
-                <strong>Bonnes pratiques :</strong>
-                <ul>
-                    <li>Ne stocker que les fichiers nécessaires (éviter les dépendances).</li>
-                    <li>Utiliser <code>discard-paths: yes</code> pour aplatir la structure.</li>
-                    <li>Configurer l'expiration des artefacts dans S3 (lifecycle policy).</li>
-                </ul>
-            </div>
-        </section>
+    <section id="tests" class="page mb-4">
+        <h2>7. Vérifications et tests</h2>
+        <ol>
+            <li>Vérifier que le pipeline existe et que les stages sont correctement nommés.</li>
+            <li>Déclencher une exécution manuelle et observer chaque action.</li>
+            <li>Modifier le dépôt CodeCommit puis effectuer un <code>git push</code>.</li>
+            <li>Vérifier que l'événement EventBridge déclenche une nouvelle exécution.</li>
+            <li>Contrôler que CodeBuild reçoit l'artefact source et produit le livrable attendu.</li>
+            <li>Vérifier que CodeDeploy reçoit exactement l'artefact attendu.</li>
+            <li>En cas d'approbation, vérifier que le pipeline s'arrête puis reprend après validation.</li>
+        </ol>
+        <div class="codeblock"><code># Contrôles CLI
+aws codepipeline get-pipeline --name mon-app-pipeline
+aws codepipeline get-pipeline-state --name mon-app-pipeline
+aws codepipeline list-pipeline-executions --pipeline-name mon-app-pipeline
 
-        <!-- Approbation manuelle -->
-        <section id="approbation" class="page mb-4">
-            <h2>7. Approbation manuelle</h2>
-            <p>CodePipeline permet d'ajouter une étape d'approbation avant le déploiement en production.</p>
+# Contrôler la présence de l'artefact dans S3
+aws s3 ls s3://$ARTIFACT_BUCKET/ --recursive</code></div>
+        <div class="explanation"><strong>Critère de réussite :</strong> une modification du code doit parcourir Source → Build → éventuelle Approval → Deploy, avec un artefact valide à chaque transition.</div>
+    </section>
 
-            <h4>Configuration :</h4>
-            <ol>
-                <li>Dans le pipeline, ajouter un stage <strong>Approval</strong> entre Build et Deploy.</li>
-                <li><strong>Action provider :</strong> <code>Manual approval</code>.</li>
-                <li><strong>SNS topic :</strong> sélectionner un topic SNS pour la notification.</li>
-                <li><strong>Custom data :</strong> message affiché à l'approbateur.</li>
-            </ol>
+    <section id="depannage" class="page mb-4">
+        <h2>8. Dépannage</h2>
+        <table class="table table-bordered table-sm">
+            <thead class="table-light"><tr><th>Symptôme</th><th>Cause probable</th><th>Action corrective</th></tr></thead>
+            <tbody>
+                <tr><td>Le pipeline ne démarre pas après un push</td><td>EventBridge absent ou mal autorisé</td><td>Vérifier la règle, sa cible et les permissions ; éviter de mélanger inutilement polling et EventBridge.</td></tr>
+                <tr><td>Source réussie, Build échoue</td><td>buildspec ou environnement CodeBuild</td><td>Consulter les logs CodeBuild et tester le build indépendamment.</td></tr>
+                <tr><td>Deploy échoue</td><td>appspec, agent ou IAM</td><td>Contrôler CodeDeploy, les hooks, l'agent et les rôles.</td></tr>
+                <tr><td>Accès S3 refusé</td><td>Rôle IAM ou KMS incomplet</td><td>Vérifier les permissions du rôle et la clé KMS utilisée.</td></tr>
+                <tr><td>Approval bloquée</td><td>Absence de permission de validation</td><td>Attribuer les permissions d'approbation nécessaires à l'identité concernée.</td></tr>
+            </tbody>
+        </table>
+        <div class="codeblock"><code># Vérifier l'état du pipeline
+aws codepipeline get-pipeline-state --name mon-app-pipeline
 
-            <h4>Fonctionnement :</h4>
-            <ul>
-                <li>Le pipeline se met en pause au stade Approval.</li>
-                <li>Un email est envoyé à l'abonné du topic SNS.</li>
-                <li>L'approbateur clique sur <strong>Approve</strong> ou <strong>Reject</strong>.</li>
-                <li>Le pipeline continue ou s'arrête selon la décision.</li>
-            </ul>
+# Vérifier les règles EventBridge
+aws events list-rules --name-prefix codepipeline
 
-            <div class="codeblock"><code># Créer un topic SNS pour l'approbation
-aws sns create-topic --name pipeline-approval
+# Examiner les événements récents dans la console EventBridge/CloudWatch</code></div>
+    </section>
 
-# S'abonner par email
-aws sns subscribe --topic-arn arn:aws:sns:us-east-1:123456789012:pipeline-approval --protocol email --notification-endpoint devops@example.com</code></div>
+    <section id="securite" class="page mb-4">
+        <h2>9. Sécurité et bonnes pratiques</h2>
+        <ul>
+            <li>Utiliser des rôles IAM dédiés plutôt que des clés d'accès statiques dans les scripts.</li>
+            <li>Appliquer le principe du moindre privilège au rôle CodePipeline et aux rôles des services aval.</li>
+            <li>Chiffrer les artefacts S3 avec AWS KMS lorsque le niveau de confidentialité l'exige.</li>
+            <li>Ne jamais placer de mots de passe, tokens ou clés privées dans CodeCommit, les buildspecs ou les artefacts.</li>
+            <li>Utiliser Secrets Manager ou Parameter Store pour les secrets applicatifs.</li>
+            <li>Séparer les environnements développement, staging et production.</li>
+            <li>Placer une approbation humaine avant les déploiements de production sensibles.</li>
+            <li>Conserver les journaux nécessaires à l'audit et surveiller les échecs.</li>
+            <li>Préférer EventBridge pour la détection des changements CodeCommit plutôt que le polling lorsqu'il est disponible. citeturn0search10</li>
+        </ul>
+        <div class="danger"><strong>Erreur critique :</strong> ne pas donner à un rôle de pipeline des permissions administrateur globales simplement pour « faire fonctionner » le pipeline. Identifier les permissions réellement nécessaires à chaque action.</div>
+        <h4>Approbation et IAM</h4>
+        <p>Les personnes autorisées à approuver ou rejeter une action doivent disposer des permissions CodePipeline correspondantes. AWS fournit notamment la policy <code>AWSCodePipelineApproverAccess</code>, mais une policy limitée aux ressources nécessaires est préférable lorsque le contexte le permet. citeturn0search2</p>
+    </section>
 
-            <div class="note">
-                <strong>Cas d'utilisation :</strong> L'approbation manuelle est utile pour les déploiements critiques en production où une validation humaine est requise avant la mise en ligne.
-            </div>
-        </section>
+    <section id="checklist" class="page mb-4">
+        <h2>10. Checklist</h2>
+        <div class="alert alert-light border">
+            <h5>Vérification finale</h5>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp1"><label class="form-check-label" for="cp1">Région et identité AWS vérifiées</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp2"><label class="form-check-label" for="cp2">CodeCommit contient le code source</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp3"><label class="form-check-label" for="cp3">CodeBuild compile, teste et produit un artefact</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp4"><label class="form-check-label" for="cp4">CodeDeploy et son groupe de déploiement sont opérationnels</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp5"><label class="form-check-label" for="cp5">Bucket S3 d'artefacts et chiffrement vérifiés</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp6"><label class="form-check-label" for="cp6">EventBridge déclenche le pipeline après un push</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp7"><label class="form-check-label" for="cp7">Source → Build → Deploy fonctionne de bout en bout</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp8"><label class="form-check-label" for="cp8">Approbation manuelle testée si elle est utilisée</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp9"><label class="form-check-label" for="cp9">Permissions IAM réduites au besoin réel</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="cp10"><label class="form-check-label" for="cp10">Dépannage et vérifications CLI maîtrisés</label></div>
+        </div>
+    </section>
 
-        <!-- Monitoring et notifications -->
-        <section id="monitoring" class="page mb-4">
-            <h2>8. Monitoring et notifications</h2>
-
-            <h4>Surveillance dans la console :</h4>
-            <ul>
-                <li>Visualisation en temps réel de l'état de chaque stage.</li>
-                <li>Historique des exécutions avec détails.</li>
-                <li>Logs détaillés pour chaque action.</li>
-            </ul>
-
-            <h4>Notifications SNS :</h4>
-            <div class="codeblock"><code># Créer un topic pour les notifications
-aws sns create-topic --name pipeline-notifications
-
-# Configurer les abonnements
-aws sns subscribe --topic-arn arn:aws:sns:us-east-1:123456789012:pipeline-notifications --protocol email --notification-endpoint equipe@example.com
-
-# Événements notifiés :
-# - Pipeline execution started/succeeded/failed
-# - Stage execution started/succeeded/failed
-# - Action execution started/succeeded/failed</code></div>
-
-            <h4>CloudWatch Events :</h4>
-            <div class="codeblock"><code># Créer une règle CloudWatch Events
-aws events put-rule --name pipeline-state-change --event-pattern '{
-  "source": ["aws.codepipeline"],
-  "detail-type": ["CodePipeline Pipeline Execution State Change"],
-  "detail": {
-    "state": ["FAILED", "SUCCEEDED"]
-  }
-}'</code></div>
-
-            <h4>Métriques CloudWatch :</h4>
-            <ul>
-                <li><code>PipelineExecutionTime</code> : durée d'exécution.</li>
-                <li><code>PipelineExecutionSuccess</code> : nombre de succès.</li>
-                <li><code>PipelineExecutionFailure</code> : nombre d'échecs.</li>
-            </ul>
-
-            <div class="explanation">
-                <strong>Tableau de bord :</strong> Vous pouvez créer un dashboard CloudWatch pour visualiser l'état de tous vos pipelines en un coup d'œil.
-            </div>
-        </section>
-
-        <!-- Bonnes pratiques -->
-        <section id="bonnes-pratiques" class="page mb-4">
-            <h2>9. Bonnes pratiques</h2>
-
-            <h4>Sécurité :</h4>
-            <ul>
-                <li>Utiliser des rôles IAM dédiés pour le pipeline (moindre privilège).</li>
-                <li>Chiffrer les artefacts S3 avec AWS KMS.</li>
-                <li>Ne jamais stocker de secrets dans le code ou les artefacts.</li>
-                <li>Utiliser AWS Secrets Manager pour les credentials.</li>
-            </ul>
-
-            <h4>Fiabilité :</h4>
-            <ul>
-                <li>Toujours tester le pipeline sur un environnement de staging avant la production.</li>
-                <li>Configurer des timeouts appropriés pour chaque stage.</li>
-                <li>Mettre en place des rollback automatiques en cas d'échec.</li>
-            </ul>
-
-            <h4>Performance :</h4>
-            <ul>
-                <li>Utiliser le cache CodeBuild pour accélérer les builds.</li>
-                <li>Paralléliser les stages indépendants quand c'est possible.</li>
-                <li>Configurer l'expiration des artefacts S3 pour réduire les coûts.</li>
-            </ul>
-
-            <h4>Monitoring :</h4>
-            <ul>
-                <li>Configurer des alertes SNS pour les échecs.</li>
-                <li>Créer un dashboard CloudWatch pour la visibilité.</li>
-                <li>Auditer régulièrement les logs CloudTrail.</li>
-            </ul>
-
-            <div class="danger">
-                <strong>⚠️ Erreurs à éviter :</strong>
-                <ul>
-                    <li>Déployer directement en production sans staging.</li>
-                    <li>Ignorer les échecs de tests dans le pipeline.</li>
-                    <li>Utiliser des credentials codés en dur.</li>
-                    <li>Ne pas configurer de rollback.</li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Checklist -->
-        <section id="checklist" class="page mb-4">
-            <h2>10. Checklist imprimable</h2>
-            <div class="alert alert-light border">
-                <h5>✅ Avant de valider ce sujet, vérifier :</h5>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp1">
-                    <label class="form-check-label" for="cp1">L'architecture du pipeline CI/CD est comprise</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp2">
-                    <label class="form-check-label" for="cp2">Le dépôt CodeCommit est configuré et contient du code</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp3">
-                    <label class="form-check-label" for="cp3">Le projet CodeBuild produit des artefacts</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp4">
-                    <label class="form-check-label" for="cp4">L'application CodeDeploy est configurée</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp5">
-                    <label class="form-check-label" for="cp5">Un pipeline a été créé avec Source → Build → Deploy</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp6">
-                    <label class="form-check-label" for="cp6">Le pipeline se déclenche automatiquement après un push</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp7">
-                    <label class="form-check-label" for="cp7">Des notifications SNS sont configurées</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="cp8">
-                    <label class="form-check-label" for="cp8">Un test de bout en bout a été réalisé avec succès</label>
-                </div>
-            </div>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>11. Conclusion</h2>
-            <p>AWS CodePipeline est l'orchestrateur central qui connecte CodeCommit, CodeBuild et CodeDeploy en un flux automatisé. Points clés à retenir :</p>
-            <ul>
-                <li><strong>Intégration native :</strong> Tous les services AWS communiquent automatiquement via IAM.</li>
-                <li><strong>Déclenchement automatique :</strong> Chaque push sur CodeCommit lance le pipeline sans intervention manuelle.</li>
-                <li><strong>Flexibilité :</strong> Ajout de stages d'approbation, de staging, de tests supplémentaires.</li>
-                <li><strong>Observabilité :</strong> Historique complet, logs détaillés, notifications en temps réel.</li>
-            </ul>
-            <p>Ce pipeline CI/CD AWS constitue une base solide pour le déploiement moderne d'applications. En combinant ces services, vous obtenez un workflow automatisé, sécurisé et scalable qui couvre l'ensemble du cycle de vie du logiciel : du code source à la production.</p>
-            <div class="note">
-                <strong>Prochaine étape :</strong> Explorer des patterns avancés comme le déploiement Blue/Green avec CodeDeploy, les tests de charge automatiques, ou l'intégration avec des outils tiers comme Jenkins ou GitHub Actions.
-            </div>
-        </section>
-
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <section id="conclusion" class="page mb-4">
+        <h2>11. Conclusion</h2>
+        <p>Ce travail montre comment AWS CodePipeline peut servir d'orchestrateur central d'une chaîne CI/CD. Le pipeline relie le contrôle de version, la construction, les contrôles qualité et le déploiement tout en faisant circuler des artefacts entre les différentes actions.</p>
+        <ul>
+            <li><strong>Source :</strong> CodeCommit ou un autre fournisseur compatible.</li>
+            <li><strong>Build/Test :</strong> CodeBuild exécute les traitements automatisés.</li>
+            <li><strong>Approval :</strong> une validation humaine peut protéger la production.</li>
+            <li><strong>Deploy :</strong> CodeDeploy ou un autre fournisseur réalise la livraison.</li>
+            <li><strong>Événements :</strong> EventBridge permet une détection événementielle des changements CodeCommit.</li>
+            <li><strong>Gouvernance :</strong> IAM, KMS, logs et séparation des environnements renforcent la sécurité.</li>
+        </ul>
+        <div class="note"><strong>Perspective :</strong> cette architecture peut ensuite évoluer vers ECS/EKS, des déploiements Blue/Green, des tests automatisés supplémentaires, des contrôles de sécurité et des pipelines multi-environnements.</div>
+    </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
