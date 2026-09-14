@@ -5,25 +5,38 @@ Dépôt regroupant les travaux pratiques et rapports techniques réalisés en Ma
 ## Rapports
 
 ### Gestion de versions
-- [Git & GitHub](./git-github/index.html)
+- [Git & GitHub](./git-github/index.html) — rapport de référence
 
 ### Conteneurisation et orchestration
-- [Docker](./docker/index.html)
-- [Kubernetes](./kubernetes/index.html)
+- [Docker](./docker/index.html) — [complément académique](./docker/complement-academique.html)
+- [Kubernetes](./kubernetes/index.html) — [complément académique](./kubernetes/complement-academique.html)
 
 ### AWS / Cloud
-- [Création de compte AWS et Windows Server](./aws/windows/index.html)
-- [Ubuntu EC2 et AWS CLI](./aws/ubuntu/index.html)
-- [Linux Web Server](./aws/linux-webserver/index.html)
-- [AWS IAM](./aws/iam/index.html)
-- [AWS VPC](./aws/vpc/index.html)
+- [Création de compte AWS et Windows Server](./aws/windows/index.html) — [complément académique](./aws/windows/complement-academique.html)
+- [Ubuntu EC2 et AWS CLI](./aws/ubuntu/index.html) — [complément académique](./aws/ubuntu/complement-academique.html)
+- [Linux Web Server](./aws/linux-webserver/index.html) — [complément académique](./aws/linux-webserver/complement-academique.html)
+- [AWS IAM](./aws/iam/index.html) — [complément académique](./aws/iam/complement-academique.html)
+- [AWS VPC](./aws/vpc/index.html) — [complément académique](./aws/vpc/complement-academique.html)
 
 ### DevOps
-- [Jenkins — Maven + Tomcat + CI/CD](./devops/jenkins/index.html)
-- [AWS CodeCommit](./devops/codecommit/index.html)
-- [AWS CodeBuild](./devops/codebuild/index.html)
-- [AWS CodeDeploy](./devops/codedeploy/index.html)
-- [AWS CodePipeline](./devops/pipeline/index.html)
+- [Jenkins — Maven + Tomcat + CI/CD](./devops/jenkins/index.html) — [complément académique](./devops/jenkins/complement-academique.html)
+- [AWS CodeCommit](./devops/codecommit/index.html) — [complément académique](./devops/codecommit/complement-academique.html)
+- [AWS CodeBuild](./devops/codebuild/index.html) — [complément académique](./devops/codebuild/complement-academique.html)
+- [AWS CodeDeploy](./devops/codedeploy/index.html) — [complément académique](./devops/codedeploy/complement-academique.html)
+- [AWS CodePipeline](./devops/pipeline/index.html) — [complément académique](./devops/pipeline/complement-academique.html)
+
+## Méthode d'enrichissement
+
+Les rapports principaux sont conservés comme documents de travail originaux. Les compléments académiques sont ajoutés séparément afin de ne pas supprimer ou réécrire les captures d'écran, logos, schémas, commandes ou explications déjà présents.
+
+Chaque complément approfondit notamment :
+1. problématique et objectifs pédagogiques ;
+2. concepts et architecture ;
+3. justification des choix techniques ;
+4. reproductibilité et validation ;
+5. sécurité et bonnes pratiques ;
+6. analyse critique et limites ;
+7. questions d'évaluation.
 
 ## Niveau de documentation
 
@@ -38,8 +51,9 @@ Les rapports suivent progressivement une structure commune :
 7. Vérifications et tests
 8. Dépannage
 9. Sécurité et bonnes pratiques
-10. Checklist
-11. Conclusion
+10. Analyse critique
+11. Questions d'évaluation
+12. Conclusion
 
 Les captures d'écran sont conservées dans les dossiers `assets/images` associés à chaque rapport lorsque leur usage est pertinent.
 
