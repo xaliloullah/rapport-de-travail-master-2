@@ -31,7 +31,7 @@
 <ol>
 <li><a href="#objectifs">Objectifs et contexte</a></li><li><a href="#prerequis">Prérequis</a></li><li><a href="#concepts">Concepts et architecture</a></li><li><a href="#installation">Installation et configuration</a></li><li><a href="#realisation">Réalisation pratique</a></li><li><a href="#commandes">Commandes et explications</a></li><li><a href="#verification">Vérifications et tests</a></li><li><a href="#depannage">Dépannage</a></li><li><a href="#securite">Sécurité et bonnes pratiques</a></li><li><a href="#checklist">Checklist</a></li><li><a href="#conclusion">Conclusion</a></li>
 </ol>
-<img class="img-default" src="../assets/images/kubernetes.png" alt="Architecture et logo Kubernetes">
+<img class="img-default" src="assets/images/kubernetes.png" alt="Architecture et logo Kubernetes">
 </section>
 
 <section id="objectifs" class="page mb-4">
@@ -87,7 +87,7 @@ lsb_release -a</code></pre>
        │ pods      │           │ pods      │
        └───────────┘           └───────────┘</code></pre>
 <div class="explanation"><strong>Architecture réseau :</strong> le CNI fournit la connectivité des pods. Le CIDR choisi doit être cohérent avec le plugin réseau et ne pas entrer en conflit avec les réseaux existants.</div>
-<img class="img-default" src="../assets/images/config.png" alt="Configuration du cluster Kubernetes">
+<img class="img-default" src="assets/images/config.png" alt="Configuration du cluster Kubernetes">
 </section>
 
 <section id="installation" class="page mb-4">
@@ -110,7 +110,7 @@ net.ipv4.ip_forward = 1
 EOF
 sudo sysctl --system</code></pre>
 <div class="explanation"><strong>Explications :</strong> le swap est désactivé, les modules réseau sont chargés et le routage IPv4 est activé pour préparer le nœud à Kubernetes.</div>
-<img class="img-default" src="../assets/images/prepare.png" alt="Préparation du système Linux">
+<img class="img-default" src="assets/images/prepare.png" alt="Préparation du système Linux">
 <h4>4.2 Installer et configurer containerd</h4>
 <pre class="codeblock"><code>sudo apt-get update
 sudo apt-get install -y containerd
@@ -121,7 +121,7 @@ sudo systemctl restart containerd
 sudo systemctl enable containerd
 sudo systemctl status containerd --no-pager</code></pre>
 <div class="note"><strong>Runtime :</strong> Kubernetes utilise le CRI pour communiquer avec un runtime. <code>containerd</code> est compatible avec cette architecture ; Docker Engine seul ne fournit pas directement le CRI attendu.</div>
-<img class="img-default" src="../assets/images/install.png" alt="Installation de containerd">
+<img class="img-default" src="assets/images/install.png" alt="Installation de containerd">
 <h4>4.3 Installer kubeadm, kubelet et kubectl</h4>
 <p>L'ancien dépôt <code>apt.kubernetes.io</code> du rapport précédent est remplacé par <code>pkgs.k8s.io</code>. L'exemple utilise Kubernetes <strong>1.37</strong> ; pour une autre version mineure, remplacer le numéro dans l'URL du dépôt.</p>
 <pre class="codeblock"><code>sudo mkdir -p -m 755 /etc/apt/keyrings
@@ -137,7 +137,7 @@ kubeadm version
 kubelet --version
 kubectl version --client</code></pre>
 <div class="explanation"><strong>Rôle des outils :</strong> <code>kubeadm</code> initialise/rejoint les clusters, <code>kubelet</code> maintient les pods et <code>kubectl</code> dialogue avec l'API Kubernetes.</div>
-<img class="img-default" src="../assets/images/curl.png" alt="Installation des paquets Kubernetes">
+<img class="img-default" src="assets/images/curl.png" alt="Installation des paquets Kubernetes">
 </section>
 
 <section id="realisation" class="page mb-4">
@@ -146,7 +146,7 @@ kubectl version --client</code></pre>
 <p>Sur <code>k8s-master</code>, initialiser le control plane. Le CIDR ci-dessous correspond au scénario Flannel du TP.</p>
 <pre class="codeblock"><code>sudo kubeadm init --pod-network-cidr=10.244.0.0/16</code></pre>
 <div class="explanation"><strong>Résultat :</strong> kubeadm effectue les contrôles préalables, génère les certificats, déploie les composants du control plane et fournit les instructions de configuration de kubectl ainsi que la commande de jonction des workers.</div>
-<img class="img-default" src="../assets/images/kubeadm.png" alt="Initialisation du control plane avec kubeadm">
+<img class="img-default" src="assets/images/kubeadm.png" alt="Initialisation du control plane avec kubeadm">
 <h4>5.2 Configurer kubectl</h4>
 <pre class="codeblock"><code>mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -219,7 +219,7 @@ curl http://&lt;IP_NOEUD&gt;:&lt;NODE_PORT&gt;</code></pre>
 <pre class="codeblock"><code>sudo systemctl status containerd --no-pager
 sudo systemctl status kubelet --no-pager
 sudo journalctl -u kubelet -n 100 --no-pager</code></pre>
-<img class="img-default" src="../assets/images/config.png" alt="Vérification de la configuration Kubernetes">
+<img class="img-default" src="assets/images/config.png" alt="Vérification de la configuration Kubernetes">
 </section>
 
 <section id="depannage" class="page mb-4">
