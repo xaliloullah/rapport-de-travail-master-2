@@ -29,289 +29,131 @@
 </header>
 
 <div class="container">
-<section class="page mb-4">
-    <h2>Sommaire</h2>
-    <ol>
-        <li><a href="#objectifs">Objectifs et contexte</a></li>
-        <li><a href="#prerequis">Prérequis</a></li>
-        <li><a href="#architecture">Concepts et architecture</a></li>
-        <li><a href="#installation">Installation et configuration</a></li>
-        <li><a href="#realisation">Réalisation pratique</a></li>
-        <li><a href="#commandes">Commandes et explications</a></li>
-        <li><a href="#tests">Vérifications et tests</a></li>
-        <li><a href="#depannage">Dépannage</a></li>
-        <li><a href="#securite">Sécurité et bonnes pratiques</a></li>
-        <li><a href="#checklist">Checklist</a></li>
-        <li><a href="#conclusion">Conclusion</a></li>
-    </ol>
+<section class="page mb-4"><h2>Sommaire</h2><ol>
+<li><a href="#objectifs">Objectifs et contexte</a></li><li><a href="#prerequis">Prérequis</a></li><li><a href="#architecture">Concepts et architecture</a></li><li><a href="#installation">Installation et configuration</a></li><li><a href="#realisation">Réalisation pratique</a></li><li><a href="#commandes">Commandes et explications</a></li><li><a href="#tests">Vérifications et tests</a></li><li><a href="#depannage">Dépannage</a></li><li><a href="#securite">Sécurité et bonnes pratiques</a></li><li><a href="#checklist">Checklist</a></li><li><a href="#conclusion">Conclusion</a></li>
+</ol></section>
+
+<section id="objectifs" class="page mb-4"><h2>1. Objectifs et contexte</h2>
+<p>Ce travail pratique présente la mise en place d’un serveur <strong>Ubuntu Server</strong> dans <strong>Amazon EC2</strong>, puis son administration avec l’<strong>AWS Command Line Interface (AWS CLI)</strong>. L’objectif est de comprendre le lien entre calcul, réseau, stockage, identité IAM et administration automatisable.</p>
+<ul><li>Créer une instance EC2 à partir d’une AMI Ubuntu LTS.</li><li>Configurer VPC, subnet, Security Group, stockage EBS et accès SSH.</li><li>Installer AWS CLI v2 et vérifier son fonctionnement.</li><li>Utiliser de préférence un rôle IAM attaché à l’instance.</li><li>Valider la connectivité, l’identité AWS et les permissions.</li></ul>
+<div class="explanation"><strong>Principe :</strong> EC2 fournit le calcul, Ubuntu fournit le système, VPC encadre le réseau, IAM contrôle les API AWS et AWS CLI fournit l’interface d’administration. Sur EC2, les identifiants temporaires d’un rôle d’instance sont préférables aux clés statiques.</div>
 </section>
 
-<section id="objectifs" class="page mb-4">
-    <h2>1. Objectifs et contexte</h2>
-    <p>Ce travail pratique présente la mise en place d’un serveur <strong>Ubuntu Server</strong> dans <strong>Amazon EC2</strong>, puis l’installation et la configuration de l’<strong>AWS Command Line Interface (AWS CLI)</strong>. L’objectif est de disposer d’une machine Linux administrable à distance et capable d’interroger les services AWS de manière sécurisée.</p>
-    <ul>
-        <li>Créer et démarrer une instance EC2 à partir d’une AMI Ubuntu LTS.</li>
-        <li>Configurer le stockage, les clés SSH et le Security Group.</li>
-        <li>Se connecter au serveur avec SSH.</li>
-        <li>Installer AWS CLI v2 et vérifier son fonctionnement.</li>
-        <li>Utiliser une identité IAM adaptée pour les appels AWS depuis l’instance.</li>
-        <li>Valider la connectivité, les permissions et l’état du système.</li>
-    </ul>
-    <div class="explanation"><strong>Contexte :</strong> EC2 fournit le calcul tandis qu’Ubuntu fournit l’environnement système. AWS CLI constitue l’interface d’administration en ligne de commande. Dans une architecture professionnelle, l’identité de l’instance doit idéalement être fournie par un rôle IAM attaché au profil d’instance plutôt que par des clés d’accès statiques.</div>
+<section id="prerequis" class="page mb-4"><h2>2. Prérequis</h2>
+<h4>Ressources AWS</h4><ul><li>Compte AWS actif ; MFA recommandée pour les identités humaines.</li><li>Région choisie, par exemple <code>us-east-1</code>.</li><li>Permissions EC2/VPC/IAM adaptées au TP.</li><li>Paire de clés EC2 si SSH par clé est utilisé.</li></ul>
+<h4>Poste client</h4><ul><li>Terminal Linux/macOS ou PowerShell avec OpenSSH.</li><li>Accès Internet et clé privée <code>.pem</code> protégée.</li></ul>
+<table class="table table-bordered"><thead><tr><th>Élément</th><th>Exemple</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu Server 24.04 LTS</td></tr><tr><td>Architecture</td><td>x86_64 ou ARM64</td></tr><tr><td>SSH</td><td>TCP/22 limité à l’IP d’administration</td></tr><tr><td>HTTP</td><td>TCP/80 uniquement si nécessaire</td></tr></tbody></table>
 </section>
 
-<section id="prerequis" class="page mb-4">
-    <h2>2. Prérequis</h2>
-    <h4>2.1 Ressources AWS</h4>
-    <ul>
-        <li>Compte AWS actif avec MFA activée sur les comptes humains.</li>
-        <li>Région AWS choisie pour le TP, par exemple <code>us-east-1</code>.</li>
-        <li>Permissions permettant de créer ou d’utiliser une instance EC2 et ses ressources associées.</li>
-        <li>Une paire de clés EC2 si l’accès SSH par clé est retenu.</li>
-    </ul>
-    <h4>2.2 Poste client</h4>
-    <ul>
-        <li>Terminal Linux/macOS, PowerShell Windows ou client SSH équivalent.</li>
-        <li>Accès Internet pour joindre l’instance.</li>
-        <li>Clé privée <code>.pem</code> conservée dans un emplacement sécurisé.</li>
-    </ul>
-    <h4>2.3 Paramètres recommandés</h4>
-    <table class="table table-bordered">
-        <tr><th>Élément</th><th>Exemple</th></tr>
-        <tr><td>OS</td><td>Ubuntu Server 24.04 LTS</td></tr>
-        <tr><td>Architecture</td><td>x86_64 ou ARM64 selon l’instance choisie</td></tr>
-        <tr><td>Type</td><td>Instance adaptée à la charge du TP</td></tr>
-        <tr><td>SSH</td><td>TCP/22 limité à l’IP d’administration</td></tr>
-        <tr><td>HTTP</td><td>TCP/80 uniquement si un serveur Web est installé</td></tr>
-    </table>
+<section id="architecture" class="page mb-4"><h2>3. Concepts et architecture</h2>
+<div class="codeblock"><code>Poste d’administration
+       │ SSH TCP/22
+       ▼
+┌─────────────────────────────── AWS VPC ───────────────────────────────┐
+│  Subnet                                                             │
+│    │                                                                │
+│    ▼                                                                │
+│  ┌──────────────────────── EC2 Ubuntu ────────────────────────────┐  │
+│  │ SSH │ AWS CLI v2 │ services applicatifs │ EBS                 │  │
+│  └────────────────────────────┬───────────────────────────────────┘  │
+│                               │ Instance Profile / IAM Role          │
+└───────────────────────────────┼──────────────────────────────────────┘
+                                ▼
+                           Services AWS</code></div>
+<table class="table table-bordered table-sm"><thead><tr><th>Composant</th><th>Fonction</th></tr></thead><tbody>
+<tr><td>AMI</td><td>Modèle utilisé pour lancer le système.</td></tr><tr><td>EC2</td><td>Instance de calcul exécutant Ubuntu.</td></tr><tr><td>VPC/Subnet</td><td>Isolation et adressage réseau.</td></tr><tr><td>Security Group</td><td>Pare-feu stateful contrôlant les flux.</td></tr><tr><td>EBS</td><td>Stockage bloc persistant.</td></tr><tr><td>IAM Role</td><td>Identité temporaire de l’instance.</td></tr><tr><td>AWS CLI</td><td>Client d’administration des API AWS.</td></tr></tbody></table>
+<div class="note"><strong>À retenir :</strong> un Security Group ne remplace pas IAM : le premier contrôle le trafic réseau, le second les autorisations sur les API AWS.</div>
 </section>
 
-<section id="architecture" class="page mb-4">
-    <h2>3. Concepts et architecture</h2>
-    <p>L’architecture retenue repose sur EC2, le réseau VPC et les mécanismes IAM d’AWS.</p>
-    <div class="codeblock"><code>Poste d’administration
-        │
-        │ SSH TCP/22
-        ▼
-┌──────────────────────────────┐
-│ AWS VPC                      │
-│                              │
-│  Subnet                      │
-│    │                         │
-│    ▼                         │
-│  ┌────────────────────────┐  │
-│  │ EC2 Ubuntu Server      │  │
-│  │ ├─ SSH                 │  │
-│  │ ├─ AWS CLI v2          │  │
-│  │ └─ Services applicatifs│  │
-│  └────────────────────────┘  │
-│             │                │
-│             ▼                │
-│      Instance Profile        │
-│             │                │
-└─────────────┼────────────────┘
-              ▼
-        Services AWS
-</code></div>
-    <table class="table table-bordered table-sm">
-        <thead><tr><th>Composant</th><th>Fonction</th></tr></thead>
-        <tbody>
-            <tr><td>AMI</td><td>Modèle système utilisé pour créer l’instance.</td></tr>
-            <tr><td>EC2</td><td>Machine virtuelle exécutant Ubuntu.</td></tr>
-            <tr><td>VPC/Subnet</td><td>Isolation et adressage réseau de l’instance.</td></tr>
-            <tr><td>Security Group</td><td>Pare-feu stateful contrôlant les flux autorisés.</td></tr>
-            <tr><td>EBS</td><td>Stockage bloc persistant associé à l’instance.</td></tr>
-            <tr><td>IAM Role</td><td>Identité temporaire permettant à l’instance d’appeler des services AWS.</td></tr>
-            <tr><td>AWS CLI</td><td>Interface en ligne de commande pour administrer AWS.</td></tr>
-        </tbody>
-    </table>
-    <div class="note"><strong>Distinction importante :</strong> un Security Group contrôle le réseau ; IAM contrôle l’autorisation d’appeler les API AWS. Ces deux mécanismes sont complémentaires et ne doivent pas être confondus.</div>
-</section>
-
-<section id="installation" class="page mb-4">
-    <h2>4. Installation et configuration</h2>
-    <h4>4.1 Création de l’instance EC2</h4>
-    <ol>
-        <li>Ouvrir la console AWS puis le service EC2.</li>
-        <li>Choisir <strong>Ubuntu Server 24.04 LTS</strong> comme AMI.</li>
-        <li>Sélectionner un type d’instance compatible avec le besoin du TP.</li>
-        <li>Choisir ou créer une paire de clés.</li>
-        <li>Associer l’instance à un VPC et un subnet appropriés.</li>
-        <li>Créer un Security Group avec SSH limité à l’adresse IP d’administration.</li>
-        <li>Ajouter un volume EBS adapté au besoin.</li>
-        <li>Ajouter le tag <code>Name=Ubuntu-M2-UDB</code>.</li>
-        <li>Lancer l’instance et relever son adresse IP publique si elle est nécessaire pour SSH.</li>
-    </ol>
-    <h4>4.2 Connexion SSH</h4>
-    <div class="codeblock"><code># Linux/macOS
+<section id="installation" class="page mb-4"><h2>4. Installation et configuration</h2>
+<h4>4.1 Création via la console EC2</h4><ol><li>Choisir <strong>Ubuntu Server 24.04 LTS</strong>.</li><li>Sélectionner une instance adaptée au TP.</li><li>Choisir/créer la Key Pair.</li><li>Choisir VPC et subnet.</li><li>Autoriser TCP/22 uniquement depuis l’IP d’administration.</li><li>Configurer le volume EBS et le tag <code>Name=Ubuntu-M2-UDB</code>.</li><li>Lancer l’instance et relever son IP publique si SSH direct est utilisé.</li></ol>
+<h4>4.2 Connexion SSH</h4><div class="codeblock"><code># Linux/macOS
 chmod 400 mykey.pem
 ssh -i mykey.pem ubuntu@PUBLIC_IP
 
 # Windows PowerShell
 ssh -i .\mykey.pem ubuntu@PUBLIC_IP</code></div>
-    <p>Le compte initial <code>ubuntu</code> est celui fourni par l’image Ubuntu EC2. La commande <code>chmod 400</code> limite les permissions de la clé privée sous Linux/macOS.</p>
-    <h4>4.3 Mise à jour du serveur</h4>
-    <div class="codeblock"><code>sudo apt update
+<p>Le compte initial d’une image Ubuntu EC2 est généralement <code>ubuntu</code>. La clé privée ne doit jamais être publiée.</p>
+<h4>4.3 Préparation du système</h4><div class="codeblock"><code>sudo apt update
 sudo apt upgrade -y
 sudo reboot</code></div>
-    <p>Après le redémarrage, reconnecter la session SSH avant de poursuivre.</p>
 </section>
 
-<section id="realisation" class="page mb-4">
-    <h2>5. Réalisation pratique</h2>
-    <h4>5.1 Vérification de l’environnement</h4>
-    <div class="codeblock"><code>hostnamectl
+<section id="realisation" class="page mb-4"><h2>5. Réalisation pratique</h2>
+<h4>5.1 Diagnostic initial</h4><div class="codeblock"><code>hostnamectl
 cat /etc/os-release
 uname -m
 ip addr
-ip route</code></div>
-    <p>Ces commandes permettent d’identifier le système, l’architecture processeur, les interfaces et la route par défaut.</p>
-
-    <h4>5.2 Installation d’AWS CLI v2</h4>
-    <p>Pour une instance Linux x86_64 :</p>
-    <div class="codeblock"><code>sudo apt update
-sudo apt install -y curl unzip
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip -q awscliv2.zip
-sudo ./aws/install
-aws --version</code></div>
-    <p>Pour une instance ARM64, utiliser l’archive AWS CLI correspondant à l’architecture <code>aarch64</code> au lieu de l’archive x86_64.</p>
-
-    <h4>5.3 Identité AWS</h4>
-    <p>La méthode recommandée sur EC2 consiste à attacher un rôle IAM au profil d’instance. Une fois le rôle correctement configuré, AWS CLI peut récupérer automatiquement des identifiants temporaires.</p>
-    <div class="codeblock"><code># Vérifier l’identité utilisée par AWS CLI
-aws sts get-caller-identity
-
-# Définir la région par défaut si nécessaire
-aws configure set region us-east-1
-
-# Exemple de vérification EC2
-aws ec2 describe-instances --max-results 5</code></div>
-    <div class="danger"><strong>À éviter :</strong> ne pas placer une clé d’accès IAM permanente dans un script, dans Git ou dans une image de machine. Si une identité utilisateur est réellement nécessaire hors EC2, utiliser un profil AWS CLI géré de manière sécurisée et une politique IAM au moindre privilège.</div>
-
-    <h4>5.4 Test de stockage</h4>
-    <div class="codeblock"><code>df -h
-lsblk
+ip route
+df -h
 free -h</code></div>
-    <p>On vérifie ainsi l’espace disque, les volumes blocs visibles et la mémoire disponible.</p>
+<h4>5.2 Installation d’AWS CLI v2</h4><p>AWS fournit actuellement un installateur Linux officiel. Pour une installation système :</p>
+<div class="codeblock"><code>sudo apt update
+sudo apt install -y curl
+curl -fsSL https://awscli.amazonaws.com/v2/install.sh | sudo bash -s -- --system
+aws --version</code></div>
+<p>Pour une installation reproductible avec contrôle de version, l’archive officielle <code>awscliv2.zip</code> peut être utilisée. Adapter l’archive à <code>x86_64</code> ou <code>aarch64</code> selon <code>uname -m</code>.</p>
+<h4>5.3 Identité IAM de l’instance</h4><p>Attacher un IAM Role au profil d’instance permet à AWS CLI de récupérer des identifiants temporaires sans stocker de clés permanentes.</p>
+<div class="codeblock"><code>aws sts get-caller-identity
+aws configure set region us-east-1
+aws ec2 describe-instances --max-results 5</code></div>
+<div class="danger"><strong>À éviter :</strong> mettre une Access Key dans Git, un script ou une image EC2. Utiliser un rôle d’instance ou, lorsque nécessaire, un profil IAM géré selon le moindre privilège.</div>
+<h4>5.4 Création EC2 par CLI — exemple</h4><div class="codeblock"><code># Exemple : remplacer les identifiants par ceux de votre environnement
+aws ec2 run-instances \
+  --image-id ami-XXXXXXXX \
+  --instance-type t3.micro \
+  --key-name ma-cle-ec2 \
+  --security-group-ids sg-XXXXXXXX \
+  --subnet-id subnet-XXXXXXXX \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Ubuntu-M2-UDB}]'</code></div>
+<p><code>--image-id</code> identifie l’AMI, <code>--instance-type</code> définit les ressources, tandis que subnet et Security Group déterminent le rattachement réseau. Les identifiants sont volontairement des placeholders : ils dépendent de la région et du compte.</p>
 </section>
 
-<section id="commandes" class="page mb-4">
-    <h2>6. Commandes et explications</h2>
-    <table class="table table-bordered">
-        <thead><tr><th>Commande</th><th>Utilité</th><th>Paramètre clé</th></tr></thead>
-        <tbody>
-            <tr><td><code>ssh -i mykey.pem ubuntu@IP</code></td><td>Ouvre une session SSH.</td><td><code>-i</code> indique la clé privée.</td></tr>
-            <tr><td><code>aws --version</code></td><td>Affiche la version du client AWS CLI.</td><td>Aucun paramètre obligatoire.</td></tr>
-            <tr><td><code>aws sts get-caller-identity</code></td><td>Identifie le principal IAM utilisé.</td><td>Permet de détecter une mauvaise identité.</td></tr>
-            <tr><td><code>aws configure set region us-east-1</code></td><td>Définit la région par défaut.</td><td><code>region</code> évite de répéter <code>--region</code>.</td></tr>
-            <tr><td><code>aws ec2 describe-instances</code></td><td>Interroge EC2.</td><td><code>--max-results</code> limite le nombre de résultats.</td></tr>
-            <tr><td><code>sudo systemctl status ssh</code></td><td>Vérifie le service SSH.</td><td><code>status</code> affiche l’état du service.</td></tr>
-            <tr><td><code>journalctl -u ssh</code></td><td>Consulte les journaux SSH.</td><td><code>-u</code> sélectionne l’unité systemd.</td></tr>
-        </tbody>
-    </table>
-    <h4>Exemple de sélection de région ponctuelle</h4>
-    <div class="codeblock"><code>aws ec2 describe-instances --region us-east-1</code></div>
-    <p>L’option <code>--region</code> surcharge la région configurée par défaut pour cette commande uniquement.</p>
+<section id="commandes" class="page mb-4"><h2>6. Commandes et explications</h2>
+<table class="table table-bordered"><thead><tr><th>Commande</th><th>Utilité</th><th>Point important</th></tr></thead><tbody>
+<tr><td><code>ssh -i mykey.pem ubuntu@IP</code></td><td>Connexion distante</td><td><code>-i</code> sélectionne la clé privée.</td></tr><tr><td><code>aws --version</code></td><td>Version CLI</td><td>Valide l’installation.</td></tr><tr><td><code>aws sts get-caller-identity</code></td><td>Identité effective</td><td>Diagnostique l’authentification.</td></tr><tr><td><code>aws configure set region us-east-1</code></td><td>Région par défaut</td><td>Évite de répéter <code>--region</code>.</td></tr><tr><td><code>aws ec2 describe-instances</code></td><td>Interroger EC2</td><td><code>--max-results</code> limite les résultats.</td></tr><tr><td><code>systemctl status ssh</code></td><td>État SSH</td><td>Vérifie le service systemd.</td></tr><tr><td><code>journalctl -u ssh</code></td><td>Logs SSH</td><td><code>-u</code> sélectionne l’unité.</td></tr></tbody></table>
+<h4>Commandes de diagnostic AWS</h4><div class="codeblock"><code>aws configure list
+aws sts get-caller-identity
+aws ec2 describe-regions --query 'Regions[0:3].[RegionName,OptInStatus]' --output table</code></div>
 </section>
 
-<section id="tests" class="page mb-4">
-    <h2>7. Vérifications et tests</h2>
-    <h4>7.1 Tests système</h4>
-    <div class="codeblock"><code>systemctl is-system-running
+<section id="tests" class="page mb-4"><h2>7. Vérifications et tests</h2>
+<h4>7.1 Système</h4><div class="codeblock"><code>systemctl is-system-running
 systemctl is-active ssh
 ss -lntp | grep ':22'
 df -h /
 free -h</code></div>
-    <h4>7.2 Test réseau</h4>
-    <div class="codeblock"><code>ip route
+<h4>7.2 Réseau</h4><div class="codeblock"><code>ip route
 getent hosts aws.amazon.com
 curl -I https://aws.amazon.com</code></div>
-    <h4>7.3 Test AWS CLI</h4>
-    <div class="codeblock"><code>aws --version
+<h4>7.3 AWS CLI et IAM</h4><div class="codeblock"><code>aws --version
 aws sts get-caller-identity
-aws ec2 describe-regions --query 'Regions[0:3].[RegionName,OptInStatus]' --output table</code></div>
-    <div class="explanation"><strong>Résultat attendu :</strong> la version d’AWS CLI est affichée, STS retourne l’identité IAM effective et l’appel EC2 renvoie des données sans erreur d’authentification ou d’autorisation.</div>
-    <h4>7.4 Critères de validation</h4>
-    <ul>
-        <li>Connexion SSH fonctionnelle.</li>
-        <li>Service SSH actif.</li>
-        <li>Résolution DNS opérationnelle.</li>
-        <li>Accès HTTPS sortant disponible lorsque requis.</li>
-        <li>AWS CLI installé et exécutable.</li>
-        <li><code>aws sts get-caller-identity</code> retourne le principal attendu.</li>
-        <li>Les appels AWS autorisés par la politique IAM aboutissent.</li>
-    </ul>
+aws ec2 describe-instances --max-results 5</code></div>
+<div class="explanation"><strong>Validation attendue :</strong> SSH fonctionne, le service est actif, DNS/HTTPS répondent lorsque le réseau le permet, AWS CLI s’exécute et les appels AWS autorisés retournent des données.</div>
 </section>
 
-<section id="depannage" class="page mb-4">
-    <h2>8. Dépannage</h2>
-    <table class="table table-bordered table-sm">
-        <thead><tr><th>Problème</th><th>Diagnostic</th><th>Correction</th></tr></thead>
-        <tbody>
-            <tr><td>SSH timeout</td><td>Vérifier IP, route, subnet et Security Group.</td><td>Autoriser TCP/22 uniquement depuis l’IP d’administration et vérifier l’adresse utilisée.</td></tr>
-            <tr><td>Permission denied (publickey)</td><td>Vérifier utilisateur, clé et permissions.</td><td>Utiliser <code>ubuntu</code>, la bonne clé et <code>chmod 400</code>.</td></tr>
-            <tr><td><code>aws: command not found</code></td><td><code>command -v aws</code></td><td>Vérifier l’installation et le PATH.</td></tr>
-            <tr><td>AccessDeniedException</td><td><code>aws sts get-caller-identity</code> puis politique IAM.</td><td>Ajouter uniquement l’autorisation nécessaire au rôle IAM.</td></tr>
-            <tr><td>Could not resolve host</td><td><code>getent hosts aws.amazon.com</code></td><td>Contrôler DNS, route par défaut et configuration VPC.</td></tr>
-            <tr><td>Pas d’accès Internet sortant</td><td><code>ip route</code> et test HTTPS.</td><td>Vérifier route table, Internet Gateway/NAT selon le type de subnet.</td></tr>
-            <tr><td>Disque plein</td><td><code>df -h</code> et <code>du -sh</code>.</td><td>Nettoyer les données inutiles ou augmenter le volume EBS.</td></tr>
-        </tbody>
-    </table>
-    <h4>Journaux utiles</h4>
-    <div class="codeblock"><code>sudo journalctl -u ssh --no-pager -n 100
+<section id="depannage" class="page mb-4"><h2>8. Dépannage</h2>
+<table class="table table-bordered table-sm"><thead><tr><th>Problème</th><th>Diagnostic</th><th>Correction</th></tr></thead><tbody>
+<tr><td>SSH timeout</td><td>IP, route, subnet, SG</td><td>Vérifier TCP/22, IP cible et routage.</td></tr><tr><td>Permission denied (publickey)</td><td>Utilisateur et clé</td><td>Utiliser <code>ubuntu</code>, la bonne clé et <code>chmod 400</code>.</td></tr><tr><td><code>aws: command not found</code></td><td><code>command -v aws</code></td><td>Vérifier installation et PATH.</td></tr><tr><td>AccessDeniedException</td><td><code>aws sts get-caller-identity</code></td><td>Corriger uniquement la policy IAM nécessaire.</td></tr><tr><td>Could not resolve host</td><td><code>getent hosts aws.amazon.com</code></td><td>Vérifier DNS, route et configuration VPC.</td></tr><tr><td>Pas d’Internet sortant</td><td><code>ip route</code></td><td>Vérifier route table et Internet Gateway/NAT.</td></tr><tr><td>Disque plein</td><td><code>df -h</code></td><td>Nettoyer ou augmenter EBS.</td></tr></tbody></table>
+<div class="codeblock"><code>sudo journalctl -u ssh --no-pager -n 100
 sudo systemctl status ssh
 sudo dmesg | tail -n 50</code></div>
 </section>
 
-<section id="securite" class="page mb-4">
-    <h2>9. Sécurité et bonnes pratiques</h2>
-    <ul>
-        <li>Activer MFA sur les identités humaines AWS.</li>
-        <li>Appliquer le principe du moindre privilège avec IAM.</li>
-        <li>Préférer les rôles IAM et les identifiants temporaires sur EC2.</li>
-        <li>Ne jamais publier de clés AWS ou de clés SSH privées dans Git.</li>
-        <li>Limiter le port SSH 22 à une adresse ou un réseau d’administration connu.</li>
-        <li>Utiliser AWS Systems Manager Session Manager lorsque l’architecture permet d’éviter l’exposition SSH.</li>
-        <li>Maintenir Ubuntu et les logiciels à jour.</li>
-        <li>Chiffrer les volumes EBS et contrôler leur cycle de vie.</li>
-        <li>Superviser l’instance avec CloudWatch et conserver les journaux pertinents.</li>
-        <li>Arrêter ou supprimer les ressources de TP inutilisées afin d’éviter les coûts.</li>
-    </ul>
-    <div class="note"><strong>Architecture sécurisée :</strong> pour un environnement de production, une instance privée sans IP publique, administrée par Systems Manager et placée derrière une architecture réseau contrôlée, est généralement préférable à une exposition directe de SSH sur Internet.</div>
+<section id="securite" class="page mb-4"><h2>9. Sécurité et bonnes pratiques</h2>
+<ul><li>Activer MFA sur les identités humaines.</li><li>Appliquer le moindre privilège IAM.</li><li>Préférer les rôles IAM et identifiants temporaires sur EC2.</li><li>Ne jamais publier clés AWS ou clés SSH privées dans Git.</li><li>Limiter TCP/22 à un réseau d’administration connu.</li><li>Privilégier Systems Manager Session Manager lorsque possible afin d’éviter une exposition SSH directe.</li><li>Maintenir Ubuntu et les composants à jour.</li><li>Chiffrer les volumes EBS et maîtriser leur cycle de vie.</li><li>Superviser l’instance et conserver les journaux utiles.</li><li>Arrêter/supprimer les ressources de TP inutilisées pour éviter les coûts.</li></ul>
+<div class="note"><strong>Production :</strong> une instance privée administrée par Systems Manager et protégée par une architecture réseau contrôlée est généralement préférable à une instance exposant SSH directement sur Internet.</div>
 </section>
 
-<section id="checklist" class="page mb-4">
-    <h2>10. Checklist</h2>
-    <div class="alert alert-light border">
-        <h5>Validation du TP</h5>
-        <ul class="list-unstyled">
-            <li>☐ Compte AWS et permissions vérifiés</li>
-            <li>☐ AMI Ubuntu Server LTS sélectionnée</li>
-            <li>☐ Instance EC2 créée et démarrée</li>
-            <li>☐ Key Pair protégée</li>
-            <li>☐ Security Group configuré avec le moindre privilège</li>
-            <li>☐ Connexion SSH fonctionnelle</li>
-            <li>☐ Système Ubuntu mis à jour</li>
-            <li>☐ Architecture CPU vérifiée</li>
-            <li>☐ AWS CLI v2 installée</li>
-            <li>☐ Région AWS configurée</li>
-            <li>☐ Rôle IAM d’instance configuré lorsque nécessaire</li>
-            <li>☐ <code>aws sts get-caller-identity</code> validé</li>
-            <li>☐ Appel EC2 testé</li>
-            <li>☐ Tests DNS/HTTPS réalisés</li>
-            <li>☐ Procédure de dépannage comprise</li>
-            <li>☐ Ressources AWS inutilisées arrêtées ou supprimées</li>
-        </ul>
-    </div>
-</section>
+<section id="checklist" class="page mb-4"><h2>10. Checklist</h2><div class="alert alert-light border"><h5>Validation du TP</h5><ul class="list-unstyled">
+<li>☐ Région AWS choisie</li><li>☐ AMI Ubuntu LTS sélectionnée</li><li>☐ Instance EC2 créée et démarrée</li><li>☐ Key Pair protégée</li><li>☐ Security Group configuré au moindre privilège</li><li>☐ Connexion SSH fonctionnelle</li><li>☐ Ubuntu mis à jour</li><li>☐ Architecture CPU vérifiée</li><li>☐ AWS CLI v2 installée</li><li>☐ Région CLI configurée</li><li>☐ IAM Role d’instance configuré si nécessaire</li><li>☐ <code>aws sts get-caller-identity</code> validé</li><li>☐ Appel EC2 testé</li><li>☐ Tests DNS/HTTPS réalisés</li><li>☐ Procédure de dépannage comprise</li><li>☐ Ressources inutilisées arrêtées ou supprimées</li>
+</ul></div></section>
 
-<section id="conclusion" class="page mb-4">
-    <h2>11. Conclusion</h2>
-    <p>Ce travail pratique a permis de mettre en œuvre une chaîne complète allant du lancement d’un serveur Ubuntu sur Amazon EC2 jusqu’à son administration avec AWS CLI. La démarche a couvert les dimensions système, réseau, identité et automatisation nécessaires à l’exploitation d’une instance cloud.</p>
-    <p>La maîtrise de cette architecture constitue une base importante pour les travaux DevOps suivants : déploiement Web, intégration continue, automatisation avec des scripts, infrastructure as code et supervision.</p>
-    <p>Le point essentiel retenu est la séparation des responsabilités : <strong>EC2</strong> fournit le calcul, <strong>VPC et Security Groups</strong> encadrent le réseau, <strong>IAM</strong> contrôle les autorisations et <strong>AWS CLI</strong> fournit l’interface d’administration. Une configuration professionnelle doit privilégier les identités temporaires, le moindre privilège et une surface réseau minimale.</p>
-    <div class="text-center mt-5 small-muted"><p>© 2025 — Rapport AWS Ubuntu EC2 & AWS CLI — Ibrahima Khalilou Thiam</p></div>
+<section id="conclusion" class="page mb-4"><h2>11. Conclusion</h2>
+<p>Ce travail pratique a permis de mettre en œuvre une chaîne complète allant du lancement d’un serveur Ubuntu sur Amazon EC2 jusqu’à son administration avec AWS CLI. La démarche couvre les dimensions système, réseau, stockage, identité et automatisation nécessaires à l’exploitation d’une instance cloud.</p>
+<p>La séparation des responsabilités est essentielle : <strong>EC2</strong> fournit le calcul, <strong>VPC/Security Groups</strong> encadrent le réseau, <strong>IAM</strong> contrôle les autorisations et <strong>AWS CLI</strong> fournit l’interface d’administration. Cette base prépare les travaux DevOps suivants : serveur Web, CI/CD, automatisation et supervision.</p>
+<div class="text-center mt-5 small-muted"><p>© 2025 — Rapport AWS Ubuntu EC2 & AWS CLI — Ibrahima Khalilou Thiam</p></div>
 </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
