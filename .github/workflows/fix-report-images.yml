@@ -1,0 +1,121 @@
+name: Normalize report images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'assets/images/**'
+      - '.github/workflows/fix-report-images.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Normalize image references and audit reports
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          image_root = root / 'assets' / 'images'
+          html_files = sorted(root.glob('**/index.html'))
+
+          replacements = {
+              'assets/images/mfa-root.png': 'assets/images/mfa-root.svg',
+              '../../assets/images/mfa-root.png': '../../assets/images/mfa-root.svg',
+              'assets/images/iam-users.png': 'assets/images/iam-users.svg',
+              '../../assets/images/iam-users.png': '../../assets/images/iam-users.svg',
+              'assets/images/ec2-launch.png': 'assets/images/ec2-launch.svg',
+              '../../assets/images/ec2-launch.png': '../../assets/images/ec2-launch.svg',
+              'assets/images/apache-installed.png': 'assets/images/apache-installed.svg',
+              '../../assets/images/apache-installed.png': '../../assets/images/apache-installed.svg',
+              'assets/images/browser-test.png': 'assets/images/browser-test.svg',
+              '../../assets/images/browser-test.png': '../../assets/images/browser-test.svg',
+              'assets/images/vpc-diagram.png': 'assets/images/vpc-diagram.svg',
+              '../../assets/images/vpc-diagram.png': '../../assets/images/vpc-diagram.svg',
+              'assets/images/route-tables.png': 'assets/images/route-tables.svg',
+              '../../assets/images/route-tables.png': '../../assets/images/route-tables.svg',
+          }
+
+          def add_after_heading(text, marker, html):
+              if html in text:
+                  return text
+              pos = text.find(marker)
+              if pos == -1:
+                  return text
+              end = text.find('</h2>', pos)
+              if end == -1:
+                  return text
+              end += len('</h2>')
+              return text[:end] + '\n' + html + text[end:]
+
+          changed = []
+          for path in html_files:
+              text = path.read_text(encoding='utf-8')
+              original = text
+              for old, new in replacements.items():
+                  text = text.replace(old, new)
+
+              if path.as_posix() == 'aws/ubuntu/index.html':
+                  text = add_after_heading(text, '<h2>4. Installation et configuration</h2>', '<img class="img-default" src="../../assets/images/ec2-launch.svg" alt="Lancement et configuration d’une instance Ubuntu EC2">')
+                  if 'ssh-connected.svg' not in text:
+                      text = text.replace('<h2>5. Réalisation pratique</h2>', '<h2>5. Réalisation pratique</h2>\n<img class="img-default" src="../../assets/images/ssh-connected.svg" alt="Connexion SSH à l’instance EC2">', 1)
+                  if 'aws-cli-identity.svg' not in text:
+                      text = text.replace('<h2>7. Vérifications et tests</h2>', '<h2>7. Vérifications et tests</h2>\n<img class="img-default" src="../../assets/images/aws-cli-identity.svg" alt="Vérification de l’identité AWS avec STS">', 1)
+
+              if path.as_posix() == 'aws/windows/index.html':
+                  text = add_after_heading(text, '<h2>4. Installation et configuration</h2>', '<img class="img-default" src="../../assets/images/ec2-launch.svg" alt="Configuration d’une instance Windows Server sur EC2">\n<img class="img-default" src="../../assets/images/rdp-connection.svg" alt="Connexion RDP à Windows Server">')
+
+              if path.as_posix() == 'devops/jenkins/index.html':
+                  text = add_after_heading(text, '<h2>3. Concepts et architecture</h2>', '<img class="img-default" src="../../assets/images/jenkins-pipeline.svg" alt="Architecture du pipeline Jenkins CI/CD">')
+
+              if text != original:
+                  path.write_text(text, encoding='utf-8')
+                  changed.append(path.as_posix())
+
+          # Build an auditable inventory of every <img src> in every report.
+          rows = ['# Audit des images des rapports', '', 'Généré automatiquement après normalisation des références.', '', '| Rapport | Image référencée | État |', '|---|---|---|']
+          missing = []
+          for path in html_files:
+              text = path.read_text(encoding='utf-8')
+              for src in re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', text):
+                  if src.startswith(('http://', 'https://', 'data:')):
+                      state = 'OK (externe)'
+                  else:
+                      target = (path.parent / src).resolve()
+                      state = 'OK' if target.exists() else 'MANQUANTE'
+                      if state == 'MANQUANTE':
+                          missing.append(f'{path}: {src}')
+                  rows.append(f'| `{path}` | `{src}` | {state} |')
+
+          rows += ['', f'**Rapports analysés :** {len(html_files)}', f'**Références manquantes :** {len(missing)}']
+          if missing:
+              rows += ['', '## Références manquantes', *[f'- `{m}`' for m in missing]]
+          (root / 'IMAGE_AUDIT.md').write_text('\n'.join(rows) + '\n', encoding='utf-8')
+
+          if missing:
+              raise SystemExit('Des références d’images restent manquantes:\n' + '\n'.join(missing))
+
+          if not changed and not (root / 'IMAGE_AUDIT.md').exists():
+              raise SystemExit('Aucun changement détecté')
+
+      - name: Commit normalized reports
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add '**/index.html' IMAGE_AUDIT.md
+          if git diff --cached --quiet; then
+            echo "Aucune modification à committer."
+            exit 0
+          fi
+          git commit -m "fix: normalize report image references"
+          git push
