@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,197 +7,338 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport d'installation d'une instance Windows Server 2022 sur AWS EC2</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
+        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université UDB" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Rapport de déploiement de Windows Server 2022 sur AWS EC2</h1>
         </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#compte-aws">Création d'un compte AWS (Free Tier)</a></li>
-                <li><a href="#ec2">Qu'est-ce qu'EC2 ?</a></li>
-                <li><a href="#creation-instance">Création d'une instance EC2 Windows Server 2022</a></li>
-                <li><a href="#connexion-rdp">Connexion RDP à l'instance Windows</a></li>
-                <li><a href="#securite">Vérifications, sécurité et bonnes pratiques</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                <li><a href="#annexes">Annexes : commandes AWS CLI et dépannage</a></li>
-                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
-
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>Ce guide explique comment :</p>
-            <ul>
-                <li>Créer un compte AWS (offre Free Tier si disponible).</li>
-                <li>Comprendre le service EC2 et ses composants clés.</li>
-                <li>Déployer une instance Windows Server 2022 sur EC2 et s’y connecter via RDP.</li>
-                <li>Appliquer les bonnes pratiques de sécurité et de gestion.</li>
-            </ul>
-            <p>Les captures d’écran (1.png → 20.png) servent de support visuel pour chaque étape.</p>
-        </section>
-
-        <!-- Création compte AWS -->
-        <section id="compte-aws" class="page mb-4">
-            <h2>2. Création d'un compte AWS (Free Tier)</h2>
-            <ol>
-                <li>Aller sur la page d'accueil AWS.</li>
-                <li>Remplir les informations du compte : e-mail, mot de passe, nom du compte.</li>
-                <li>Vérification de l’identité via SMS ou appel téléphonique.</li>
-                <li>Choisir le plan de support : Basic (gratuit) pour débuter.</li>
-                <li>Saisir les informations de contact (nom, adresse, téléphone).</li>
-            </ol>
-            <div class="note">
-                <strong>Remarques importantes :</strong><br>
-                AWS exige une carte bancaire valide même pour le Free Tier. Activez l’authentification multifacteur
-                (MFA) pour plus de sécurité.
-            </div>
-        </section>
-
-        <!-- Qu'est-ce qu'EC2 -->
-        <section id="ec2" class="page mb-4">
-            <h2>3. Qu'est-ce qu'EC2 ?</h2>
-            <p>EC2 (Elastic Compute Cloud) est un service IaaS qui permet de créer des machines virtuelles dans le
-                cloud.</p>
-            <ul>
-                <li>Types d’instances : optimisées CPU, mémoire, stockage ou GPU.</li>
-                <li>AMIs : images préconfigurées Windows ou Linux.</li>
-                <li>Key Pair : clé publique/privée pour récupérer le mot de passe Windows ou SSH sur Linux.</li>
-                <li>Security Groups : filtres réseau pour sécuriser l’accès aux instances (ex. port RDP 3389).</li>
-            </ul>
-        </section>
-
-        <!-- Création instance -->
-        <section id="creation-instance" class="page mb-4">
-            <h2>4. Création d'une instance EC2 Windows Server 2022 — procédure détaillée</h2>
-
-            <h4>4.1 Accéder au service EC2</h4>
-            <p>Taper EC2 dans la barre de recherche AWS et accéder au service.</p>
-
-            <h4>4.2 Lancer la création de l'instance</h4>
-            <ol>
-                <li>Cliquer sur <strong>Launch Instance</strong>.</li>
-                <li>Choisir l’AMI Windows Server 2022.</li>
-                <li>Choisir le type d’instance (exemple : t2.micro pour Free Tier).</li>
-                <li>Configurer réseau, stockage EBS et tags (Name).</li>
-                <li>Créer ou sélectionner une Key Pair (.pem) et la conserver en lieu sûr.</li>
-                <li>Configurer le Security Group : autoriser RDP (3389) depuis votre IP.</li>
-                <li>Lancer l’instance.</li>
-                <li>Vérifier l’état initial dans la console.</li>
-            </ol>
-            <div class="explanation">
-                <strong>Astuce :</strong> Ne jamais autoriser RDP à 0.0.0.0/0 en production.
-            </div>
-        </section>
-
-        <!-- Connexion RDP -->
-        <section id="connexion-rdp" class="page mb-4">
-            <h2>5. Connexion RDP à l'instance Windows</h2>
-            <h4>5.1 Obtenir le mot de passe Administrateur</h4>
-            <p>Sélectionner l’instance → Connect → RDP → Get Windows Password et décrypter avec la clé .pem.</p>
-
-            <h4>5.2 Télécharger le fichier RDP</h4>
-            <p>Ouvrir le fichier .rdp et saisir le mot de passe Administrateur.</p>
-
-            <h4>5.3 Confirmation et bureau Windows</h4>
-            <p>Après authentification, vous accédez au bureau Windows Server 2022.</p>
-
-            <h4>5.4 Points d'attention</h4>
-            <ul>
-                <li>Vérifier Security Group, IP publique et NAT/Internet Gateway si la connexion échoue.</li>
-                <li>Assurez-vous d’avoir la bonne clé .pem et que l’instance est en état running.</li>
-            </ul>
-        </section>
-
-        <!-- Vérifications et bonnes pratiques -->
-        <section id="securite" class="page mb-4">
-            <h2>6. Vérifications, sécurité et bonnes pratiques</h2>
-            <ul>
-                <li>Activer MFA sur le compte racine.</li>
-                <li>Créer des comptes IAM avec droits minimaux pour usage quotidien.</li>
-                <li>Ne pas ouvrir RDP à tout le monde (0.0.0.0/0).</li>
-                <li>Mettre en place des alertes budgétaires pour éviter des frais inattendus.</li>
-                <li>Automatiser les sauvegardes via snapshots EBS.</li>
-            </ul>
-        </section>
-
-        <!-- Checklist -->
-        <section id="checklist" class="page mb-4">
-            <h2>7. Checklist imprimable</h2>
-            <ul>
-                <li>[ ] Compte AWS créé et vérifié</li>
-                <li>[ ] MFA activé</li>
-                <li>[ ] EC2 lancé avec Windows Server 2022</li>
-                <li>[ ] Security Group configuré</li>
-                <li>[ ] Key Pair téléchargée et sécurisée</li>
-                <li>[ ] Connexion RDP testée</li>
-                <li>[ ] Backups et snapshots configurés</li>
-            </ul>
-        </section>
-
-        <!-- Annexes -->
-        <section id="annexes" class="page mb-4">
-            <h2>8. Annexes : commandes AWS CLI et dépannage</h2>
-            <div class="codeblock"><code># Lister les instances EC2
-aws ec2 describe-instances
-
-# Vérifier le statut des instances
-aws ec2 describe-instance-status
-
-# Créer un snapshot EBS
-aws ec2 create-snapshot --volume-id vol-xxxxxxxx --description "Snapshot backup"</code></div>
-            <div class="note">Ces commandes peuvent être utilisées pour vérifier, sauvegarder ou dépanner votre
-                instance.</div>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>9. Conclusion</h2>
-            <p>Ce guide montre comment :</p>
-            <ul>
-                <li>Créer un compte AWS et sécuriser l’accès.</li>
-                <li>Déployer une instance Windows Server 2022 sur EC2.</li>
-                <li>Se connecter via RDP en toute sécurité.</li>
-                <li>Mettre en place des bonnes pratiques pour la sécurité et la gestion des coûts.</li>
-            </ul>
-            <p>En suivant ces étapes, vous disposez d’une base solide pour réaliser des environnements de test ou de
-                production sur le cloud AWS.</p>
-        </section>
-
-        <footer class="text-center small-muted mb-4">
-            <p>© 2025 — Rapport AWS EC2 — Ibrahima Khalilou Thiam</p>
-        </footer>
-
     </div>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container">
+    <section class="page mb-4">
+        <h2>Sommaire</h2>
+        <ol>
+            <li><a href="#objectifs">Objectifs et contexte</a></li>
+            <li><a href="#prerequis">Prérequis</a></li>
+            <li><a href="#architecture">Concepts et architecture</a></li>
+            <li><a href="#installation">Installation et configuration</a></li>
+            <li><a href="#realisation">Réalisation pratique</a></li>
+            <li><a href="#commandes">Commandes et explications</a></li>
+            <li><a href="#tests">Vérifications et tests</a></li>
+            <li><a href="#depannage">Dépannage</a></li>
+            <li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+            <li><a href="#checklist">Checklist</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ol>
+    </section>
+
+    <section id="objectifs" class="page mb-4">
+        <h2>1. Objectifs et contexte</h2>
+        <p>Ce travail pratique a pour objectif de déployer une machine virtuelle <strong>Windows Server 2022</strong> dans <strong>Amazon EC2</strong>, de comprendre son intégration au réseau AWS, puis de réaliser une connexion d'administration à distance.</p>
+        <p>La démarche couvre le cycle complet : choix de l'AMI, type d'instance, réseau, stockage EBS, paire de clés, Security Group, démarrage, récupération du mot de passe Administrator, connexion RDP, vérifications et sécurisation.</p>
+        <div class="note">
+            <strong>Résultat attendu :</strong> disposer d'une instance Windows Server 2022 fonctionnelle, joignable par RDP depuis une adresse IP autorisée, avec une configuration réseau et des accès administratifs maîtrisés.
+        </div>
+    </section>
+
+    <section id="prerequis" class="page mb-4">
+        <h2>2. Prérequis</h2>
+        <h4>2.1 Ressources nécessaires</h4>
+        <ul>
+            <li>Un compte AWS actif et une région AWS sélectionnée.</li>
+            <li>Un utilisateur ou rôle IAM autorisé à utiliser EC2.</li>
+            <li>Une paire de clés EC2 de type <strong>RSA</strong> pour une instance Windows.</li>
+            <li>Un poste client disposant d'un client RDP.</li>
+            <li>Une adresse IPv4 publique stable ou connue pour le poste administrateur.</li>
+        </ul>
+        <h4>2.2 Préparation de la sécurité</h4>
+        <p>Le Security Group devra autoriser TCP <strong>3389</strong> uniquement depuis l'adresse IP publique de l'administrateur. AWS recommande de limiter les accès aux systèmes et emplacements de confiance. citeturn0search4turn0search12</p>
+        <h4>2.3 Vérification locale</h4>
+        <div class="codeblock"><code>curl https://checkip.amazonaws.com</code></div>
+        <p>Cette commande permet d'obtenir l'adresse IPv4 publique observée par le service. On peut ensuite utiliser cette valeur avec le suffixe <code>/32</code> dans une règle de Security Group.</p>
+    </section>
+
+    <section id="architecture" class="page mb-4">
+        <h2>3. Concepts et architecture</h2>
+        <h4>3.1 Amazon EC2</h4>
+        <p>Amazon EC2 fournit des serveurs virtuels appelés <em>instances</em>. Une instance est définie notamment par une AMI, un type d'instance, un réseau, des volumes EBS, un Security Group et éventuellement un profil IAM.</p>
+        <h4>3.2 AMI Windows</h4>
+        <p>L'AMI Windows Server 2022 contient le système Windows et les composants AWS nécessaires au fonctionnement de l'instance. Les AMI Windows Server 2022 fournies par AWS utilisent notamment <strong>EC2Launch v2</strong>, AWS Systems Manager et les pilotes réseau/stockage adaptés à EC2. citeturn0search13</p>
+        <h4>3.3 Architecture logique</h4>
+        <div class="codeblock"><code>Poste administrateur
+        |
+        | TCP 3389 / RDP
+        v
++---------------------------+
+| Internet Gateway          |
++-------------+-------------+
+              |
+        +-----v-----+
+        | VPC AWS   |
+        +-----+-----+
+              |
+        +-----v----------------+
+        | Subnet publique      |
+        | Security Group       |
+        +-----+----------------+
+              |
+        +-----v----------------+
+        | EC2 Windows Server   |
+        | Windows Server 2022  |
+        | EBS + EC2Launch v2   |
+        +----------------------+</code></div>
+        <h4>3.4 Flux réseau</h4>
+        <p>Le RDP utilise par défaut le port <strong>3389/TCP</strong>. Le Security Group agit comme un pare-feu au niveau de l'instance et contrôle les flux entrants et sortants. citeturn0search5turn0search17</p>
+    </section>
+
+    <section id="installation" class="page mb-4">
+        <h2>4. Installation et configuration</h2>
+        <h4>4.1 Création de la paire de clés</h4>
+        <ol>
+            <li>Ouvrir EC2 → <strong>Network & Security → Key Pairs</strong>.</li>
+            <li>Choisir <strong>Create key pair</strong>.</li>
+            <li>Donner un nom, par exemple <code>m2-windows-key</code>.</li>
+            <li>Sélectionner <strong>RSA</strong>, recommandé pour les instances Windows.</li>
+            <li>Télécharger le fichier privé <code>.pem</code> et le conserver de manière sécurisée.</li>
+        </ol>
+        <p>AWS précise que pour Windows, la paire RSA est utilisée notamment pour déchiffrer le mot de passe Administrator initial. citeturn0search10turn0search2</p>
+
+        <h4>4.2 Création du Security Group</h4>
+        <p>Créer un Security Group dédié, par exemple <code>sg-m2-windows-rdp</code>.</p>
+        <table class="table table-bordered">
+            <thead><tr><th>Type</th><th>Protocole</th><th>Port</th><th>Source</th></tr></thead>
+            <tbody>
+                <tr><td>RDP</td><td>TCP</td><td>3389</td><td>IP publique de l'administrateur/32</td></tr>
+            </tbody>
+        </table>
+        <p>Ne pas utiliser <code>0.0.0.0/0</code> pour une administration RDP normale. Une règle RDP publique expose le service à Internet et augmente fortement la surface d'attaque.</p>
+
+        <h4>4.3 Lancement de l'instance</h4>
+        <ol>
+            <li>Ouvrir la console EC2 et choisir <strong>Launch instance</strong>.</li>
+            <li>Choisir une AMI officielle <strong>Microsoft Windows Server 2022</strong>.</li>
+            <li>Sélectionner un type d'instance adapté aux ressources nécessaires et au budget.</li>
+            <li>Choisir le VPC et le subnet appropriés.</li>
+            <li>Attribuer le Security Group RDP créé précédemment.</li>
+            <li>Associer la paire de clés RSA.</li>
+            <li>Configurer le volume racine EBS selon le besoin.</li>
+            <li>Ajouter un tag <code>Name=Windows-M2-UDB</code>.</li>
+            <li>Lancer l'instance.</li>
+        </ol>
+    </section>
+
+    <section id="realisation" class="page mb-4">
+        <h2>5. Réalisation pratique</h2>
+        <h4>5.1 Vérifier l'état de l'instance</h4>
+        <p>Attendre que l'état de l'instance soit <strong>Running</strong> et que les deux status checks soient valides.</p>
+        <div class="codeblock"><code>aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=Windows-M2-UDB" \
+  --query 'Reservations[].Instances[].[InstanceId,State.Name,PublicIpAddress,PrivateIpAddress]' \
+  --output table</code></div>
+
+        <h4>5.2 Récupérer le mot de passe Administrator</h4>
+        <p>Dans la console EC2 : sélectionner l'instance → <strong>Connect → RDP → Get Password</strong> → sélectionner le fichier <code>.pem</code> → <strong>Decrypt Password</strong>. Pour les AMI Windows Server 2022, EC2Launch v2 génère le mot de passe initial. Le mot de passe peut nécessiter quelques minutes après le lancement avant d'être disponible. citeturn0search0turn0search3turn0search8</p>
+        <p>Le nom d'utilisateur dépend de la langue de l'AMI. Pour une AMI anglaise, il s'agit généralement de <code>Administrator</code>. citeturn0search3</p>
+
+        <h4>5.3 Connexion RDP</h4>
+        <ol>
+            <li>Dans EC2 → Connect → RDP, télécharger le fichier de connexion.</li>
+            <li>Ouvrir le fichier avec le client Remote Desktop.</li>
+            <li>Entrer le nom d'utilisateur Administrator approprié.</li>
+            <li>Entrer le mot de passe déchiffré.</li>
+            <li>Accepter l'avertissement de certificat si l'environnement de TP le justifie.</li>
+        </ol>
+        <p>La connexion RDP classique nécessite une règle réseau permettant l'accès au port 3389. citeturn0search7turn0search9</p>
+
+        <h4>5.4 Première configuration Windows</h4>
+        <p>Après connexion, effectuer les contrôles suivants :</p>
+        <ul>
+            <li>Vérifier le nom de la machine.</li>
+            <li>Vérifier la date et le fuseau horaire.</li>
+            <li>Vérifier l'adresse IP privée.</li>
+            <li>Vérifier l'espace disque disponible.</li>
+            <li>Installer les mises à jour Windows nécessaires.</li>
+            <li>Modifier le mot de passe Administrator initial et le stocker dans un gestionnaire de secrets sécurisé.</li>
+        </ul>
+        <p>AWS recommande de changer le mot de passe Administrator initial après la première connexion, car le nouveau mot de passe ne peut ensuite plus être récupéré depuis la console EC2. citeturn0search0</p>
+    </section>
+
+    <section id="commandes" class="page mb-4">
+        <h2>6. Commandes et explications</h2>
+        <h4>6.1 Identifier une instance</h4>
+        <div class="codeblock"><code>aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=Windows-M2-UDB" \
+  --query 'Reservations[].Instances[].InstanceId' \
+  --output text</code></div>
+        <p><code>--filters</code> limite la recherche aux instances correspondant au tag. <code>--query</code> extrait uniquement l'identifiant EC2.</p>
+
+        <h4>6.2 Vérifier les status checks</h4>
+        <div class="codeblock"><code>aws ec2 describe-instance-status \
+  --instance-ids i-xxxxxxxxxxxxxxxxx \
+  --include-all-instances \
+  --query 'InstanceStatuses[].[InstanceId,InstanceState.Name,SystemStatus.Status,InstanceStatus.Status]' \
+  --output table</code></div>
+
+        <h4>6.3 Arrêter ou démarrer une instance</h4>
+        <div class="codeblock"><code>aws ec2 stop-instances --instance-ids i-xxxxxxxxxxxxxxxxx
+aws ec2 start-instances --instance-ids i-xxxxxxxxxxxxxxxxx</code></div>
+        <p>L'arrêt d'une instance arrête le calcul facturé selon le modèle applicable, mais les ressources comme certains volumes EBS peuvent continuer à générer des coûts.</p>
+
+        <h4>6.4 Créer un snapshot EBS</h4>
+        <div class="codeblock"><code>aws ec2 create-snapshot \
+  --volume-id vol-xxxxxxxxxxxxxxxxx \
+  --description "Sauvegarde TP Windows Server 2022"</code></div>
+        <p>Le snapshot sauvegarde un volume EBS. Il faut identifier le volume concerné avant d'exécuter la commande.</p>
+
+        <h4>6.5 Vérifier les informations réseau</h4>
+        <div class="codeblock"><code>aws ec2 describe-instances \
+  --instance-ids i-xxxxxxxxxxxxxxxxx \
+  --query 'Reservations[].Instances[].[VpcId,SubnetId,PrivateIpAddress,PublicIpAddress,SecurityGroups[].GroupId]' \
+  --output table</code></div>
+
+        <h4>6.6 Commandes Windows utiles</h4>
+        <div class="codeblock"><code>ipconfig /all
+hostname
+whoami
+systeminfo
+Get-Service -Name TermService
+Get-NetTCPConnection -LocalPort 3389 -State Listen
+Test-NetConnection -ComputerName localhost -Port 3389</code></div>
+        <p>Ces commandes permettent de vérifier respectivement le réseau, le nom de machine, l'utilisateur courant, les informations système, le service RDP et l'écoute locale du port 3389.</p>
+    </section>
+
+    <section id="tests" class="page mb-4">
+        <h2>7. Vérifications et tests</h2>
+        <h4>7.1 Tests AWS</h4>
+        <ul>
+            <li>Instance : <strong>Running</strong>.</li>
+            <li>System status check : <strong>2/2 checks passed</strong> lorsque les vérifications sont terminées.</li>
+            <li>Adresse IP publique présente si RDP direct est utilisé.</li>
+            <li>Security Group associé à l'instance.</li>
+            <li>Règle TCP 3389 limitée à l'IP administrative.</li>
+        </ul>
+        <h4>7.2 Tests Windows</h4>
+        <div class="codeblock"><code>Get-Service TermService
+Get-NetTCPConnection -LocalPort 3389 -State Listen
+Test-NetConnection localhost -Port 3389</code></div>
+        <p>Le résultat attendu est un service Remote Desktop actif et une écoute du port 3389 sur l'instance.</p>
+        <h4>7.3 Test depuis le poste administrateur</h4>
+        <p>Depuis Windows PowerShell :</p>
+        <div class="codeblock"><code>Test-NetConnection &lt;PUBLIC_IP&gt; -Port 3389</code></div>
+        <p>La propriété <code>TcpTestSucceeded</code> doit être <code>True</code> lorsque le chemin réseau vers RDP est accessible.</p>
+        <h4>7.4 Critères de validation</h4>
+        <table class="table table-bordered">
+            <thead><tr><th>Contrôle</th><th>Résultat attendu</th></tr></thead>
+            <tbody>
+                <tr><td>État EC2</td><td>Running</td></tr>
+                <tr><td>Status checks</td><td>OK</td></tr>
+                <tr><td>RDP</td><td>Connexion réussie</td></tr>
+                <tr><td>Service TermService</td><td>Running</td></tr>
+                <tr><td>Port 3389</td><td>Accessible uniquement depuis la source autorisée</td></tr>
+                <tr><td>Stockage</td><td>Espace disque suffisant</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="depannage" class="page mb-4">
+        <h2>8. Dépannage</h2>
+        <table class="table table-bordered">
+            <thead><tr><th>Problème</th><th>Causes possibles</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr><td>Mot de passe indisponible</td><td>Instance trop récente, agent de lancement, permissions IAM</td><td>Attendre quelques minutes, vérifier l'AMI et <code>ec2:GetPasswordData</code>.</td></tr>
+                <tr><td>RDP timeout</td><td>Security Group, route, IP publique, NACL</td><td>Vérifier TCP 3389, subnet, route Internet et IP publique.</td></tr>
+                <tr><td>Credentials did not work</td><td>Mot de passe copié incorrectement ou ancien mot de passe</td><td>Saisir manuellement, vérifier l'utilisateur et réinitialiser si nécessaire.</td></tr>
+                <tr><td>Port 3389 non accessible</td><td>Service RDP ou pare-feu Windows</td><td>Vérifier <code>TermService</code>, le pare-feu et les règles RDP.</td></tr>
+                <tr><td>Instance sans IP publique</td><td>Subnet privé ou attribution publique désactivée</td><td>Vérifier l'architecture réseau ; utiliser une solution d'accès privée adaptée.</td></tr>
+            </tbody>
+        </table>
+        <p>AWS recommande également des outils Systems Manager pour diagnostiquer les problèmes RDP. L'automatisation <code>AWSSupport-TroubleshootRDP</code> peut vérifier ou corriger certains paramètres liés au port RDP, NLA et au pare-feu Windows. citeturn0search14</p>
+        <h4>8.1 Alternative : Systems Manager</h4>
+        <p>Pour une architecture plus sécurisée, une instance Windows peut être administrée via Systems Manager/Fleet Manager. Cette approche peut éviter d'exposer directement le port 3389 à Internet. Elle nécessite notamment que l'instance soit un managed node et que les permissions IAM et l'agent SSM soient correctement configurés. citeturn0search1turn0search9</p>
+    </section>
+
+    <section id="securite" class="page mb-4">
+        <h2>9. Sécurité et bonnes pratiques</h2>
+        <h4>9.1 Accès</h4>
+        <ul>
+            <li>Activer MFA sur le compte root et les identités administratives.</li>
+            <li>Utiliser IAM avec le principe du moindre privilège.</li>
+            <li>Ne jamais stocker la clé <code>.pem</code> dans Git.</li>
+            <li>Restreindre RDP à des IP ou réseaux de confiance.</li>
+            <li>Privilégier Systems Manager lorsque l'architecture le permet.</li>
+        </ul>
+        <h4>9.2 Système</h4>
+        <ul>
+            <li>Installer régulièrement les mises à jour de sécurité Windows.</li>
+            <li>Changer le mot de passe Administrator initial.</li>
+            <li>Ne pas utiliser le compte Administrator pour les usages applicatifs courants.</li>
+            <li>Activer et surveiller les mécanismes de journalisation nécessaires.</li>
+        </ul>
+        <h4>9.3 Réseau</h4>
+        <ul>
+            <li>Limiter les règles Security Group au strict nécessaire.</li>
+            <li>Éviter les règles <code>0.0.0.0/0</code> pour RDP.</li>
+            <li>Pour une architecture de production, envisager des subnets privés et un RD Gateway, VPN ou une solution d'accès gérée.</li>
+            <li>Utiliser plusieurs couches de contrôle : Security Groups, NACLs et segmentation VPC lorsque nécessaire.</li>
+        </ul>
+        <h4>9.4 Coûts et cycle de vie</h4>
+        <ul>
+            <li>Arrêter les instances de TP lorsqu'elles ne sont plus utilisées.</li>
+            <li>Supprimer les ressources inutiles : volumes, snapshots et Elastic IP non nécessaires.</li>
+            <li>Configurer des alertes budgétaires AWS.</li>
+            <li>Utiliser des tags pour identifier propriétaire, environnement et projet.</li>
+        </ul>
+        <p>Ces pratiques correspondent aux recommandations AWS de limitation des accès et de défense en profondeur pour les instances Windows. citeturn0search12</p>
+    </section>
+
+    <section id="checklist" class="page mb-4">
+        <h2>10. Checklist</h2>
+        <ul>
+            <li>[ ] Compte AWS actif et région choisie</li>
+            <li>[ ] MFA activé</li>
+            <li>[ ] IAM correctement configuré</li>
+            <li>[ ] Paire de clés RSA créée et protégée</li>
+            <li>[ ] AMI Windows Server 2022 sélectionnée</li>
+            <li>[ ] VPC et subnet vérifiés</li>
+            <li>[ ] Security Group créé</li>
+            <li>[ ] TCP 3389 limité à la source administrative</li>
+            <li>[ ] Instance EC2 en état Running</li>
+            <li>[ ] Status checks validés</li>
+            <li>[ ] Mot de passe Administrator récupéré</li>
+            <li>[ ] Connexion RDP testée</li>
+            <li>[ ] Service Remote Desktop vérifié</li>
+            <li>[ ] Mot de passe Administrator initial changé</li>
+            <li>[ ] Windows Update effectué</li>
+            <li>[ ] Sauvegarde/snapshot planifié selon le besoin</li>
+            <li>[ ] Ressources arrêtées ou supprimées après le TP</li>
+        </ul>
+    </section>
+
+    <section id="conclusion" class="page mb-4">
+        <h2>11. Conclusion</h2>
+        <p>Ce travail pratique a permis de mettre en œuvre le déploiement d'un serveur <strong>Windows Server 2022</strong> dans <strong>Amazon EC2</strong>. La démarche a couvert les éléments essentiels d'une infrastructure cloud : AMI, instance, VPC, subnet, Security Group, paire de clés, stockage EBS et accès distant RDP.</p>
+        <p>La réalisation ne se limite pas au lancement de la machine virtuelle. Un environnement professionnel doit également intégrer la vérification des status checks, le diagnostic réseau, la gestion des identités, la limitation des accès RDP, la mise à jour du système, la sauvegarde et la maîtrise des coûts.</p>
+        <p>Pour une architecture de production, l'étape suivante consiste à réduire l'exposition directe de RDP et à privilégier des mécanismes d'accès administré tels que AWS Systems Manager, ainsi qu'une architecture réseau segmentée.</p>
+    </section>
+
+    <footer class="text-center small-muted mb-4">
+        <p>© 2025 — Rapport AWS EC2 Windows Server — Ibrahima Khalilou Thiam</p>
+    </footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
