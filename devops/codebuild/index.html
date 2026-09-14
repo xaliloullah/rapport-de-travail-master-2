@@ -1,193 +1,80 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport DevOps — AWS CodeBuild</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport DevOps — AWS CodeBuild</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodeBuild</h1>
-            </div>
-        </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#buildspec">Comprendre buildspec.yml</a></li>
-                <li><a href="#create-project">Création d'un projet CodeBuild</a></li>
-                <li><a href="#source">Configuration de la source (CodeCommit)</a></li>
-                <li><a href="#environment">Environnement de build (Runtime)</a></li>
-                <li><a href="#artifacts">Artifacts et rapport de build</a></li>
-                <li><a href="#test">Test du build</a></li>
-                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
-
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>AWS CodeBuild est un service de build entièrement géré qui compile le code source, exécute
-                les tests et produit des paquets prêts à être déployés. Contrairement à Jenkins (serveur
-                auto-géré), CodeBuild est <strong>serverless</strong> : vous ne payez que le temps de build
-                utilisé.</p>
-            <ul>
-                <li>Créer un projet CodeBuild connecté à un dépôt CodeCommit.</li>
-                <li>Comprendre et écrire le fichier <code>buildspec.yml</code>.</li>
-                <li>Configurer l'environnement de build (runtime, image).</li>
-                <li>Gérer les artefacts et rapports de test.</li>
-            </ul>
-            <div class="explanation">
-                <strong>Avantage clé :</strong> CodeBuild élimine la gestion d'infrastructure de build.
-                Chaque build s'exécute dans un conteneur isolé et éphémère, avec un accès au réseau VPC
-                si nécessaire.
-            </div>
-        </section>
-
-        <!-- buildspec.yml -->
-        <section id="buildspec" class="page mb-4">
-            <h2>2. Comprendre buildspec.yml</h2>
-            <p>Le fichier <code>buildspec.yml</code> est le cœur de toute configuration CodeBuild. Il
-                définit les phases du build, les commandes à exécuter et les artefacts à produire. Il
-                doit se trouver à la racine du dépôt source.</p>
-
-            <h4>Structure d'un buildspec.yml :</h4>
-            <div class="codeblock"><code>version: 0.2
-
-env:
-  variables:
-    MAVEN_HOME: "/usr/share/maven"
+<header id="page-de-garde" class="page text-center">
+<div class="mb-5"><h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"><p class="lead mt-3 text-uppercase">Ministère de l’Enseignement Supérieur et de la Recherche</p><p class="lead mt-2 text-uppercase">Direction Générale de l’Enseignement Supérieur</p><img src="../../assets/images/udb.jpeg" alt="UDB" class="rounded"><div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3"><h1 class="display-5 fw-bold text-light">Rapport DevOps — AWS CodeBuild</h1></div></div>
+<div class="mb-4 text-start ms-5"><p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p><p class="mb-2">Master 2 Génie Logiciel UDB</p><p class="small-muted">Matricule 003</p></div><p class="text-end me-5">À <strong>M. Massamba LO</strong></p><p class="small-muted mt-auto">Année académique 2025</p>
+</header>
+<div class="container">
+<section class="page mb-4"><h2>Sommaire</h2><ol><li><a href="#objectif">Objectif et contexte</a></li><li><a href="#concepts">Architecture et concepts CodeBuild</a></li><li><a href="#buildspec">Construction du buildspec.yml</a></li><li><a href="#create">Création du projet</a></li><li><a href="#source">Configuration de la source</a></li><li><a href="#iam">Rôle IAM du service</a></li><li><a href="#build">Exécution et analyse d'un build</a></li><li><a href="#artifacts">Artifacts et rapports</a></li><li><a href="#tests">Tests automatisés</a></li><li><a href="#integration">Intégration dans une chaîne CI/CD</a></li><li><a href="#troubleshooting">Dépannage</a></li><li><a href="#security">Sécurité et bonnes pratiques</a></li><li><a href="#checklist">Checklist</a></li><li><a href="#conclusion">Conclusion</a></li></ol></section>
+<section id="objectif" class="page mb-4"><h2>1. Objectif et contexte</h2><p>AWS CodeBuild est un service managé de compilation et de test. Il fournit un environnement de build éphémère dans lequel le code source est récupéré, les dépendances sont installées, les tests sont exécutés et les artefacts sont produits.</p><ul><li>Automatiser la compilation et les tests.</li><li>Éviter de maintenir un serveur Jenkins uniquement pour le build.</li><li>Produire des artefacts reproductibles.</li><li>Préparer l'intégration avec CodePipeline, CodeDeploy ou d'autres outils CI/CD.</li></ul><div class="explanation"><strong>Principe :</strong> CodeBuild ne remplace pas Git ni le déploiement. Il constitue la brique <em>build/test/package</em> d'une chaîne CI/CD.</div></section>
+<section id="concepts" class="page mb-4"><h2>2. Architecture et concepts</h2><table class="table table-bordered"><thead><tr><th>Élément</th><th>Rôle</th></tr></thead><tbody><tr><td>Source</td><td>Dépôt Git ou autre source supportée.</td></tr><tr><td>Build project</td><td>Décrit l'environnement, les permissions, les variables et les artefacts.</td></tr><tr><td>Build environment</td><td>Conteneur éphémère contenant les runtimes et outils nécessaires.</td></tr><tr><td>buildspec.yml</td><td>Décrit les phases et commandes du build.</td></tr><tr><td>Artifact</td><td>Résultat du build : JAR, WAR, ZIP, fichiers statiques, rapports, etc.</td></tr></tbody></table><div class="note"><strong>Point important :</strong> les versions de runtime doivent être choisies selon l'image CodeBuild utilisée. Éviter de recopier aveuglément une version ancienne de Java ou Python.</div></section>
+<section id="buildspec" class="page mb-4"><h2>3. Construire un buildspec.yml</h2><p>Le fichier est placé à la racine du dépôt source. Il décrit les phases <code>install</code>, <code>pre_build</code>, <code>build</code> et <code>post_build</code>, ainsi que les artefacts et rapports.</p><div class="codeblock"><code>version: 0.2
 
 phases:
   install:
     runtime-versions:
-      java: corretto11
-      python: 3.9
+      java: corretto17
     commands:
-      - echo "Installation des dépendances..."
-      - mvn --version
+      - java -version
+      - mvn -version
   pre_build:
     commands:
-      - echo "Préparation du build..."
-      - mvn clean
+      - echo "Préparation du build"
+      - mvn -B clean
   build:
     commands:
-      - echo "Build en cours..."
-      - mvn package -DskipTests=false
+      - echo "Compilation et tests"
+      - mvn -B verify
   post_build:
     commands:
-      - echo "Build terminé."
-      - mvn test
+      - echo "Build terminé"
 
 artifacts:
   files:
-    - 'target/*.jar'
+    - target/*.jar
   discard-paths: no
+
+reports:
+  junit-reports:
+    files:
+      - 'target/surefire-reports/*.xml'
+    file-format: JUNITXML
 
 cache:
   paths:
-    - '.m2/repository/**/*'</code></div>
-
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Phase</th>
-                        <th>Description</th>
-                        <th>Commande typique</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>install</code></td>
-                        <td>Installation des outils (runtimes, SDK)</td>
-                        <td><code>runtime-versions: java: corretto11</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>pre_build</code></td>
-                        <td>Préparation avant le build (clean, checkout)</td>
-                        <td><code>mvn clean</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>build</code></td>
-                        <td>Compilation et packaging</td>
-                        <td><code>mvn package</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>post_build</code></td>
-                        <td>Tests, rapports, nettoyage</td>
-                        <td><code>mvn test</code></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="note">
-                <strong>Cache :</strong> Le bloc <code>cache</code> permet de conserver les dépendances
-                téléchargées (ex. <code>.m2/repository</code>) entre les builds, ce qui réduit
-                significativement le temps de build.
-            </div>
-        </section>
-
-        <!-- Création du projet -->
-        <section id="create-project" class="page mb-4">
-            <h2>3. Création d'un projet CodeBuild</h2>
-
-            <h4>Étapes via la console :</h4>
-            <ol>
-                <li>Console AWS → Service <strong>CodeBuild</strong> → <strong>Create Build Project</strong>.</li>
-                <li><strong>Project name :</strong> <code>mon-app-build</code>.</li>
-                <li><strong>Source :</strong> choisir <strong>AWS CodeCommit</strong> et le dépôt
-                    approprié.</li>
-                <li><strong>Environment :</strong>
-                    <ul>
-                        <li>Image : <code>AWS CodeBuild managed image</code></li>
-                        <li>Runtime : <code>Standard 5.0</code></li>
-                        <li>Système : <code>corretto11</code></li>
-                        <li>Commande de build : <code>Single build</code> (utilise buildspec.yml du dépôt)</li>
-                    </ul>
-                </li>
-                <li><strong>Service role :</strong> créer un rôle avec les permissions nécessaires.</li>
-                <li>Cliquer sur <strong>Create Build</strong>.</li>
-            </ol>
-
-            <img class="img-default" src="assets/images/codebuild-dashboard.png"
-                alt="Interface AWS CodeBuild">
-
-            <div class="explanation">
-                <strong>Service role :</strong> Le rôle IAM attaché au projet CodeBuild doit avoir
-                l'accès en lecture au dépôt source et en écriture vers S3 (pour les artefacts).
-            </div>
-        </section>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+    - '/root/.m2/**/*'</code></div><div class="explanation"><strong>Lecture :</strong> <code>verify</code> permet d'exécuter le cycle Maven jusqu'aux vérifications. Le bloc <code>artifacts</code> déclare les fichiers à conserver et <code>reports</code> permet de publier les résultats de tests.</div></section>
+<section id="create" class="page mb-4"><h2>4. Création du projet CodeBuild</h2><ol><li>Ouvrir AWS CodeBuild.</li><li>Choisir <strong>Create build project</strong>.</li><li>Définir un nom explicite, par exemple <code>m2-application-build</code>.</li><li>Sélectionner la source.</li><li>Choisir une image CodeBuild maintenue et le runtime adapté.</li><li>Associer un rôle de service IAM.</li><li>Configurer les artefacts et les logs.</li><li>Créer le projet puis lancer un premier build.</li></ol><img class="img-default" src="assets/images/codebuild-dashboard.png" alt="Console AWS CodeBuild"></section>
+<section id="source" class="page mb-4"><h2>5. Configuration de la source</h2><p>La source doit contenir le code et, idéalement, le <code>buildspec.yml</code>. Pour un projet Git, le commit déclencheur doit être identifiable afin de pouvoir reproduire le build.</p><div class="explanation"><strong>Bon réflexe :</strong> versionner le buildspec avec le code. Le pipeline et les règles de compilation deviennent ainsi auditable et reproductible.</div></section>
+<section id="iam" class="page mb-4"><h2>6. Rôle IAM du service</h2><p>CodeBuild utilise un rôle IAM assumé par le service. Ce rôle doit accorder uniquement les permissions nécessaires : lecture de la source, accès aux artefacts S3, écriture des logs CloudWatch Logs et accès réseau éventuel.</p><div class="codeblock"><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+      "Resource": "*"
+    }
+  ]
+}</code></div><div class="danger"><strong>Sécurité :</strong> ne pas attribuer <code>AdministratorAccess</code> au rôle CodeBuild par facilité. Les accès S3, Secrets Manager, ECR ou VPC doivent être ciblés sur les ressources réellement utilisées.</div></section>
+<section id="build" class="page mb-4"><h2>7. Exécution et analyse d'un build</h2><p>Lors du lancement, CodeBuild récupère la source, prépare l'environnement, exécute le buildspec puis publie les résultats. Il faut contrôler successivement :</p><ol><li>La phase de téléchargement de la source.</li><li>L'installation des runtimes et dépendances.</li><li>La phase de tests.</li><li>La création des artefacts.</li><li>Le statut final <strong>SUCCEEDED</strong> ou <strong>FAILED</strong>.</li></ol><div class="note"><strong>Diagnostic :</strong> en cas d'échec, commencer par la première erreur réelle dans les logs plutôt que par la dernière ligne affichée.</div></section>
+<section id="artifacts" class="page mb-4"><h2>8. Artifacts et rapports</h2><p>Les artefacts permettent de conserver le résultat du build pour l'étape suivante. Un JAR peut être stocké dans S3 puis consommé par CodeDeploy ou CodePipeline.</p><div class="codeblock"><code>artifacts:
+  files:
+    - target/*.jar
+  name: application-${CODEBUILD_BUILD_NUMBER}.zip</code></div><p>Les rapports de tests doivent être séparés des artefacts applicatifs afin de conserver une visibilité sur la qualité du build.</p></section>
+<section id="tests" class="page mb-4"><h2>9. Tests automatisés</h2><p>Un build réussi ne signifie pas qu'une application est correcte. Les tests unitaires et d'intégration doivent être exécutés avant la génération finale de l'artefact.</p><div class="codeblock"><code>mvn -B test
+mvn -B verify</code></div><ul><li>Échec d'un test → build en échec.</li><li>Rapports JUnit → visibilité dans CodeBuild.</li><li>Tests de sécurité → peuvent être ajoutés au pipeline.</li></ul></section>
+<section id="integration" class="page mb-4"><h2>10. Intégration CI/CD</h2><p>Une chaîne typique est :</p><div class="explanation"><strong>Git → CodeCommit/GitHub → CodeBuild → artefact S3/ECR → CodeDeploy → EC2/ECS/Lambda.</strong></div><p>CodePipeline peut orchestrer ces étapes et déclencher CodeBuild à chaque modification du dépôt. CodeBuild doit rester spécialisé dans le build et les tests.</p></section>
+<section id="troubleshooting" class="page mb-4"><h2>11. Dépannage</h2><table class="table table-bordered"><thead><tr><th>Symptôme</th><th>Cause possible</th><th>Action</th></tr></thead><tbody><tr><td>Commande inconnue</td><td>Runtime/image incorrect</td><td>Vérifier l'environnement de build.</td></tr><tr><td>Permission denied</td><td>Rôle IAM insuffisant</td><td>Identifier l'action AWS refusée dans les logs CloudTrail/CodeBuild.</td></tr><tr><td>Dépendance introuvable</td><td>Réseau ou dépôt indisponible</td><td>Vérifier proxy, VPC, NAT et registre.</td></tr><tr><td>Artifact absent</td><td>Chemin incorrect</td><td>Vérifier le chemin produit dans <code>target/</code> et le bloc artifacts.</td></tr></tbody></table></section>
+<section id="security" class="page mb-4"><h2>12. Sécurité et bonnes pratiques</h2><ul><li>Appliquer le moindre privilège IAM.</li><li>Ne jamais mettre de secrets dans <code>buildspec.yml</code> ou Git.</li><li>Utiliser Secrets Manager ou Parameter Store lorsque nécessaire.</li><li>Épingler les versions importantes pour obtenir des builds reproductibles.</li><li>Conserver les logs et rapports nécessaires à l'audit.</li><li>Utiliser des environnements séparés pour développement, recette et production.</li><li>Nettoyer les anciens artefacts selon une politique de rétention.</li></ul></section>
+<section id="checklist" class="page mb-4"><h2>13. Checklist</h2><ul><li>[ ] Source configurée</li><li>[ ] buildspec.yml versionné</li><li>[ ] Runtime validé</li><li>[ ] Rôle IAM à privilèges minimaux</li><li>[ ] Logs activés</li><li>[ ] Tests automatisés</li><li>[ ] Artifacts configurés</li><li>[ ] Premier build réussi</li><li>[ ] Échec volontaire testé pour valider le pipeline</li></ul></section>
+<section id="conclusion" class="page mb-4"><h2>14. Conclusion</h2><p>Ce travail montre comment CodeBuild automatise la compilation, les tests et la production d'artefacts sans maintenir une infrastructure de build permanente. La valeur de CodeBuild apparaît surtout lorsqu'il est intégré à une chaîne CI/CD complète et sécurisé par IAM.</p><p>La prochaine étape logique est de relier CodeBuild à CodePipeline puis CodeDeploy afin d'obtenir une chaîne automatisée allant du commit jusqu'au déploiement contrôlé.</p></section>
+<footer class="text-center small-muted mb-4"><p>© 2025 — Rapport AWS CodeBuild — Ibrahima Khalilou Thiam</p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>
