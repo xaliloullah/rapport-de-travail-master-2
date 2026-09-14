@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,398 +7,236 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport AWS IAM — Gestion des accès et sécurité</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
+        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université UDB" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Rapport AWS IAM — Gestion des accès et sécurité</h1>
         </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#objectif">Objectif</a></li>
-                <li><a href="#concepts">Concepts clés IAM</a></li>
-                <li><a href="#compte-racine">Sécurisation du compte racine</a></li>
-                <li><a href="#groupes">Création de groupes IAM</a></li>
-                <li><a href="#politiques">Création et attribution de politiques</a></li>
-                <li><a href="#utilisateurs">Création d'utilisateurs IAM</a></li>
-                <li><a href="#mfa">Activation de la MFA</a></li>
-                <li><a href="#cli-iam">Gestion IAM via AWS CLI</a></li>
-                <li><a href="#bonnes-pratiques">Bonnes pratiques</a></li>
-                <li><a href="#checklist">Checklist imprimable</a></li>
-                <li><a href="#conclusion">Conclusion</a></li>
-            </ol>
-        </section>
-
-
-        <!-- Objectif -->
-        <section id="objectif" class="page mb-4">
-            <h2>1. Objectif</h2>
-            <p>AWS IAM (Identity and Access Management) est le service qui permet de contrôler l'accès
-                à toutes les ressources AWS de manière sécurisée. Ce guide vous apprendtra à :</p>
-            <ul>
-                <li>Comprendre les concepts clés : utilisateurs, groupes, rôles et politiques.</li>
-                <li>Sécuriser le compte racine AWS avec MFA.</li>
-                <li>Créer des groupes IAM et appliquer le principe du moindre privilège.</li>
-                <li>Créer des utilisateurs et leur attribuer des politiques personnalisées.</li>
-                <li>Gérer IAM via l'interface graphique et l'AWS CLI.</li>
-            </ul>
-            <div class="explanation">
-                <strong>Le principe du moindre privilège :</strong> Chaque utilisateur/ne/devrait n'avoir
-                accès qu'aux ressources strictement nécessaires à ses fonctions. Jamais de droits
-                administrateur global sauf cas exceptionnel.
-            </div>
-        </section>
-
-        <!-- Concepts clés -->
-        <section id="concepts" class="page mb-4">
-            <h2>2. Concepts clés IAM</h2>
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Élément</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Utilisateur (User)</strong></td>
-                        <td>Compte unique pour une personne ou un service. Peut se connecter à la
-                            console AWS ou utiliser l'API.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Groupe (Group)</strong></td>
-                        <td>Collection d'utilisateurs. Utile pour attribuer des politiques à plusieurs
-                            utilisateurs à la fois.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Rôle (Role)</strong></td>
-                        <td>Identité ayant des permissions, mais sans clé d'accès permanente. Peut être
-                            assumé par un utilisateur ou un service AWS (ex. EC2).</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Politique (Policy)</strong></td>
-                        <td>Document JSON définissant les permissions (actions autorisées/refusées sur
-                            quelles ressources).</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="note">
-                <strong>Bonne pratique :</strong> Utilisez des <strong>rôles</strong> pour les services
-                AWS (EC2, Lambda...) plutôt que des clés d'accès. Les rôles sont temporaires et ne
-                nécessitent pas de rotation manuelle.
-            </div>
-        </section>
-
-
-        <!-- Compte racine -->
-        <section id="compte-racine" class="page mb-4">
-            <h2>3. Sécurisation du compte racine</h2>
-            <p>Le compte racine AWS possède un accès complet à toutes les ressources. Il est
-                <strong>critique</strong> de le sécuriser :</p>
-            <ol>
-                <li>Activer la <strong>MFA (Multi-Factor Authentication)</strong> sur le compte racine.
-                </li>
-                <li>Ne <strong>jamais</strong> utiliser le compte racine au quotidien.</li>
-                <li>Créer un utilisateur IAM administrateur pour les tâches courantes.</li>
-                <li>Supprimer les clés d'accès racine si elles existent.</li>
-            </ol>
-
-            <h4>Étapes — Activer la MFA :</h4>
-            <ol>
-                <li>Connectez-vous à la console AWS avec le compte racine.</li>
-                <li>Aller dans IAM → Utilisateurs → <code>Mon compte racine</code>.</li>
-                <li>Cliquer sur <strong>Activer MFA</strong>.</li>
-                <li>Choisir une application MFA (ex. Google Authenticator, Authy).</li>
-                <li>Saisir les codes et confirmer.</li>
-            </ol>
-            <img class="img-default" src="assets/images/mfa-root.png" alt="Activation MFA sur le compte racine">
-
-            <div class="danger">
-                <strong>Critique :</strong> Le compte racine ne doit jamais être utilisé pour des tâches
-                courantes. Conservez ses identifiants très secrets et utilisez-le uniquement pour la
-                configuration initiale et la récupération en cas d'urgence.
-            </div>
-        </section>
-
-        <!-- Groupes -->
-        <section id="groupes" class="page mb-4">
-            <h2>4. Création de groupes IAM</h2>
-            <p>Les groupes permettent d'organiser les utilisateurs et d'appliquer des politiques à
-                plusieurs utilisateurs d'un coup. Voici un schéma type :</p>
-
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th>Groupe</th>
-                        <th>Rôle</th>
-                        <th>Politique attachée</th>
-                    </tr>
-                </thead>
-                                <tbody>
-                    <tr>
-                        <td><code>AdminGroup</code></td>
-                        <td>Administrateurs</td>
-                        <td><code>AdministratorAccess</code></td>
-                    </tr>
-                    <tr>
-                        <td><code>Developers</code></td>
-                        <td>Développeurs</td>
-                        <td>Accès EC2, S3 en lecture, CloudWatch en lecture</td>
-                    </tr>
-                    <tr>
-                        <td><code>ReadOnly</code></td>
-                        <td>Auditeurs / Consultants</td>
-                        <td><code>ReadOnlyAccess</code></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Créer un groupe via AWS CLI :</h4>
-            <div class="codeblock"><code># Créer un groupe
-aws iam create-group --group-name AdminGroup
-
-# Attacher une politique (administrateur)
-aws iam attach-group-policy \
-    --group-name AdminGroup \
-    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess</code></div>
-        </section>
-
-        <!-- Politiques -->
-        <section id="politiques" class="page mb-4">
-            <h2>5. Création et attribution de politiques</h2>
-            <p>Les politiques IAM sont des documents JSON. Voici un exemple d'une politique personnalisée
-                donnant un accès en lecture seulement à un bucket S3 spécifique :</p>
-
-            <div class="codeblock"><code>{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject",
-                "s3:ListBucket"
-            ],
-            "Resource": [
-                "arn:aws:s3:::mon-bucket-s3",
-                "arn:aws:s3:::mon-bucket-s3/*"
-            ]
-        }
-    ]
-}</code></div>
-
-            <h5>Structure d'une politique :</h5>
-            <ul>
-                <li><strong>Version :</strong> toujours <code>2012-10-17</code>.</li>
-                <li><strong>Statement :</strong> liste des blocs de permissions.</li>
-                <li><strong>Effect :</strong> <code>Allow</code> ou <code>Deny</code>.</li>
-                <li><strong>Action :</strong> actions autorisées (ex. <code>s3:GetObject</code>).</li>
-                <li><strong>Resource :</strong> ARN de la ressource ciblée.</li>
-            </ul>
-
-            <h4>Créer une politique personnalisée :</h4>
-            <div class="codeblock"><code>aws iam create-policy \
-    --policy-name "S3-lecture-mon-bucket" \
-    --policy-document file://politique-s3.json</code></div>
-
-            <div class="explanation">
-                <strong>Astuce :</strong> L'option <code>file://</code> permet de charger un fichier JSON
-                local au lieu de l'inscrire en ligne de commande. Très pratique pour les politiques
-                complexes.
-            </div>
-        </section>
-
-        <!-- Utilisateurs -->
-        <section id="utilisateurs" class="page mb-4">
-            <h2>6. Création d'utilisateurs IAM</h2>
-            <p>Créons un utilisateur et ajoutons-le à un groupe :</p>
-
-            <h4>Étapes via la console :</h4>
-            <ol>
-                <li>IAM → Utilisateurs → Ajouter un utilisateur.</li>
-                <li>Saisir un nom (ex. <code>dev-moussa</code>).</li>
-                <li>Cocher <strong>Accès programmatique</strong> (pour CLI/API) ou
-                    <strong>Accès à la console</strong> (pour la connexion web).</li>
-                <li>Attacher le ou les groupes (ex. <code>Developers</code>).</li>
-                <li>Télécharger les identifiants (clé + secret) une seule fois.</li>
-            </ol>
-
-            <h4>Créer un utilisateur via AWS CLI :</h4>
-            <div class="codeblock"><code># Créer un utilisateur avec accès programmatique
-aws iam create-user --user-name dev-moussa
-
-# Attacher une politique directement à l'utilisateur
-aws iam attach-user-policy \
-    --user-name dev-moussa \
-    --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-
-# Ajouter l'utilisateur à un groupe
-aws iam add-user-to-group \
-    --group-name Developers \
-    --user-name dev-moussa</code></div>
-            <img class="img-default" src="assets/images/iam-users.png" alt="Liste des utilisateurs IAM">
-
-            <div class="danger">
-                <strong>Important :</strong> Les clés d'accès (Access Key ID + Secret Access Key) doivent
-                être <strong>stockées en sécurité</strong> et <strong>rotatées régulièrement</strong>. Si
-                elles fuient, révoquez-les immédiatement via
-                <code>aws iam update-access-key --status Inactive</code>.
-                        </div>
-        </section>
-
-        <!-- MFA -->
-        <section id="mfa" class="page mb-4">
-            <h2>7. Activation de la MFA pour les utilisateurs</h2>
-            <p>La MFA (Multi-Factor Authentication) ajoute une couche de sécurité supplémentaire en
-                exigeant un second facteur (application ou token matériel) en plus du mot de passe.
-            </p>
-
-            <h4>Activer la MFA via la console :</h4>
-            <ol>
-                <li>IAM → Utilisateurs → Sélectionner l'utilisateur.</li>
-                <li>Onglet <strong>Sécurité</strong> → <strong>Gestion des MFA</strong>.</li>
-                <li>Lancer l'application MFA (ex. Google Authenticator) et saisir le code.</li>
-                <li>Attribuer le MFA à l'utilisateur.</li>
-            </ol>
-
-            <h4>Activer la MFA via AWS CLI :</h4>
-            <div class="codeblock"><code># Activer une MFA virtuelle
-aws iam create-virtual-mfa-device \
-    --virtual-mfa-device-name mfa-dev-moussa \
-    --outfile mfa-qr-code.png
-
-# Activer la MFA pour un utilisateur
-aws iam enable-mfa-device \
-    --user-name dev-moussa \
-    --serial-number arn:aws:iam::123456789012:mfa/dev-moussa \
-    --authentication-code1 123456 \
-    --authentication-code2 654321</code></div>
-
-            <div class="danger">
-                <strong>Sécurité renforcée :</strong> La MFA est <strong>recommandée pour tous les
-                utilisateurs IAM</strong>, surtout ceux ayant des droits administratifs ou un accès
-                aux services sensibles (EC2, S3, IAM).
-            </div>
-        </section>
-
-        <!-- CLI IAM -->
-        <section id="cli-iam" class="page mb-4">
-            <h2>8. Gestion IAM via AWS CLI</h2>
-            <p>Voici les commandes essentielles pour gérer IAM en ligne de commande :</p>
-
-            <div class="codeblock"><code># Lister tous les utilisateurs
-aws iam list-users
-
-# Lister les groupes
-aws iam list-groups
-
-# Lister les politiques attachées à un utilisateur
-aws iam list-attached-user-policies --user-name dev-moussa
-
-# Mettre à jour un utilisateur (changer le mot de passe)
-aws iam update-login-profile \
-    --user-name dev-moussa \
-    --password "NouveauMotDePasse123!"
-
-# Supprimer un utilisateur (révoquer les clés d'abord)
-aws iam delete-access-key --user-name dev-moussa --access-key-id AKIA...
-aws iam delete-user --user-name dev-moussa</code></div>
-
-            <img class="img-default" src="assets/images/iam-dashboard.png" alt="Console IAM AWS">
-
-            <div class="explanation">
-                <strong>Conseil :</strong> Utilisez <code>aws iam simulate-principal-policy</code> pour
-                tester quelles actions un utilisateur peut effectuer avant de déployer une politique en
-                production.
-            </div>
-        </section>
-
-
-        <!-- Bonnes pratiques -->
-        <section id="bonnes-pratiques" class="page mb-4">
-            <h2>9. Bonnes pratiques IAM</h2>
-            <ul>
-                <li><strong>Never use root :</strong> Ne jamais utiliser le compte racine pour les tâches
-                    quotidiennes.</li>
-                <li><strong>MFA partout :</strong> Activez la MFA sur tous les utilisateurs, surtout les
-                    administrateurs.</li>
-                <li><strong>Principle of least privilege :</strong> Attribuez le minimum de permissions
-                    nécessaires.</li>
-                <li><strong>Politiques gérées vs personnalisées :</strong> Utilisez les politiques gérées
-                    AWS quand c'est possible (moins de risques d'erreurs).</li>
-                <li><strong>Rotation des clés :</strong> Rotates les clés d'accès AWS toutes les 90 jours au
-                    maximum.</li>
-                <li><strong>Auditer régulièrement :</strong> Utilisez AWS CloudTrail et IAM Access Analyzer
-                    pour vérifier les accès.</li>
-                <li><strong>Rôles au lieu de clés :</strong> Pour EC2 et Lambda, utilisez des rôles plutôt
-                    que des clés d'accès.</li>
-            </ul>
-        </section>
-
-        <!-- Checklist -->
-        <section id="checklist" class="page mb-4">
-            <h2>10. Checklist imprimable</h2>
-            <ul>
-                <li>[ ] MFA activée sur le compte racine</li>
-                <li>[ ] Compte racine jamais utilisé au quotidien</li>
-                <li>[ ] Groupes IAM créés (AdminGroup, Developers, ReadOnly)</li>
-                <li>[ ] Politiques attribuées avec le principe du moindre privilège</li>
-                <li>[ ] Utilisateurs IAM créés avec mot de passe fort</li>
-                <li>[ ] MFA activée pour tous les utilisateurs IAM</li>
-                <li>[ ] Clés d'accès générées et stockées en sécurité</li>
-                <li>[ ] Politique de rotation des clés définie</li>
-                <li>[ ] CloudTrail activé pour l'audit IAM</li>
-                <li>[ ] Politique de blocage des clés racine définie</li>
-            </ul>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>11. Conclusion</h2>
-            <p>AWS IAM est la première couche de sécurité de votre environnement AWS. En maîtrisant les
-                concepts
-                (utilisateurs, groupes, rôles, politiques), en sécurisant le compte racine et en
-                appliquant le principe du moindre privilège, vous réduisez considérablement le risque de
-                violation de sécurité.</p>
-
-            <h5>Ressources & liens utiles</h5>
-            <ul class="small-muted">
-                <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/" target="_blank">Documentation officielle AWS IAM</a></li>
-                <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" target="_blank">Best practices IAM</a></li>
-                <li><a href="https://awspolicygen.s3.amazonaws.com/policygen.html" target="_blank">Policy Generator</a></li>
-            </ul>
-        </section>
-
-        <footer class="text-center small-muted mb-4">
-            <p>© 2025 — Rapport AWS IAM — Ibrahima Khalilou Thiam</p>
-        </footer>
-
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
+
+<div class="container">
+<section class="page mb-4">
+<h2>Sommaire</h2>
+<ol>
+<li><a href="#objectifs">Objectifs et contexte</a></li>
+<li><a href="#prerequis">Prérequis</a></li>
+<li><a href="#architecture">Concepts et architecture</a></li>
+<li><a href="#installation">Installation et configuration</a></li>
+<li><a href="#realisation">Réalisation pratique</a></li>
+<li><a href="#commandes">Commandes et explications</a></li>
+<li><a href="#tests">Vérifications et tests</a></li>
+<li><a href="#depannage">Dépannage</a></li>
+<li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+<li><a href="#checklist">Checklist</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ol>
+</section>
+
+<section id="objectifs" class="page mb-4">
+<h2>1. Objectifs et contexte</h2>
+<p>AWS Identity and Access Management (<strong>IAM</strong>) permet de contrôler l'authentification et l'autorisation d'accès aux ressources AWS. L'objectif du TP est de construire une gestion des identités conforme au principe du moindre privilège.</p>
+<ul>
+<li>Comprendre utilisateurs, groupes, rôles et politiques IAM ;</li>
+<li>sécuriser le compte racine avec la MFA ;</li>
+<li>créer des identités et leur attribuer uniquement les permissions nécessaires ;</li>
+<li>utiliser des rôles IAM pour les services AWS ;</li>
+<li>auditer et vérifier les permissions avec l'AWS CLI.</li>
+</ul>
+<div class="explanation"><strong>Principe fondamental :</strong> une permission doit être accordée uniquement lorsqu'elle est nécessaire, sur la ressource la plus précisément possible.</div>
+</section>
+
+<section id="prerequis" class="page mb-4">
+<h2>2. Prérequis</h2>
+<ul>
+<li>Compte AWS actif ;</li>
+<li>accès à la console AWS ;</li>
+<li>AWS CLI v2 installée si la partie CLI est réalisée ;</li>
+<li>application ou dispositif compatible MFA ;</li>
+<li>connaissances de base en JSON et en administration cloud.</li>
+</ul>
+<div class="note"><strong>Important :</strong> éviter de créer des clés d'accès longues durées lorsque l'authentification fédérée, IAM Identity Center ou un rôle IAM permet de répondre au besoin.</div>
+</section>
+
+<section id="architecture" class="page mb-4">
+<h2>3. Concepts et architecture</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Composant</th><th>Rôle</th></tr></thead>
+<tbody>
+<tr><td>User</td><td>Identité IAM représentant une personne ou un besoin spécifique.</td></tr>
+<tr><td>Group</td><td>Ensemble d'utilisateurs auquel des politiques peuvent être associées.</td></tr>
+<tr><td>Role</td><td>Identité assumable fournissant des permissions temporaires, notamment aux services AWS.</td></tr>
+<tr><td>Policy</td><td>Document JSON décrivant les actions autorisées ou refusées.</td></tr>
+<tr><td>ARN</td><td>Identifiant permettant de cibler précisément une ressource AWS.</td></tr>
+<tr><td>MFA</td><td>Second facteur renforçant l'authentification.</td></tr>
+</tbody>
+</table>
+<div class="codeblock"><code>Principal → Authentification → IAM Policy → Autorisation → Ressource AWS
+
+Utilisateur ──→ Groupe ──→ Policy ──→ S3 / EC2 / autres services
+Service AWS ──→ Role IAM ──→ Policy ──→ Ressource AWS</code></div>
+<div class="note"><strong>Différence importante :</strong> l'identité qui demande l'accès est le principal ; la policy détermine les permissions ; une ressource AWS peut également posséder une policy basée sur la ressource.</div>
+</section>
+
+<section id="installation" class="page mb-4">
+<h2>4. Installation et configuration</h2>
+<h4>4.1 Sécuriser le compte racine</h4>
+<ol>
+<li>Utiliser le compte racine uniquement pour les opérations qui l'exigent.</li>
+<li>Activer la MFA sur le compte racine.</li>
+<li>Ne pas utiliser ses identifiants pour les tâches quotidiennes.</li>
+<li>Vérifier et supprimer les clés d'accès racine inutiles.</li>
+</ol>
+<img class="img-default" src="../../assets/images/mfa-root.png" alt="Configuration MFA du compte racine">
+<h4>4.2 Préparer l'administration</h4>
+<p>Pour un environnement professionnel, privilégier AWS IAM Identity Center ou une fédération d'identité pour les utilisateurs humains. Les rôles IAM sont privilégiés pour les workloads AWS.</p>
+<h4>4.3 Vérifier l'identité CLI</h4>
+<div class="codeblock"><code>aws sts get-caller-identity
+aws configure list</code></div>
+<p>La première commande identifie le principal utilisé par la session. La seconde affiche la provenance de la configuration sans révéler le secret d'accès.</p>
+</section>
+
+<section id="realisation" class="page mb-4">
+<h2>5. Réalisation pratique</h2>
+<h4>5.1 Création d'un groupe</h4>
+<div class="codeblock"><code>aws iam create-group --group-name Developers
+aws iam list-groups</code></div>
+<h4>5.2 Création d'une politique limitée à S3</h4>
+<div class="codeblock"><code>{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["s3:ListBucket"],
+    "Resource": "arn:aws:s3:::mon-bucket-s3"
+  }, {
+    "Effect": "Allow",
+    "Action": ["s3:GetObject"],
+    "Resource": "arn:aws:s3:::mon-bucket-s3/*"
+  }]
+}</code></div>
+<p>Enregistrer ce document dans <code>politique-s3.json</code>, puis :</p>
+<div class="codeblock"><code>aws iam create-policy \
+  --policy-name S3LectureMonBucket \
+  --policy-document file://politique-s3.json</code></div>
+<h4>5.3 Créer un utilisateur et l'ajouter au groupe</h4>
+<div class="codeblock"><code>aws iam create-user --user-name dev-moussa
+aws iam add-user-to-group \
+  --group-name Developers \
+  --user-name dev-moussa</code></div>
+<img class="img-default" src="../../assets/images/iam-users.png" alt="Utilisateurs IAM dans la console AWS">
+<h4>5.4 Préférer un rôle pour EC2</h4>
+<p>Une instance EC2 doit recevoir un rôle IAM via un instance profile lorsqu'elle doit appeler AWS. Cela évite de placer une clé d'accès statique dans le serveur.</p>
+</section>
+
+<section id="commandes" class="page mb-4">
+<h2>6. Commandes et explications</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Commande</th><th>Fonction</th></tr></thead>
+<tbody>
+<tr><td><code>aws sts get-caller-identity</code></td><td>Identifie le principal de la session courante.</td></tr>
+<tr><td><code>aws iam list-users</code></td><td>Liste les utilisateurs IAM.</td></tr>
+<tr><td><code>aws iam list-groups</code></td><td>Liste les groupes.</td></tr>
+<tr><td><code>aws iam list-attached-user-policies</code></td><td>Affiche les policies gérées attachées à un utilisateur.</td></tr>
+<tr><td><code>aws iam list-group-policies</code></td><td>Liste les policies inline d'un groupe.</td></tr>
+<tr><td><code>aws iam get-policy</code></td><td>Récupère les métadonnées d'une policy gérée.</td></tr>
+<tr><td><code>aws iam simulate-principal-policy</code></td><td>Évalue si des actions sont autorisées pour un principal.</td></tr>
+<tr><td><code>aws iam list-access-keys</code></td><td>Inventorie les clés d'accès d'un utilisateur.</td></tr>
+</tbody>
+</table>
+<div class="codeblock"><code>aws iam list-attached-user-policies --user-name dev-moussa
+aws iam list-groups-for-user --user-name dev-moussa
+aws iam list-access-keys --user-name dev-moussa</code></div>
+</section>
+
+<section id="tests" class="page mb-4">
+<h2>7. Vérifications et tests</h2>
+<h4>7.1 Vérifier l'identité</h4>
+<div class="codeblock"><code>aws sts get-caller-identity</code></div>
+<h4>7.2 Vérifier l'appartenance au groupe</h4>
+<div class="codeblock"><code>aws iam list-groups-for-user --user-name dev-moussa</code></div>
+<h4>7.3 Vérifier les permissions</h4>
+<div class="codeblock"><code>aws iam simulate-principal-policy \
+  --policy-source-arn arn:aws:iam::123456789012:user/dev-moussa \
+  --action-names s3:ListBucket \
+  --resource-arns arn:aws:s3:::mon-bucket-s3</code></div>
+<p>Le résultat doit être interprété à partir de <code>EvalDecision</code>. Une permission refusée doit être analysée avant toute modification de policy.</p>
+<h4>7.4 Audit</h4>
+<div class="codeblock"><code>aws iam get-account-summary
+aws iam generate-credential-report
+aws iam get-credential-report</code></div>
+</section>
+
+<section id="depannage" class="page mb-4">
+<h2>8. Dépannage</h2>
+<table class="table table-bordered table-sm">
+<thead class="table-light"><tr><th>Problème</th><th>Diagnostic</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>AccessDenied</td><td>Vérifier policies identité, ressource et SCP éventuels.</td><td>Identifier la permission exacte avant de modifier les droits.</td></tr>
+<tr><td>Mauvais principal</td><td><code>aws sts get-caller-identity</code></td><td>Corriger le profil ou le rôle utilisé.</td></tr>
+<tr><td>Policy inefficace</td><td>Vérifier ARN, Action, Resource et conditions.</td><td>Tester avec <code>simulate-principal-policy</code>.</td></tr>
+<tr><td>Clé compromise</td><td>Inventorier les clés et leur dernière utilisation.</td><td>Désactiver puis supprimer la clé après rotation.</td></tr>
+<tr><td>EC2 sans permissions</td><td>Vérifier le rôle et l'instance profile.</td><td>Associer le rôle IAM approprié à l'instance.</td></tr>
+</tbody>
+</table>
+<div class="danger"><strong>Attention :</strong> ne pas résoudre systématiquement un <code>AccessDenied</code> en donnant <code>AdministratorAccess</code>. Il faut d'abord déterminer l'action et la ressource réellement nécessaires.</div>
+</section>
+
+<section id="securite" class="page mb-4">
+<h2>9. Sécurité et bonnes pratiques</h2>
+<ul>
+<li>Protéger le compte racine avec MFA et ne pas l'utiliser quotidiennement.</li>
+<li>Privilégier IAM Identity Center/fédération pour les utilisateurs humains.</li>
+<li>Utiliser des rôles et des identifiants temporaires pour les workloads.</li>
+<li>Appliquer le moindre privilège et cibler les ressources par ARN.</li>
+<li>Éviter les policies avec <code>Action: "*"</code> et <code>Resource: "*"</code> lorsqu'elles ne sont pas indispensables.</li>
+<li>Surveiller les clés d'accès et supprimer les identifiants inutilisés.</li>
+<li>Utiliser CloudTrail et IAM Access Analyzer pour l'audit et l'analyse des accès.</li>
+<li>Ne jamais placer de secrets dans Git, des scripts ou des AMI.</li>
+<li>Utiliser des politiques de contrôle organisationnel lorsque AWS Organizations est disponible.</li>
+</ul>
+<div class="note"><strong>Principe de défense en profondeur :</strong> IAM ne doit pas être considéré isolément. Il complète les contrôles réseau, le chiffrement, la journalisation, la supervision et la gestion des vulnérabilités.</div>
+</section>
+
+<section id="checklist" class="page mb-4">
+<h2>10. Checklist</h2>
+<ul>
+<li>[ ] MFA activée sur le compte racine</li>
+<li>[ ] Compte racine réservé aux tâches exceptionnelles</li>
+<li>[ ] Identité d'administration correctement configurée</li>
+<li>[ ] Groupes et rôles définis selon les responsabilités</li>
+<li>[ ] Policies limitées au besoin réel</li>
+<li>[ ] Utilisateurs humains gérés avec une méthode d'identité adaptée</li>
+<li>[ ] Rôles IAM utilisés pour EC2/Lambda lorsque nécessaire</li>
+<li>[ ] Aucune clé secrète stockée dans le code</li>
+<li>[ ] Clés d'accès inutiles supprimées ou désactivées</li>
+<li>[ ] Permissions testées avec les outils IAM</li>
+<li>[ ] CloudTrail et mécanismes d'audit prévus</li>
+<li>[ ] IAM Access Analyzer utilisé pour identifier les accès externes</li>
+</ul>
+</section>
+
+<section id="conclusion" class="page mb-4">
+<h2>11. Conclusion</h2>
+<p>Ce travail pratique a permis d'étudier AWS IAM comme composant central de la sécurité d'une infrastructure cloud. Les notions d'utilisateur, groupe, rôle, policy et MFA permettent de structurer les accès tout en réduisant la surface de risque.</p>
+<p>La mise en œuvre montre également l'importance de privilégier les rôles et les identifiants temporaires, de tester les permissions et de conserver une traçabilité des opérations. Une architecture IAM correctement conçue constitue ainsi une base indispensable pour sécuriser les services AWS.</p>
+<p>Dans un environnement professionnel, cette démarche doit être complétée par la fédération d'identité, l'audit continu, l'analyse des accès, la rotation des secrets et une gouvernance centralisée.</p>
+</section>
+
+<footer class="text-center small-muted mb-4"><p>© 2025 — Rapport AWS IAM — Ibrahima Khalilou Thiam</p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
-
