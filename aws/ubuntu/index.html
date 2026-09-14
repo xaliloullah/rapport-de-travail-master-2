@@ -1,210 +1,319 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport d'installation et configuration AWS CLI sur Ubuntu</title>
+    <title>Rapport AWS — Ubuntu EC2 et AWS CLI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
-
 <body>
-    <header id="page-de-garde" class="page text-center">
-
-        <div class="mb-5">
-            <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-            <div class="mt-auto mb-5">
-                <img src="../../assets/images/senegal-flag.png" alt="" class="rounded shadow">
-            </div>
-            <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-            <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-            <img src="../../assets/images/udb.jpeg" alt="" class="rounded">
-            <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-                <h1 class="display-5 fw-bold text-light">Rapport d'installation et configuration AWS CLI sur Ubuntu</h1>
-            </div>
+<header id="page-de-garde" class="page text-center">
+    <div class="mb-5">
+        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
+        <img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow">
+        <p class="lead mt-3 text-uppercase">Ministère de l’Enseignement Supérieur et de la Recherche</p>
+        <p class="lead mt-2 text-uppercase">Direction Générale de l’Enseignement Supérieur</p>
+        <img src="../../assets/images/udb.jpeg" alt="Université Dakar Bourguiba" class="rounded">
+        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
+            <h1 class="display-5 fw-bold text-light">Rapport AWS — Ubuntu EC2 et AWS CLI</h1>
         </div>
-
-        <div class="mb-4 text-start ms-5">
-            <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-            <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-            <p class="small-muted">Matricule 003</p>
-        </div>
-        <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-        <p class="small-muted mt-auto">Année académique 2025</p>
-    </header>
-
-    <div class="container">
-
-        <!-- Page de garde -->
-
-        <!-- Page de garde -->
-        <header class="page text-center mb-4">
-            <h1>Rapport d'installation et configuration AWS CLI sur Ubuntu</h1>
-            <p class="lead">Master 2 Génie Logiciel — Université UDB</p>
-            <p class="small-muted">Auteur : Ibrahima Khalilou Thiam | Année académique 2025</p>
-        </header>
-
-        <!-- Sommaire -->
-        <section class="page mb-4">
-            <h2>Sommaire</h2>
-            <ol>
-                <li><a href="#introduction">Introduction</a></li>
-                <li><a href="#instance-ubuntu">Qu'est-ce qu'une instance Ubuntu ?</a></li>
-                <li><a href="#ec2">Qu'est-ce que EC2 ?</a></li>
-                <li><a href="#documentation">Liens de documentation</a></li>
-                <li><a href="#pre-requis">Pré-requis</a></li>
-                <li>Lancement d'une instance Ubuntu avec EC2
-                    <ol>
-                        <li><a href="#creation-ec2">Création d'une instance EC2 Ubuntu</a></li>
-                        <li><a href="#connexion-ubuntu">Connexion à l'instance Ubuntu</a></li>
-                    </ol>
-                </li>
-                <li><a href="#aws-cli">Configuration de l'AWS CLI sur Ubuntu</a></li>
-                <li><a href="#conclusion">Conclusion et recommandations</a></li>
-            </ol>
-        </section>
-
-        <!-- Introduction -->
-        <section id="introduction" class="page mb-4">
-            <h2>1. Introduction</h2>
-            <p>Nous commençons tout d’abord par présenter le contexte de ce rapport. L’objectif est de guider pas à pas
-                l’utilisateur pour lancer une instance Ubuntu Server 24.04 LTS sur AWS EC2, s’y connecter via SSH ou
-                EC2 Instance Connect, installer et configurer l’AWS CLI, et préparer un environnement de test ou de
-                développement sécurisé et fonctionnel.</p>
-        </section>
-
-        <!-- Qu'est-ce qu'une instance Ubuntu -->
-        <section id="instance-ubuntu" class="page mb-4">
-            <h2>2. Qu'est-ce qu'une instance Ubuntu ?</h2>
-            <p>Une instance Ubuntu sur AWS est une machine virtuelle basée sur une <strong>Amazon Machine Image
-                    (AMI)</strong>
-                Ubuntu. Elle fonctionne comme une machine physique distante : nous pouvons y installer des paquets,
-                exécuter des applications, configurer des services et y accéder via SSH ou EC2 Instance Connect.</p>
-        </section>
-
-        <!-- Qu'est-ce que EC2 -->
-        <section id="ec2" class="page mb-4">
-            <h3>2.1 Qu'est-ce que EC2 ?</h3>
-            <p>Amazon EC2 (Elastic Compute Cloud) est le service de calcul d’AWS permettant de lancer et gérer des
-                instances virtuelles. EC2 fournit :</p>
-            <ul>
-                <li>Différents types d’instances selon les besoins CPU/mémoire.</li>
-                <li>Des AMIs pour déployer rapidement des systèmes d’exploitation.</li>
-                <li>Volumes EBS pour le stockage persistant.</li>
-                <li>Security Groups pour gérer l’accès réseau.</li>
-                <li>Key Pairs pour sécuriser les connexions SSH.</li>
-            </ul>
-        </section>
-
-        <!-- Liens documentation -->
-        <section id="documentation" class="page mb-4">
-            <h2>3. Liens de documentation</h2>
-            <ul>
-                <li><a href="https://docs.aws.amazon.com/ec2/">AWS EC2 User Guide</a></li>
-                <li><a href="https://ubuntu.com/aws">Ubuntu AMIs sur AWS</a></li>
-                <li><a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">AWS CLI
-                        Installation</a></li>
-            </ul>
-        </section>
-
-        <!-- Pré-requis -->
-        <section id="pre-requis" class="page mb-4">
-            <h2>4. Pré-requis</h2>
-            <p>Avant de commencer, assurez-vous d’avoir :</p>
-            <ul>
-                <li>Un compte AWS actif (MFA recommandé).</li>
-                <li>Des permissions IAM pour lancer des instances EC2 et créer des Key Pairs.</li>
-                <li>Une clé privée (.pem) téléchargée et stockée en sécurité.</li>
-                <li>Accès Internet ou VPN, et les ports SSH (22) ouverts dans le Security Group.</li>
-            </ul>
-        </section>
-
-        <!-- Création instance -->
-        <section id="creation-ec2" class="page mb-4">
-            <h3>5.1 Création d'une instance EC2 Ubuntu</h3>
-            <p>Nous identifions maintenant l’utilisateur qui va lancer l’instance. Nous commençons par accéder à la
-                console
-                AWS → EC2 et suivre les étapes :</p>
-            <ol>
-                <li>Lancer l’assistant "Launch Instances".</li>
-                <li>Choisir l’AMI : Ubuntu Server 24.04 LTS.</li>
-                <li>Choisir le type d’instance : par exemple t3.micro (Free Tier éligible).</li>
-                <li>Configurer le stockage et ajouter un tag Name : <strong>Ubuntu_M2_UDB_2025</strong>.</li>
-                <li>Créer ou sélectionner une Key Pair RSA pour SSH.</li>
-                <li>Configurer le Security Group :
-                    <ul>
-                        <li>Autoriser SSH (port 22) depuis votre IP.</li>
-                        <li>Autoriser HTTP (port 80) si vous souhaitez héberger un site.</li>
-                    </ul>
-                </li>
-                <li>Lancer l’instance et vérifier dans la liste des instances.</li>
-            </ol>
-        </section>
-
-        <!-- Connexion instance -->
-        <section id="connexion-ubuntu" class="page mb-4">
-            <h3>5.2 Connexion à l'instance Ubuntu</h3>
-            <p>Nous pouvons maintenant nous connecter à l’instance :</p>
-
-            <h5>Méthode 1 — EC2 Instance Connect</h5>
-            <ol>
-                <li>Dans la console EC2, sélectionner l’instance → Connect → EC2 Instance Connect.</li>
-                <li>Cliquer sur Connect pour ouvrir le terminal dans le navigateur.</li>
-            </ol>
-
-            <h5>Méthode 2 — SSH avec la clé privée (.pem)</h5>
-            <p>Sur Linux/Mac :</p>
-            <div class="codeblock"><code>chmod 400 mykey.pem
-ssh -i mykey.pem ubuntu@<PUBLIC_IP></code></div>
-
-            <p>Sur Windows : utiliser PuTTY (convertir .pem en .ppk) ou PowerShell :</p>
-            <div class="codeblock"><code>ssh -i C:\chemin\mykey.pem ubuntu@<PUBLIC_IP></code></div>
-        </section>
-
-        <!-- Configuration AWS CLI -->
-        <section id="aws-cli" class="page mb-4">
-            <h2>6. Configuration de l'AWS CLI sur Ubuntu</h2>
-            <p>Nous allons maintenant installer l’AWS CLI v2 sur notre instance :</p>
-            <ol>
-                <li>Mettre à jour le système et installer unzip et curl :
-                    <div class="codeblock"><code>sudo apt update && sudo apt upgrade -y
-sudo apt install -y unzip curl</code></div>
-                </li>
-                <li>Télécharger et installer AWS CLI :
-                    <div class="codeblock"><code>curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install</code></div>
-                </li>
-                <li>Vérifier l’installation :
-                    <div class="codeblock"><code>aws --version</code></div>
-                </li>
-            </ol>
-        </section>
-
-        <!-- Conclusion -->
-        <section id="conclusion" class="page mb-4">
-            <h2>7. Conclusion et recommandations</h2>
-            <p>Ce guide a présenté toutes les étapes pour lancer une instance Ubuntu 24.04 LTS sur AWS EC2, se
-                connecter,
-                installer AWS CLI et préparer un environnement sécurisé pour le développement ou le test.</p>
-            <p>Pour aller plus loin :</p>
-            <ul>
-                <li>Activer MFA et utiliser des comptes IAM avec privilèges minimaux.</li>
-                <li>Restreindre SSH aux IP autorisées ou utiliser Systems Manager Session Manager.</li>
-                <li>Créer des snapshots EBS réguliers et planifier des sauvegardes.</li>
-                <li>Préparer la migration vers Terraform/CloudFormation pour l’infrastructure as code.</li>
-                <li>Mettre en place un monitoring CloudWatch et une journalisation centralisée.</li>
-            </ul>
-        </section>
-
-        <footer class="text-center small-muted mb-4">
-            <p>© 2025 — Rapport de travail — Ibrahima Khalilou Thiam</p>
-        </footer>
-
     </div>
+    <div class="mb-4 text-start ms-5">
+        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
+        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
+        <p class="small-muted">Matricule 003</p>
+    </div>
+    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
+    <p class="small-muted mt-auto">Année académique 2025</p>
+</header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container">
+<section class="page mb-4">
+    <h2>Sommaire</h2>
+    <ol>
+        <li><a href="#objectifs">Objectifs et contexte</a></li>
+        <li><a href="#prerequis">Prérequis</a></li>
+        <li><a href="#architecture">Concepts et architecture</a></li>
+        <li><a href="#installation">Installation et configuration</a></li>
+        <li><a href="#realisation">Réalisation pratique</a></li>
+        <li><a href="#commandes">Commandes et explications</a></li>
+        <li><a href="#tests">Vérifications et tests</a></li>
+        <li><a href="#depannage">Dépannage</a></li>
+        <li><a href="#securite">Sécurité et bonnes pratiques</a></li>
+        <li><a href="#checklist">Checklist</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+    </ol>
+</section>
+
+<section id="objectifs" class="page mb-4">
+    <h2>1. Objectifs et contexte</h2>
+    <p>Ce travail pratique présente la mise en place d’un serveur <strong>Ubuntu Server</strong> dans <strong>Amazon EC2</strong>, puis l’installation et la configuration de l’<strong>AWS Command Line Interface (AWS CLI)</strong>. L’objectif est de disposer d’une machine Linux administrable à distance et capable d’interroger les services AWS de manière sécurisée.</p>
+    <ul>
+        <li>Créer et démarrer une instance EC2 à partir d’une AMI Ubuntu LTS.</li>
+        <li>Configurer le stockage, les clés SSH et le Security Group.</li>
+        <li>Se connecter au serveur avec SSH.</li>
+        <li>Installer AWS CLI v2 et vérifier son fonctionnement.</li>
+        <li>Utiliser une identité IAM adaptée pour les appels AWS depuis l’instance.</li>
+        <li>Valider la connectivité, les permissions et l’état du système.</li>
+    </ul>
+    <div class="explanation"><strong>Contexte :</strong> EC2 fournit le calcul tandis qu’Ubuntu fournit l’environnement système. AWS CLI constitue l’interface d’administration en ligne de commande. Dans une architecture professionnelle, l’identité de l’instance doit idéalement être fournie par un rôle IAM attaché au profil d’instance plutôt que par des clés d’accès statiques.</div>
+</section>
+
+<section id="prerequis" class="page mb-4">
+    <h2>2. Prérequis</h2>
+    <h4>2.1 Ressources AWS</h4>
+    <ul>
+        <li>Compte AWS actif avec MFA activée sur les comptes humains.</li>
+        <li>Région AWS choisie pour le TP, par exemple <code>us-east-1</code>.</li>
+        <li>Permissions permettant de créer ou d’utiliser une instance EC2 et ses ressources associées.</li>
+        <li>Une paire de clés EC2 si l’accès SSH par clé est retenu.</li>
+    </ul>
+    <h4>2.2 Poste client</h4>
+    <ul>
+        <li>Terminal Linux/macOS, PowerShell Windows ou client SSH équivalent.</li>
+        <li>Accès Internet pour joindre l’instance.</li>
+        <li>Clé privée <code>.pem</code> conservée dans un emplacement sécurisé.</li>
+    </ul>
+    <h4>2.3 Paramètres recommandés</h4>
+    <table class="table table-bordered">
+        <tr><th>Élément</th><th>Exemple</th></tr>
+        <tr><td>OS</td><td>Ubuntu Server 24.04 LTS</td></tr>
+        <tr><td>Architecture</td><td>x86_64 ou ARM64 selon l’instance choisie</td></tr>
+        <tr><td>Type</td><td>Instance adaptée à la charge du TP</td></tr>
+        <tr><td>SSH</td><td>TCP/22 limité à l’IP d’administration</td></tr>
+        <tr><td>HTTP</td><td>TCP/80 uniquement si un serveur Web est installé</td></tr>
+    </table>
+</section>
+
+<section id="architecture" class="page mb-4">
+    <h2>3. Concepts et architecture</h2>
+    <p>L’architecture retenue repose sur EC2, le réseau VPC et les mécanismes IAM d’AWS.</p>
+    <div class="codeblock"><code>Poste d’administration
+        │
+        │ SSH TCP/22
+        ▼
+┌──────────────────────────────┐
+│ AWS VPC                      │
+│                              │
+│  Subnet                      │
+│    │                         │
+│    ▼                         │
+│  ┌────────────────────────┐  │
+│  │ EC2 Ubuntu Server      │  │
+│  │ ├─ SSH                 │  │
+│  │ ├─ AWS CLI v2          │  │
+│  │ └─ Services applicatifs│  │
+│  └────────────────────────┘  │
+│             │                │
+│             ▼                │
+│      Instance Profile        │
+│             │                │
+└─────────────┼────────────────┘
+              ▼
+        Services AWS
+</code></div>
+    <table class="table table-bordered table-sm">
+        <thead><tr><th>Composant</th><th>Fonction</th></tr></thead>
+        <tbody>
+            <tr><td>AMI</td><td>Modèle système utilisé pour créer l’instance.</td></tr>
+            <tr><td>EC2</td><td>Machine virtuelle exécutant Ubuntu.</td></tr>
+            <tr><td>VPC/Subnet</td><td>Isolation et adressage réseau de l’instance.</td></tr>
+            <tr><td>Security Group</td><td>Pare-feu stateful contrôlant les flux autorisés.</td></tr>
+            <tr><td>EBS</td><td>Stockage bloc persistant associé à l’instance.</td></tr>
+            <tr><td>IAM Role</td><td>Identité temporaire permettant à l’instance d’appeler des services AWS.</td></tr>
+            <tr><td>AWS CLI</td><td>Interface en ligne de commande pour administrer AWS.</td></tr>
+        </tbody>
+    </table>
+    <div class="note"><strong>Distinction importante :</strong> un Security Group contrôle le réseau ; IAM contrôle l’autorisation d’appeler les API AWS. Ces deux mécanismes sont complémentaires et ne doivent pas être confondus.</div>
+</section>
+
+<section id="installation" class="page mb-4">
+    <h2>4. Installation et configuration</h2>
+    <h4>4.1 Création de l’instance EC2</h4>
+    <ol>
+        <li>Ouvrir la console AWS puis le service EC2.</li>
+        <li>Choisir <strong>Ubuntu Server 24.04 LTS</strong> comme AMI.</li>
+        <li>Sélectionner un type d’instance compatible avec le besoin du TP.</li>
+        <li>Choisir ou créer une paire de clés.</li>
+        <li>Associer l’instance à un VPC et un subnet appropriés.</li>
+        <li>Créer un Security Group avec SSH limité à l’adresse IP d’administration.</li>
+        <li>Ajouter un volume EBS adapté au besoin.</li>
+        <li>Ajouter le tag <code>Name=Ubuntu-M2-UDB</code>.</li>
+        <li>Lancer l’instance et relever son adresse IP publique si elle est nécessaire pour SSH.</li>
+    </ol>
+    <h4>4.2 Connexion SSH</h4>
+    <div class="codeblock"><code># Linux/macOS
+chmod 400 mykey.pem
+ssh -i mykey.pem ubuntu@PUBLIC_IP
+
+# Windows PowerShell
+ssh -i .\mykey.pem ubuntu@PUBLIC_IP</code></div>
+    <p>Le compte initial <code>ubuntu</code> est celui fourni par l’image Ubuntu EC2. La commande <code>chmod 400</code> limite les permissions de la clé privée sous Linux/macOS.</p>
+    <h4>4.3 Mise à jour du serveur</h4>
+    <div class="codeblock"><code>sudo apt update
+sudo apt upgrade -y
+sudo reboot</code></div>
+    <p>Après le redémarrage, reconnecter la session SSH avant de poursuivre.</p>
+</section>
+
+<section id="realisation" class="page mb-4">
+    <h2>5. Réalisation pratique</h2>
+    <h4>5.1 Vérification de l’environnement</h4>
+    <div class="codeblock"><code>hostnamectl
+cat /etc/os-release
+uname -m
+ip addr
+ip route</code></div>
+    <p>Ces commandes permettent d’identifier le système, l’architecture processeur, les interfaces et la route par défaut.</p>
+
+    <h4>5.2 Installation d’AWS CLI v2</h4>
+    <p>Pour une instance Linux x86_64 :</p>
+    <div class="codeblock"><code>sudo apt update
+sudo apt install -y curl unzip
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip -q awscliv2.zip
+sudo ./aws/install
+aws --version</code></div>
+    <p>Pour une instance ARM64, utiliser l’archive AWS CLI correspondant à l’architecture <code>aarch64</code> au lieu de l’archive x86_64.</p>
+
+    <h4>5.3 Identité AWS</h4>
+    <p>La méthode recommandée sur EC2 consiste à attacher un rôle IAM au profil d’instance. Une fois le rôle correctement configuré, AWS CLI peut récupérer automatiquement des identifiants temporaires.</p>
+    <div class="codeblock"><code># Vérifier l’identité utilisée par AWS CLI
+aws sts get-caller-identity
+
+# Définir la région par défaut si nécessaire
+aws configure set region us-east-1
+
+# Exemple de vérification EC2
+aws ec2 describe-instances --max-results 5</code></div>
+    <div class="danger"><strong>À éviter :</strong> ne pas placer une clé d’accès IAM permanente dans un script, dans Git ou dans une image de machine. Si une identité utilisateur est réellement nécessaire hors EC2, utiliser un profil AWS CLI géré de manière sécurisée et une politique IAM au moindre privilège.</div>
+
+    <h4>5.4 Test de stockage</h4>
+    <div class="codeblock"><code>df -h
+lsblk
+free -h</code></div>
+    <p>On vérifie ainsi l’espace disque, les volumes blocs visibles et la mémoire disponible.</p>
+</section>
+
+<section id="commandes" class="page mb-4">
+    <h2>6. Commandes et explications</h2>
+    <table class="table table-bordered">
+        <thead><tr><th>Commande</th><th>Utilité</th><th>Paramètre clé</th></tr></thead>
+        <tbody>
+            <tr><td><code>ssh -i mykey.pem ubuntu@IP</code></td><td>Ouvre une session SSH.</td><td><code>-i</code> indique la clé privée.</td></tr>
+            <tr><td><code>aws --version</code></td><td>Affiche la version du client AWS CLI.</td><td>Aucun paramètre obligatoire.</td></tr>
+            <tr><td><code>aws sts get-caller-identity</code></td><td>Identifie le principal IAM utilisé.</td><td>Permet de détecter une mauvaise identité.</td></tr>
+            <tr><td><code>aws configure set region us-east-1</code></td><td>Définit la région par défaut.</td><td><code>region</code> évite de répéter <code>--region</code>.</td></tr>
+            <tr><td><code>aws ec2 describe-instances</code></td><td>Interroge EC2.</td><td><code>--max-results</code> limite le nombre de résultats.</td></tr>
+            <tr><td><code>sudo systemctl status ssh</code></td><td>Vérifie le service SSH.</td><td><code>status</code> affiche l’état du service.</td></tr>
+            <tr><td><code>journalctl -u ssh</code></td><td>Consulte les journaux SSH.</td><td><code>-u</code> sélectionne l’unité systemd.</td></tr>
+        </tbody>
+    </table>
+    <h4>Exemple de sélection de région ponctuelle</h4>
+    <div class="codeblock"><code>aws ec2 describe-instances --region us-east-1</code></div>
+    <p>L’option <code>--region</code> surcharge la région configurée par défaut pour cette commande uniquement.</p>
+</section>
+
+<section id="tests" class="page mb-4">
+    <h2>7. Vérifications et tests</h2>
+    <h4>7.1 Tests système</h4>
+    <div class="codeblock"><code>systemctl is-system-running
+systemctl is-active ssh
+ss -lntp | grep ':22'
+df -h /
+free -h</code></div>
+    <h4>7.2 Test réseau</h4>
+    <div class="codeblock"><code>ip route
+getent hosts aws.amazon.com
+curl -I https://aws.amazon.com</code></div>
+    <h4>7.3 Test AWS CLI</h4>
+    <div class="codeblock"><code>aws --version
+aws sts get-caller-identity
+aws ec2 describe-regions --query 'Regions[0:3].[RegionName,OptInStatus]' --output table</code></div>
+    <div class="explanation"><strong>Résultat attendu :</strong> la version d’AWS CLI est affichée, STS retourne l’identité IAM effective et l’appel EC2 renvoie des données sans erreur d’authentification ou d’autorisation.</div>
+    <h4>7.4 Critères de validation</h4>
+    <ul>
+        <li>Connexion SSH fonctionnelle.</li>
+        <li>Service SSH actif.</li>
+        <li>Résolution DNS opérationnelle.</li>
+        <li>Accès HTTPS sortant disponible lorsque requis.</li>
+        <li>AWS CLI installé et exécutable.</li>
+        <li><code>aws sts get-caller-identity</code> retourne le principal attendu.</li>
+        <li>Les appels AWS autorisés par la politique IAM aboutissent.</li>
+    </ul>
+</section>
+
+<section id="depannage" class="page mb-4">
+    <h2>8. Dépannage</h2>
+    <table class="table table-bordered table-sm">
+        <thead><tr><th>Problème</th><th>Diagnostic</th><th>Correction</th></tr></thead>
+        <tbody>
+            <tr><td>SSH timeout</td><td>Vérifier IP, route, subnet et Security Group.</td><td>Autoriser TCP/22 uniquement depuis l’IP d’administration et vérifier l’adresse utilisée.</td></tr>
+            <tr><td>Permission denied (publickey)</td><td>Vérifier utilisateur, clé et permissions.</td><td>Utiliser <code>ubuntu</code>, la bonne clé et <code>chmod 400</code>.</td></tr>
+            <tr><td><code>aws: command not found</code></td><td><code>command -v aws</code></td><td>Vérifier l’installation et le PATH.</td></tr>
+            <tr><td>AccessDeniedException</td><td><code>aws sts get-caller-identity</code> puis politique IAM.</td><td>Ajouter uniquement l’autorisation nécessaire au rôle IAM.</td></tr>
+            <tr><td>Could not resolve host</td><td><code>getent hosts aws.amazon.com</code></td><td>Contrôler DNS, route par défaut et configuration VPC.</td></tr>
+            <tr><td>Pas d’accès Internet sortant</td><td><code>ip route</code> et test HTTPS.</td><td>Vérifier route table, Internet Gateway/NAT selon le type de subnet.</td></tr>
+            <tr><td>Disque plein</td><td><code>df -h</code> et <code>du -sh</code>.</td><td>Nettoyer les données inutiles ou augmenter le volume EBS.</td></tr>
+        </tbody>
+    </table>
+    <h4>Journaux utiles</h4>
+    <div class="codeblock"><code>sudo journalctl -u ssh --no-pager -n 100
+sudo systemctl status ssh
+sudo dmesg | tail -n 50</code></div>
+</section>
+
+<section id="securite" class="page mb-4">
+    <h2>9. Sécurité et bonnes pratiques</h2>
+    <ul>
+        <li>Activer MFA sur les identités humaines AWS.</li>
+        <li>Appliquer le principe du moindre privilège avec IAM.</li>
+        <li>Préférer les rôles IAM et les identifiants temporaires sur EC2.</li>
+        <li>Ne jamais publier de clés AWS ou de clés SSH privées dans Git.</li>
+        <li>Limiter le port SSH 22 à une adresse ou un réseau d’administration connu.</li>
+        <li>Utiliser AWS Systems Manager Session Manager lorsque l’architecture permet d’éviter l’exposition SSH.</li>
+        <li>Maintenir Ubuntu et les logiciels à jour.</li>
+        <li>Chiffrer les volumes EBS et contrôler leur cycle de vie.</li>
+        <li>Superviser l’instance avec CloudWatch et conserver les journaux pertinents.</li>
+        <li>Arrêter ou supprimer les ressources de TP inutilisées afin d’éviter les coûts.</li>
+    </ul>
+    <div class="note"><strong>Architecture sécurisée :</strong> pour un environnement de production, une instance privée sans IP publique, administrée par Systems Manager et placée derrière une architecture réseau contrôlée, est généralement préférable à une exposition directe de SSH sur Internet.</div>
+</section>
+
+<section id="checklist" class="page mb-4">
+    <h2>10. Checklist</h2>
+    <div class="alert alert-light border">
+        <h5>Validation du TP</h5>
+        <ul class="list-unstyled">
+            <li>☐ Compte AWS et permissions vérifiés</li>
+            <li>☐ AMI Ubuntu Server LTS sélectionnée</li>
+            <li>☐ Instance EC2 créée et démarrée</li>
+            <li>☐ Key Pair protégée</li>
+            <li>☐ Security Group configuré avec le moindre privilège</li>
+            <li>☐ Connexion SSH fonctionnelle</li>
+            <li>☐ Système Ubuntu mis à jour</li>
+            <li>☐ Architecture CPU vérifiée</li>
+            <li>☐ AWS CLI v2 installée</li>
+            <li>☐ Région AWS configurée</li>
+            <li>☐ Rôle IAM d’instance configuré lorsque nécessaire</li>
+            <li>☐ <code>aws sts get-caller-identity</code> validé</li>
+            <li>☐ Appel EC2 testé</li>
+            <li>☐ Tests DNS/HTTPS réalisés</li>
+            <li>☐ Procédure de dépannage comprise</li>
+            <li>☐ Ressources AWS inutilisées arrêtées ou supprimées</li>
+        </ul>
+    </div>
+</section>
+
+<section id="conclusion" class="page mb-4">
+    <h2>11. Conclusion</h2>
+    <p>Ce travail pratique a permis de mettre en œuvre une chaîne complète allant du lancement d’un serveur Ubuntu sur Amazon EC2 jusqu’à son administration avec AWS CLI. La démarche a couvert les dimensions système, réseau, identité et automatisation nécessaires à l’exploitation d’une instance cloud.</p>
+    <p>La maîtrise de cette architecture constitue une base importante pour les travaux DevOps suivants : déploiement Web, intégration continue, automatisation avec des scripts, infrastructure as code et supervision.</p>
+    <p>Le point essentiel retenu est la séparation des responsabilités : <strong>EC2</strong> fournit le calcul, <strong>VPC et Security Groups</strong> encadrent le réseau, <strong>IAM</strong> contrôle les autorisations et <strong>AWS CLI</strong> fournit l’interface d’administration. Une configuration professionnelle doit privilégier les identités temporaires, le moindre privilège et une surface réseau minimale.</p>
+    <div class="text-center mt-5 small-muted"><p>© 2025 — Rapport AWS Ubuntu EC2 & AWS CLI — Ibrahima Khalilou Thiam</p></div>
+</section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
