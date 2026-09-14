@@ -1,296 +1,51 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport AWS VPC — Réseau privé virtuel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport AWS VPC — Réseau privé virtuel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
-<header id="page-de-garde" class="page text-center">
-    <div class="mb-5">
-        <h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3>
-        <div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div>
-        <p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p>
-        <p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p>
-        <img src="../../assets/images/udb.jpeg" alt="Université UDB" class="rounded">
-        <div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3">
-            <h1 class="display-5 fw-bold text-light">Rapport AWS VPC — Réseau privé virtuel</h1>
-        </div>
-    </div>
-    <div class="mb-4 text-start ms-5">
-        <p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p>
-        <p class="mb-2">Master 2 Génie Logiciel UDB</p>
-        <p class="small-muted">Matricule 003</p>
-    </div>
-    <p class="text-end me-5">À <strong>M. Massamba LO</strong></p>
-    <p class="small-muted mt-auto">Année académique 2025</p>
-</header>
-
+<header id="page-de-garde" class="page text-center"><div class="mb-5"><h3 class="fw-bold text-dark mt-5 mb-3">République du Sénégal</h3><div class="mt-auto mb-5"><img src="../../assets/images/senegal-flag.png" alt="Drapeau du Sénégal" class="rounded shadow"></div><p class="lead mt-3 text-uppercase">Ministère de l'Enseignement Supérieur et de la Recherche</p><p class="lead mt-2 text-uppercase">Direction Générale de l'Enseignement Supérieur</p><img src="../../assets/images/udb.jpeg" alt="Université UDB" class="rounded"><div class="card bg-secondary bg-gradient border-0 rounded-5 shadow mx-5 py-3"><h1 class="display-5 fw-bold text-light">Rapport AWS VPC — Réseau privé virtuel</h1></div></div><div class="mb-4 text-start ms-5"><p class="mb-2">Présenté par : <strong>Ibrahima Khalilou Thiam</strong></p><p class="mb-2">Master 2 Génie Logiciel UDB</p><p class="small-muted">Matricule 003</p></div><p class="text-end me-5">À <strong>M. Massamba LO</strong></p><p class="small-muted mt-auto">Année académique 2025</p></header>
 <div class="container">
-<section class="page mb-4">
-<h2>Sommaire</h2>
-<ol>
-<li><a href="#objectifs">Objectifs et contexte</a></li>
-<li><a href="#prerequis">Prérequis</a></li>
-<li><a href="#architecture">Concepts et architecture</a></li>
-<li><a href="#installation">Installation et configuration</a></li>
-<li><a href="#realisation">Réalisation pratique</a></li>
-<li><a href="#commandes">Commandes et explications</a></li>
-<li><a href="#tests">Vérifications et tests</a></li>
-<li><a href="#depannage">Dépannage</a></li>
-<li><a href="#securite">Sécurité et bonnes pratiques</a></li>
-<li><a href="#checklist">Checklist</a></li>
-<li><a href="#conclusion">Conclusion</a></li>
-</ol>
-</section>
-
-<section id="objectifs" class="page mb-4">
-<h2>1. Objectifs et contexte</h2>
-<p>Ce travail pratique présente la conception et la mise en œuvre d'un <strong>Amazon Virtual Private Cloud (VPC)</strong>. L'objectif est de construire une architecture réseau maîtrisée permettant de séparer les ressources publiques, privées et éventuellement isolées.</p>
-<p>À l'issue de la réalisation, l'étudiant doit être capable de :</p>
-<ul>
-<li>concevoir un espace d'adressage IPv4 en notation CIDR ;</li>
-<li>créer un VPC et des sous-réseaux répartis sur plusieurs Availability Zones ;</li>
-<li>configurer une Internet Gateway et des tables de routage ;</li>
-<li>comprendre et mettre en œuvre un NAT Gateway pour les sorties Internet des ressources privées ;</li>
-<li>différencier Security Groups et Network ACLs ;</li>
-<li>tester la connectivité et diagnostiquer un problème de routage ou de filtrage.</li>
-</ul>
-<div class="explanation"><strong>Résultat attendu :</strong> une topologie VPC comprenant des sous-réseaux publics et privés, avec des routes explicites et des contrôles réseau adaptés.</div>
-</section>
-
-<section id="prerequis" class="page mb-4">
-<h2>2. Prérequis</h2>
-<ul>
-<li>Compte AWS actif et région choisie.</li>
-<li>AWS CLI v2 installée et configurée, ou accès à AWS CloudShell.</li>
-<li>Connaissances de base en IPv4, CIDR, routage et pare-feu.</li>
-<li>Autorisations IAM permettant de créer et gérer les ressources VPC nécessaires.</li>
-<li>Une paire de clés EC2 si une instance de test doit être administrée en SSH.</li>
-</ul>
-<h4>Vérification de l'identité AWS</h4>
-<div class="codeblock"><code>aws sts get-caller-identity
-aws configure get region</code></div>
-<div class="note"><strong>Important :</strong> ne placez jamais des clés d'accès AWS, des secrets ou des fichiers <code>.pem</code> dans le dépôt Git.</div>
-</section>
-
-<section id="architecture" class="page mb-4">
-<h2>3. Concepts et architecture</h2>
-<table class="table table-bordered table-sm">
-<thead class="table-light"><tr><th>Composant</th><th>Rôle</th></tr></thead>
-<tbody>
-<tr><td>VPC</td><td>Réseau virtuel isolé dans une région AWS, défini notamment par un bloc CIDR.</td></tr>
-<tr><td>Subnet</td><td>Subdivision du VPC associée à une Availability Zone.</td></tr>
-<tr><td>Internet Gateway</td><td>Permet la connectivité Internet des ressources disposant d'un chemin de routage et d'une adresse publique.</td></tr>
-<tr><td>NAT Gateway</td><td>Permet aux ressources privées d'initier des connexions IPv4 vers l'extérieur sans recevoir de connexions Internet initiées vers elles.</td></tr>
-<tr><td>Route Table</td><td>Détermine la cible vers laquelle le trafic correspondant à une destination doit être envoyé.</td></tr>
-<tr><td>Security Group</td><td>Pare-feu stateful associé aux interfaces réseau des ressources.</td></tr>
-<tr><td>Network ACL</td><td>Filtrage stateless appliqué au niveau du sous-réseau.</td></tr>
-<tr><td>VPC Flow Logs</td><td>Journalisation des flux réseau pour l'analyse et le diagnostic.</td></tr>
-</tbody>
-</table>
-<h4>Topologie de référence</h4>
-<div class="codeblock"><code>                         Internet
-                            |
-                     Internet Gateway
-                            |
-             +--------------+--------------+
-             |                             |
-       Public Subnet A               Public Subnet B
-             |                             |
-        ALB / NAT GW                  ALB / NAT GW
-             |                             |
-       Private Subnet A             Private Subnet B
-             |                             |
-       Application tier             Application tier
-             |                             |
-       Data tier / DB              Data tier / DB
+<section class="page mb-4"><h2>Sommaire</h2><ol><li><a href="#objectifs">Objectifs et contexte</a></li><li><a href="#prerequis">Prérequis</a></li><li><a href="#architecture">Concepts et architecture</a></li><li><a href="#installation">Installation et configuration</a></li><li><a href="#realisation">Réalisation pratique</a></li><li><a href="#commandes">Commandes et explications</a></li><li><a href="#tests">Vérifications et tests</a></li><li><a href="#depannage">Dépannage</a></li><li><a href="#securite">Sécurité et bonnes pratiques</a></li><li><a href="#checklist">Checklist</a></li><li><a href="#conclusion">Conclusion</a></li></ol></section>
+<section id="objectifs" class="page mb-4"><h2>1. Objectifs et contexte</h2><p>Ce travail pratique présente la conception et la mise en œuvre d'un <strong>Amazon Virtual Private Cloud (VPC)</strong>. L'objectif est de construire une architecture réseau maîtrisée permettant de séparer les ressources publiques, privées et éventuellement isolées.</p><ul><li>concevoir un espace d'adressage IPv4 en notation CIDR ;</li><li>créer un VPC et des sous-réseaux répartis sur plusieurs Availability Zones ;</li><li>configurer une Internet Gateway et des tables de routage ;</li><li>comprendre et mettre en œuvre un NAT Gateway pour les sorties Internet des ressources privées ;</li><li>différencier Security Groups et Network ACLs ;</li><li>tester la connectivité et diagnostiquer un problème de routage ou de filtrage.</li></ul><div class="explanation"><strong>Résultat attendu :</strong> une topologie VPC comprenant des sous-réseaux publics et privés, avec des routes explicites et des contrôles réseau adaptés.</div></section>
+<section id="prerequis" class="page mb-4"><h2>2. Prérequis</h2><ul><li>Compte AWS actif et région choisie.</li><li>AWS CLI v2 installée et configurée, ou accès à AWS CloudShell.</li><li>Connaissances de base en IPv4, CIDR, routage et pare-feu.</li><li>Autorisations IAM permettant de créer et gérer les ressources VPC nécessaires.</li><li>Une paire de clés EC2 si une instance de test doit être administrée en SSH.</li></ul><h4>Vérification</h4><div class="codeblock"><code>aws sts get-caller-identity
+aws configure get region</code></div><div class="note"><strong>Important :</strong> ne placez jamais des clés d'accès AWS, des secrets ou des fichiers <code>.pem</code> dans le dépôt Git.</div></section>
+<section id="architecture" class="page mb-4"><h2>3. Concepts et architecture</h2><table class="table table-bordered table-sm"><thead class="table-light"><tr><th>Composant</th><th>Rôle</th></tr></thead><tbody><tr><td>VPC</td><td>Réseau virtuel isolé dans une région AWS, défini notamment par un bloc CIDR.</td></tr><tr><td>Subnet</td><td>Subdivision du VPC associée à une Availability Zone.</td></tr><tr><td>Internet Gateway</td><td>Permet la connectivité Internet des ressources disposant d'un chemin de routage et d'une adresse publique.</td></tr><tr><td>NAT Gateway</td><td>Permet aux ressources privées d'initier des connexions IPv4 vers l'extérieur.</td></tr><tr><td>Route Table</td><td>Détermine la cible du trafic selon sa destination.</td></tr><tr><td>Security Group</td><td>Pare-feu stateful associé aux interfaces réseau.</td></tr><tr><td>Network ACL</td><td>Filtrage stateless au niveau du sous-réseau.</td></tr></tbody></table><h4>Topologie</h4><img class="img-default" src="../../assets/images/vpc-diagram.svg" alt="Architecture VPC avec sous-réseaux publics et privés"><div class="codeblock"><code>Internet → Internet Gateway → Public Subnet → NAT Gateway
+                                      ↓
+                                Private Subnet → Application
+                                      ↓
+                                  Data tier
 
 VPC : 10.0.0.0/16
 Public A : 10.0.1.0/24     Public B : 10.0.2.0/24
-Private A: 10.0.11.0/24    Private B: 10.0.12.0/24</code></div>
-<p>Un subnet est dit <strong>public</strong> lorsqu'il possède une route vers une Internet Gateway. Une ressource IPv4 doit également disposer d'une adresse IPv4 publique ou Elastic IP pour communiquer directement avec Internet. citeturn0search3turn0search7</p>
-</section>
-
-<section id="installation" class="page mb-4">
-<h2>4. Installation et configuration</h2>
-<h4>4.1 Création du VPC</h4>
-<div class="codeblock"><code>aws ec2 create-vpc \
+Private A: 10.0.11.0/24    Private B: 10.0.12.0/24</code></div></section>
+<section id="installation" class="page mb-4"><h2>4. Installation et configuration</h2><h4>4.1 Création du VPC</h4><div class="codeblock"><code>aws ec2 create-vpc \
   --cidr-block 10.0.0.0/16 \
-  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=master2-vpc}]'</code></div>
-<p>Conserver l'identifiant retourné, par exemple <code>vpc-xxxxxxxx</code>. Le bloc <code>/16</code> offre 65 536 adresses IPv4 théoriques ; AWS réserve toutefois certaines adresses dans chaque subnet.</p>
-<h4>4.2 Création des sous-réseaux</h4>
-<div class="codeblock"><code>aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.1.0/24 --availability-zone &lt;AZ-A&gt; --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=public-a}]'
-aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.2.0/24 --availability-zone &lt;AZ-B&gt; --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=public-b}]'
-aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.11.0/24 --availability-zone &lt;AZ-A&gt; --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=private-a}]'
-aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.12.0/24 --availability-zone &lt;AZ-B&gt; --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=private-b}]'</code></div>
-<img class="img-default" src="../../assets/images/vpc-diagram.png" alt="Architecture VPC avec sous-réseaux publics et privés">
-<h4>4.3 Internet Gateway</h4>
-<div class="codeblock"><code>aws ec2 create-internet-gateway \
-  --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=master2-igw}]'
-
-aws ec2 attach-internet-gateway \
-  --vpc-id vpc-xxxxxxxx \
-  --internet-gateway-id igw-xxxxxxxx</code></div>
-<h4>4.4 Routage public</h4>
-<div class="codeblock"><code>aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
+  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=master2-vpc}]'</code></div><h4>4.2 Sous-réseaux</h4><div class="codeblock"><code>aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.1.0/24 --availability-zone &lt;AZ-A&gt;
+aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.2.0/24 --availability-zone &lt;AZ-B&gt;
+aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.11.0/24 --availability-zone &lt;AZ-A&gt;
+aws ec2 create-subnet --vpc-id vpc-xxxxxxxx --cidr-block 10.0.12.0/24 --availability-zone &lt;AZ-B&gt;</code></div><h4>4.3 Internet Gateway</h4><div class="codeblock"><code>aws ec2 create-internet-gateway
+aws ec2 attach-internet-gateway --vpc-id vpc-xxxxxxxx --internet-gateway-id igw-xxxxxxxx</code></div><h4>4.4 Routage public</h4><div class="codeblock"><code>aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
 aws ec2 create-route --route-table-id rtb-public --destination-cidr-block 0.0.0.0/0 --gateway-id igw-xxxxxxxx
-aws ec2 associate-route-table --route-table-id rtb-public --subnet-id subnet-public-a</code></div>
-<p>La route <code>0.0.0.0/0 → igw-xxxxxxxx</code> fournit le chemin IPv4 par défaut vers Internet. citeturn0search10</p>
-</section>
-
-<section id="realisation" class="page mb-4">
-<h2>5. Réalisation pratique</h2>
-<h4>5.1 Mise en place du NAT Gateway</h4>
-<div class="codeblock"><code># Allouer une Elastic IP
-aws ec2 allocate-address --domain vpc
-
-# Créer le NAT Gateway dans un subnet public
-aws ec2 create-nat-gateway \
-  --subnet-id subnet-public-a \
-  --allocation-id eipalloc-xxxxxxxx \
-  --tag-specifications 'ResourceType=nat-gateway,Tags=[{Key=Name,Value=master2-nat-a}]'
-
-# Vérifier son état
-aws ec2 describe-nat-gateways --nat-gateway-ids nat-xxxxxxxx \
-  --query 'NatGateways[0].[NatGatewayId,State,ConnectivityType]' \
-  --output table</code></div>
-<p>Le NAT Gateway public doit être placé dans un subnet public disposant lui-même d'une route vers l'Internet Gateway. Le subnet privé doit ensuite utiliser le NAT Gateway comme cible de sa route par défaut. citeturn0search5turn0search4</p>
-<h4>5.2 Routage privé</h4>
-<div class="codeblock"><code>aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
-aws ec2 create-route \
-  --route-table-id rtb-private \
-  --destination-cidr-block 0.0.0.0/0 \
-  --nat-gateway-id nat-xxxxxxxx
-aws ec2 associate-route-table \
-  --route-table-id rtb-private \
-  --subnet-id subnet-private-a</code></div>
-<h4>5.3 Association des ressources</h4>
-<p>Associer explicitement chaque subnet à la route table correspondant à son rôle. Une route table peut être associée à plusieurs subnets, mais un subnet ne possède qu'une association de route table effective à un instant donné. citeturn0search7</p>
-<img class="img-default" src="../../assets/images/route-tables.png" alt="Tables de routage du VPC">
-</section>
-
-<section id="commandes" class="page mb-4">
-<h2>6. Commandes et explications</h2>
-<table class="table table-bordered table-sm">
-<thead class="table-light"><tr><th>Commande</th><th>Fonction</th></tr></thead>
-<tbody>
-<tr><td><code>aws ec2 create-vpc</code></td><td>Crée le réseau virtuel et son bloc CIDR.</td></tr>
-<tr><td><code>aws ec2 create-subnet</code></td><td>Crée un sous-réseau dans une Availability Zone.</td></tr>
-<tr><td><code>aws ec2 create-internet-gateway</code></td><td>Crée une passerelle Internet.</td></tr>
-<tr><td><code>aws ec2 attach-internet-gateway</code></td><td>Attache l'IGW au VPC.</td></tr>
-<tr><td><code>aws ec2 create-route-table</code></td><td>Crée une table de routage personnalisée.</td></tr>
-<tr><td><code>aws ec2 create-route</code></td><td>Ajoute une destination et une cible de routage.</td></tr>
-<tr><td><code>aws ec2 associate-route-table</code></td><td>Associe une route table à un subnet.</td></tr>
-<tr><td><code>aws ec2 create-nat-gateway</code></td><td>Crée un NAT Gateway.</td></tr>
-<tr><td><code>aws ec2 describe-route-tables</code></td><td>Inspecte les routes et associations.</td></tr>
-<tr><td><code>aws ec2 describe-network-interfaces</code></td><td>Inspecte les interfaces réseau et leurs Security Groups.</td></tr>
-</tbody>
-</table>
-<h4>Commandes de diagnostic</h4>
-<div class="codeblock"><code>aws ec2 describe-vpcs --vpc-ids vpc-xxxxxxxx
+aws ec2 associate-route-table --route-table-id rtb-public --subnet-id subnet-public-a</code></div></section>
+<section id="realisation" class="page mb-4"><h2>5. Réalisation pratique</h2><h4>5.1 NAT Gateway</h4><div class="codeblock"><code>aws ec2 allocate-address --domain vpc
+aws ec2 create-nat-gateway --subnet-id subnet-public-a --allocation-id eipalloc-xxxxxxxx
+aws ec2 describe-nat-gateways --nat-gateway-ids nat-xxxxxxxx --output table</code></div><p>Le NAT Gateway doit être placé dans un subnet public. Le subnet privé utilise ensuite le NAT comme cible de sa route par défaut.</p><h4>5.2 Routage privé</h4><div class="codeblock"><code>aws ec2 create-route-table --vpc-id vpc-xxxxxxxx
+aws ec2 create-route --route-table-id rtb-private --destination-cidr-block 0.0.0.0/0 --nat-gateway-id nat-xxxxxxxx
+aws ec2 associate-route-table --route-table-id rtb-private --subnet-id subnet-private-a</code></div><img class="img-default" src="../../assets/images/route-tables.svg" alt="Tables de routage du VPC"></section>
+<section id="commandes" class="page mb-4"><h2>6. Commandes et explications</h2><table class="table table-bordered table-sm"><thead class="table-light"><tr><th>Commande</th><th>Fonction</th></tr></thead><tbody><tr><td><code>aws ec2 create-vpc</code></td><td>Crée le VPC et son CIDR.</td></tr><tr><td><code>aws ec2 create-subnet</code></td><td>Crée un sous-réseau.</td></tr><tr><td><code>aws ec2 create-internet-gateway</code></td><td>Crée une passerelle Internet.</td></tr><tr><td><code>aws ec2 create-route-table</code></td><td>Crée une table de routage.</td></tr><tr><td><code>aws ec2 create-route</code></td><td>Ajoute une route.</td></tr><tr><td><code>aws ec2 associate-route-table</code></td><td>Associe une route table à un subnet.</td></tr><tr><td><code>aws ec2 create-nat-gateway</code></td><td>Crée un NAT Gateway.</td></tr><tr><td><code>aws ec2 describe-route-tables</code></td><td>Inspecte les routes.</td></tr></tbody></table><div class="codeblock"><code>aws ec2 describe-vpcs --vpc-ids vpc-xxxxxxxx
 aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-xxxxxxxx"
 aws ec2 describe-route-tables --filters "Name=vpc-id,Values=vpc-xxxxxxxx"
-aws ec2 describe-internet-gateways --filters "Name=attachment.vpc-id,Values=vpc-xxxxxxxx"
-aws ec2 describe-nat-gateways --filter "Name=vpc-id,Values=vpc-xxxxxxxx"</code></div>
-</section>
-
-<section id="tests" class="page mb-4">
-<h2>7. Vérifications et tests</h2>
-<h4>7.1 Vérifier la topologie</h4>
-<div class="codeblock"><code>aws ec2 describe-vpcs --vpc-ids vpc-xxxxxxxx --output table
+aws ec2 describe-nat-gateways --filter "Name=vpc-id,Values=vpc-xxxxxxxx"</code></div></section>
+<section id="tests" class="page mb-4"><h2>7. Vérifications et tests</h2><h4>7.1 Topologie</h4><div class="codeblock"><code>aws ec2 describe-vpcs --vpc-ids vpc-xxxxxxxx --output table
 aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-xxxxxxxx" --output table
-aws ec2 describe-route-tables --filters "Name=vpc-id,Values=vpc-xxxxxxxx" --output table</code></div>
-<h4>7.2 Vérifier l'Internet Gateway</h4>
-<div class="codeblock"><code>aws ec2 describe-internet-gateways \
-  --filters "Name=attachment.vpc-id,Values=vpc-xxxxxxxx" \
-  --query 'InternetGateways[].InternetGatewayId' \
-  --output text</code></div>
-<h4>7.3 Vérifier le NAT Gateway</h4>
-<div class="codeblock"><code>aws ec2 describe-nat-gateways \
-  --filter "Name=vpc-id,Values=vpc-xxxxxxxx" \
-  --query 'NatGateways[].{Id:NatGatewayId,State:State,Subnet:SubnetId}' \
-  --output table</code></div>
-<h4>7.4 Test depuis une instance</h4>
-<div class="codeblock"><code># Dans une instance privée disposant d'un accès NAT
-curl -I https://aws.amazon.com
-
-# Vérifier la route locale
-ip route</code></div>
-<div class="explanation"><strong>Critères de réussite :</strong> les ressources publiques suivent la route vers l'IGW ; les ressources privées utilisent la route vers le NAT pour les connexions sortantes ; aucune route Internet directe ne doit exister dans le subnet privé.</div>
-</section>
-
-<section id="depannage" class="page mb-4">
-<h2>8. Dépannage</h2>
-<table class="table table-bordered table-sm">
-<thead class="table-light"><tr><th>Symptôme</th><th>Diagnostic</th><th>Correction</th></tr></thead>
-<tbody>
-<tr><td>Instance publique sans Internet</td><td>Vérifier route table, IGW et adresse publique.</td><td>Ajouter la route <code>0.0.0.0/0 → IGW</code> et vérifier l'IPv4 publique.</td></tr>
-<tr><td>Instance privée sans Internet</td><td>Vérifier état du NAT, routes public/privé et NACL.</td><td>NAT dans un subnet public, route privée vers NAT, route NAT vers IGW.</td></tr>
-<tr><td>SSH impossible</td><td>Vérifier SG, NACL, route et adresse publique.</td><td>Autoriser TCP/22 depuis l'IP d'administration et vérifier le chemin réseau.</td></tr>
-<tr><td>HTTP bloqué</td><td>Vérifier SG/NACL et service Web.</td><td>Autoriser TCP/80 ou TCP/443 selon le service.</td></tr>
-<tr><td>NAT en état <code>failed</code></td><td><code>describe-nat-gateways</code> et événements de création.</td><td>Vérifier subnet public, Elastic IP et routage.</td></tr>
-<tr><td>Trafic inattendu bloqué</td><td>Comparer Security Group, NACL et route table.</td><td>Corriger la règle la plus restrictive sans ouvrir inutilement le réseau.</td></tr>
-</tbody>
-</table>
-<div class="note"><strong>Principe de diagnostic :</strong> vérifier successivement <em>route → gateway/NAT → NACL → Security Group → système/service</em>. AWS recommande également les VPC Flow Logs pour analyser certains problèmes de trafic. citeturn0search4turn0search8</div>
-</section>
-
-<section id="securite" class="page mb-4">
-<h2>9. Sécurité et bonnes pratiques</h2>
-<ul>
-<li><strong>Segmentation :</strong> placer les ressources qui ne doivent pas être accessibles directement depuis Internet dans des subnets privés.</li>
-<li><strong>Security Groups :</strong> les utiliser comme mécanisme principal de filtrage au niveau des ressources.</li>
-<li><strong>NACL :</strong> les utiliser comme couche complémentaire de défense au niveau des subnets.</li>
-<li><strong>SSH :</strong> limiter TCP/22 à des sources d'administration connues ou privilégier AWS Systems Manager lorsque l'architecture le permet.</li>
-<li><strong>Routage :</strong> conserver uniquement les routes nécessaires au fonctionnement de l'application.</li>
-<li><strong>Multi-AZ :</strong> répartir les composants critiques sur plusieurs Availability Zones lorsque la disponibilité l'exige.</li>
-<li><strong>Flow Logs :</strong> activer VPC Flow Logs pour améliorer l'observabilité et le diagnostic.</li>
-<li><strong>NAT :</strong> pour une architecture de production multi-AZ, dimensionner et répartir les NAT Gateways selon les exigences de disponibilité et de coût.</li>
-<li><strong>IAM :</strong> appliquer le moindre privilège aux utilisateurs, rôles et automatisations qui administrent le VPC.</li>
-<li><strong>Coûts :</strong> supprimer les NAT Gateways, Elastic IP et autres ressources de TP lorsqu'elles ne sont plus nécessaires.</li>
-</ul>
-<div class="danger"><strong>Attention :</strong> un subnet privé n'est pas synonyme de sécurité absolue. Les routes, Security Groups, NACLs, IAM et contrôles de l'hôte doivent être cohérents. citeturn0search8</div>
-</section>
-
-<section id="checklist" class="page mb-4">
-<h2>10. Checklist</h2>
-<ul>
-<li>[ ] CIDR du VPC défini et non chevauché avec les réseaux nécessaires</li>
-<li>[ ] VPC créé</li>
-<li>[ ] Subnets publics répartis sur plusieurs AZ si nécessaire</li>
-<li>[ ] Subnets privés créés</li>
-<li>[ ] Internet Gateway attachée au VPC</li>
-<li>[ ] Route table publique associée aux subnets publics</li>
-<li>[ ] Route <code>0.0.0.0/0 → IGW</code> validée</li>
-<li>[ ] NAT Gateway créé dans un subnet public si nécessaire</li>
-<li>[ ] Route table privée associée aux subnets privés</li>
-<li>[ ] Route <code>0.0.0.0/0 → NAT Gateway</code> validée</li>
-<li>[ ] Security Groups configurés selon le moindre privilège</li>
-<li>[ ] NACLs vérifiées</li>
-<li>[ ] Tests de connectivité réalisés</li>
-<li>[ ] VPC Flow Logs envisagés ou activés selon le besoin</li>
-<li>[ ] Ressources de test supprimées après le TP pour maîtriser les coûts</li>
-</ul>
-</section>
-
-<section id="conclusion" class="page mb-4">
-<h2>11. Conclusion</h2>
-<p>Ce travail pratique a permis de concevoir et de mettre en œuvre un VPC AWS structuré autour de sous-réseaux publics et privés, de tables de routage, d'une Internet Gateway et, lorsque nécessaire, d'un NAT Gateway.</p>
-<p>L'étude montre que la connectivité AWS ne dépend pas uniquement d'un pare-feu : elle résulte de l'interaction entre le plan d'adressage, les associations de subnets, les routes, les gateways, les Security Groups et les Network ACLs. Les VPC Flow Logs complètent cette architecture par une capacité d'observation des flux.</p>
-<p>Pour une architecture de production, cette base peut être complétée par un Application Load Balancer, des services privés, des VPC endpoints, une supervision centralisée, une connexion VPN ou Direct Connect et une automatisation Infrastructure as Code.</p>
-<h5>Ressources utiles</h5>
-<ul class="small-muted">
-<li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/" target="_blank">Documentation officielle AWS VPC</a></li>
-<li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html" target="_blank">Documentation AWS — Route Tables</a></li>
-<li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html" target="_blank">Documentation AWS — NAT Gateway</a></li>
-</ul>
-</section>
-
-<footer class="text-center small-muted mb-4"><p>© 2025 — Rapport AWS VPC — Ibrahima Khalilou Thiam</p></footer>
-</div>
+aws ec2 describe-route-tables --filters "Name=vpc-id,Values=vpc-xxxxxxxx" --output table</code></div><h4>7.2 Internet Gateway</h4><div class="codeblock"><code>aws ec2 describe-internet-gateways --filters "Name=attachment.vpc-id,Values=vpc-xxxxxxxx" --output table</code></div><h4>7.3 NAT</h4><div class="codeblock"><code>aws ec2 describe-nat-gateways --filter "Name=vpc-id,Values=vpc-xxxxxxxx" --query 'NatGateways[].State' --output text</code></div><h4>7.4 Connectivité</h4><p>Depuis une instance publique, tester Internet avec <code>curl -I https://aws.amazon.com</code>. Depuis une instance privée, vérifier que la sortie passe par le NAT et qu'aucune route directe vers l'Internet Gateway n'est associée au subnet privé.</p></section>
+<section id="depannage" class="page mb-4"><h2>8. Dépannage</h2><table class="table table-bordered table-sm"><thead class="table-light"><tr><th>Problème</th><th>Diagnostic</th><th>Action</th></tr></thead><tbody><tr><td>Pas d'Internet</td><td>Route table, IGW, IP publique.</td><td>Vérifier route <code>0.0.0.0/0</code> et l'IGW.</td></tr><tr><td>Subnet privé sans sortie</td><td>État NAT et route privée.</td><td>Vérifier NAT, EIP et route par défaut.</td></tr><tr><td>SSH impossible</td><td>SG, NACL, route, adresse publique.</td><td>Limiter puis corriger les règles réseau.</td></tr><tr><td>Route absente</td><td><code>describe-route-tables</code>.</td><td>Créer/associer la route table appropriée.</td></tr><tr><td>IP publique absente</td><td>Configuration du subnet/instance.</td><td>Associer une adresse publique ou utiliser une architecture adaptée.</td></tr></tbody></table></section>
+<section id="securite" class="page mb-4"><h2>9. Sécurité et bonnes pratiques</h2><ul><li>Utiliser des CIDR non chevauchants et une segmentation claire.</li><li>Ne pas exposer les subnets privés directement à Internet.</li><li>Limiter les Security Groups au strict nécessaire.</li><li>Comprendre que les Security Groups sont stateful et les NACLs stateless.</li><li>Utiliser VPC Flow Logs pour le diagnostic et l'audit lorsque nécessaire.</li><li>Protéger les ressources d'administration et limiter SSH/RDP.</li><li>Surveiller les coûts des NAT Gateway et arrêter les ressources inutiles après le TP.</li></ul><div class="danger"><strong>Attention :</strong> un subnet « public » n'est pas sécurisé par son seul nom. Le routage, l'adressage et les règles de filtrage déterminent réellement son exposition.</div></section>
+<section id="checklist" class="page mb-4"><h2>10. Checklist</h2><ul><li>[ ] VPC CIDR défini</li><li>[ ] Subnets publics et privés non chevauchants</li><li>[ ] Internet Gateway attachée</li><li>[ ] Route table publique configurée</li><li>[ ] NAT Gateway placé dans un subnet public si requis</li><li>[ ] Route privée vers le NAT configurée</li><li>[ ] Security Groups limités</li><li>[ ] NACLs compris et vérifiés</li><li>[ ] Tests de connectivité réalisés</li><li>[ ] Flow Logs envisagés pour l'audit</li><li>[ ] Ressources inutiles supprimées après le TP</li></ul></section>
+<section id="conclusion" class="page mb-4"><h2>11. Conclusion</h2><p>La mise en œuvre d'un VPC permet de construire une frontière réseau logique autour des workloads AWS. La séparation public/privé, les tables de routage, l'Internet Gateway et le NAT Gateway constituent les briques essentielles d'une architecture réseau cloud structurée.</p><p>Le TP met également en évidence que la sécurité réseau résulte de plusieurs contrôles complémentaires : routage, Security Groups, NACLs, IAM et journalisation. Cette approche prépare la conception d'architectures AWS plus robustes et évolutives.</p></section>
+<footer class="text-center small-muted mb-4"><p>© 2025 — Rapport AWS VPC — Ibrahima Khalilou Thiam</p></footer></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</body></html>
