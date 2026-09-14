@@ -100,7 +100,7 @@ Service AWS ──→ Role IAM ──→ Policy ──→ Ressource AWS</code></
 <li>Ne pas utiliser ses identifiants pour les tâches quotidiennes.</li>
 <li>Vérifier et supprimer les clés d'accès racine inutiles.</li>
 </ol>
-<img class="img-default" src="../../assets/images/mfa-root.png" alt="Configuration MFA du compte racine">
+<img class="img-default" src="../../assets/images/mfa-root.svg" alt="Configuration MFA du compte racine">
 <h4>4.2 Préparer l'administration</h4>
 <p>Pour un environnement professionnel, privilégier AWS IAM Identity Center ou une fédération d'identité pour les utilisateurs humains. Les rôles IAM sont privilégiés pour les workloads AWS.</p>
 <h4>4.3 Vérifier l'identité CLI</h4>
@@ -136,7 +136,7 @@ aws iam list-groups</code></div>
 aws iam add-user-to-group \
   --group-name Developers \
   --user-name dev-moussa</code></div>
-<img class="img-default" src="../../assets/images/iam-users.png" alt="Utilisateurs IAM dans la console AWS">
+<img class="img-default" src="../../assets/images/iam-users.svg" alt="Utilisateurs IAM dans la console AWS">
 <h4>5.4 Préférer un rôle pour EC2</h4>
 <p>Une instance EC2 doit recevoir un rôle IAM via un instance profile lorsqu'elle doit appeler AWS. Cela évite de placer une clé d'accès statique dans le serveur.</p>
 </section>
